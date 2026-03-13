@@ -96,6 +96,39 @@ assert(shared.CONCRETE_PRICES[400] === 2850, 'fc400 = 2850 baht/m3');
 assert(shared.STEEL_PRICES[4000] === 24, 'SD40 = 24 baht/kg');
 assert(shared.STEEL_PRICES[3000] === 28, 'SD30 = 28 baht/kg');
 
+// --- calculateKa / calculateKp ---
+console.log('\n[Ka/Kp] Earth pressure coefficients:');
+
+// phi=25: Ka = (1-sin25)/(1+sin25)
+// sin(25deg) = 0.42262
+// Ka = 0.57738 / 1.42262 = 0.40585
+// Kp = 1/Ka = 2.46404
+assertClose(shared.calculateKa(25), 0.4059, 0.001, 'Ka(25) = 0.4059');
+assertClose(shared.calculateKp(25), 2.4639, 0.001, 'Kp(25) = 2.4639');
+
+// phi=30: Ka = 0.3333, Kp = 3.0000
+assertClose(shared.calculateKa(30), 0.3333, 0.001, 'Ka(30) = 0.3333');
+assertClose(shared.calculateKp(30), 3.0000, 0.001, 'Kp(30) = 3.0000');
+
+// Ka * Kp should always = 1.0
+var Ka25 = shared.calculateKa(25);
+var Kp25 = shared.calculateKp(25);
+assertClose(Ka25 * Kp25, 1.0, 0.0001, 'Ka(25) * Kp(25) = 1.0');
+
+// --- calculatePa / calculatePp ---
+console.log('\n[Pa/Pp] Earth pressure forces:');
+
+// Default: gamma=1.8, phi=25, H=3.0, H1=0.9
+// Pa = 0.5 * 1.8 * 0.4059 * 3.0^2 = 0.5 * 1.8 * 0.4059 * 9 = 3.2876
+var Ka = shared.calculateKa(25);
+var Kp = shared.calculateKp(25);
+var Pa = shared.calculatePa(1.8, Ka, 3.0);
+var Pp = shared.calculatePp(1.8, Kp, 0.9);
+
+assertClose(Pa, 3.2876, 0.01, 'Pa(H=3.0) = 3.2876 ton/m');
+// Pp = 0.5 * 1.8 * 2.4639 * 0.81 = 1.7945
+assertClose(Pp, 1.7945, 0.01, 'Pp(H1=0.9) = 1.7945 ton/m');
+
 // --- Summary ---
 console.log('\n=============================');
 console.log('Total: ' + (passed + failed) + ' | PASS: ' + passed + ' | FAIL: ' + failed);

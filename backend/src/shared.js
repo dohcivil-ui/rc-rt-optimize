@@ -99,6 +99,39 @@ function roundTo(value, decimals) {
 }
 
 // =============================================
+// Earth Pressure Coefficients (Rankine)
+// =============================================
+// Ka = (1 - sin phi) / (1 + sin phi)
+// Kp = (1 + sin phi) / (1 - sin phi)
+// phi in degrees
+// =============================================
+
+function calculateKa(phi_deg) {
+  var phi_rad = phi_deg * Math.PI / 180;
+  return (1 - Math.sin(phi_rad)) / (1 + Math.sin(phi_rad));
+}
+
+function calculateKp(phi_deg) {
+  var phi_rad = phi_deg * Math.PI / 180;
+  return (1 + Math.sin(phi_rad)) / (1 - Math.sin(phi_rad));
+}
+
+// =============================================
+// Active & Passive Earth Pressure Forces
+// =============================================
+// Pa = 0.5 * gamma_soil * Ka * H^2    (ton/m)
+// Pp = 0.5 * gamma_soil * Kp * H1^2   (ton/m)
+// =============================================
+
+function calculatePa(gamma_soil, Ka, H) {
+  return 0.5 * gamma_soil * Ka * H * H;
+}
+
+function calculatePp(gamma_soil, Kp, H1) {
+  return 0.5 * gamma_soil * Kp * H1 * H1;
+}
+
+// =============================================
 // Steel weight: 0.00617 * db(mm)^2 kg/m
 // =============================================
 function steelUnitWeight(db_mm) {
@@ -113,5 +146,9 @@ module.exports = {
   STEEL_PRICES: STEEL_PRICES,
   initArrays: initArrays,
   roundTo: roundTo,
+  calculateKa: calculateKa,
+  calculateKp: calculateKp,
+  calculatePa: calculatePa,
+  calculatePp: calculatePp,
   steelUnitWeight: steelUnitWeight
 };
