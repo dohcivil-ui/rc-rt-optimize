@@ -132,6 +132,106 @@ function calculatePp(gamma_soil, Kp, H1) {
 }
 
 // =============================================
+// LHeel = Base - LToe - tb
+// =============================================
+
+function calculateLHeel(Base, LToe, tb) {
+  return Base - LToe - tb;
+}
+
+// =============================================
+// Weight Calculations (ported from modShared.bas SECTION 8)
+// =============================================
+// All weights in ton/m (per unit length of wall)
+// Each function returns { W: weight, x: moment arm from toe }
+// Global params: H, H1, gamma_soil, gamma_concrete
+// Design params: tt, tb, TBase, Base, LToe, LHeel
+// =============================================
+
+// W1: Soil on Toe
+// VB6: CalculateW1 — includes rectangular + triangular area
+// from stem taper above toe
+function calculateW1(d, H, H1, gamma_soil) {
+  var H_stem = H - d.TBase;
+  var H1_toe = H1 - d.TBase;
+  if (H1_toe < 0) H1_toe = 0;
+
+  if (H1_toe < 0.001) {
+    return { W: 0, x: d.LToe / 2 };
+  }
+
+  var base_triangle = 0;
+  if (H_stem > 0.001) {
+    base_triangle = (d.tb - d.tt) * H1_toe / H_stem;
+  }
+
+  var A_rect = d.LToe * H1_toe;
+  var A_tri = 0.5 * base_triangle * H1_toe;
+
+  return {
+    W: (A_rect + A_tri) * gamma_soil,
+    x: d.LToe / 2
+  };
+}
+
+// W2: Soil on Heel
+function calculateW2(d, H, gamma_soil) {
+  var H_wall = H - d.TBase;
+  return {
+    W: d.LHeel * H_wall * gamma_soil,
+    x: d.LToe + d.tb + d.LHeel / 2
+  };
+}
+
+// W3: Stem (Concrete) — trapezoid with centroid calculation
+function calculateW3(d, H, gamma_concrete) {
+  var H_stem = H - d.TBase;
+  var W = 0.5 * (d.tt + d.tb) * H_stem * gamma_concrete;
+
+  var A_rect = d.tt * H_stem;
+  var x_rect = d.tt / 2;
+  var A_tri = 0.5 * (d.tb - d.tt) * H_stem;
+  var x_tri = d.tt + (d.tb - d.tt) / 3;
+  var A_total = A_rect + A_tri;
+
+  var centroid_from_heel;
+  if (A_total > 0.001) {
+    centroid_from_heel = (A_rect * x_rect + A_tri * x_tri) / A_total;
+  } else {
+    centroid_from_heel = d.tb / 2;
+  }
+
+  return {
+    W: W,
+    x: (d.LToe + d.tb) - centroid_from_heel
+  };
+}
+
+// W4: Base Slab (Concrete)
+function calculateW4(d, gamma_concrete) {
+  return {
+    W: d.Base * d.TBase * gamma_concrete,
+    x: d.Base / 2
+  };
+}
+
+// WTotal: sum of W1+W2+W3+W4
+function calculateWTotal(d, H, H1, gamma_soil, gamma_concrete) {
+  var w1 = calculateW1(d, H, H1, gamma_soil);
+  var w2 = calculateW2(d, H, gamma_soil);
+  var w3 = calculateW3(d, H, gamma_concrete);
+  var w4 = calculateW4(d, gamma_concrete);
+
+  return {
+    W1: w1.W, x1: w1.x,
+    W2: w2.W, x2: w2.x,
+    W3: w3.W, x3: w3.x,
+    W4: w4.W, x4: w4.x,
+    WTotal: w1.W + w2.W + w3.W + w4.W
+  };
+}
+
+// =============================================
 // Steel weight: 0.00617 * db(mm)^2 kg/m
 // =============================================
 function steelUnitWeight(db_mm) {
@@ -150,5 +250,11 @@ module.exports = {
   calculateKp: calculateKp,
   calculatePa: calculatePa,
   calculatePp: calculatePp,
+  calculateLHeel: calculateLHeel,
+  calculateW1: calculateW1,
+  calculateW2: calculateW2,
+  calculateW3: calculateW3,
+  calculateW4: calculateW4,
+  calculateWTotal: calculateWTotal,
   steelUnitWeight: steelUnitWeight
 };
