@@ -129,6 +129,75 @@ assertClose(Pa, 3.2876, 0.01, 'Pa(H=3.0) = 3.2876 ton/m');
 // Pp = 0.5 * 1.8 * 2.4639 * 0.81 = 1.7945
 assertClose(Pp, 1.7945, 0.01, 'Pp(H1=0.9) = 1.7945 ton/m');
 
+// --- calculateLHeel ---
+console.log('\n[LHeel] Base - LToe - tb:');
+assertClose(shared.calculateLHeel(2.0, 0.4, 0.3), 1.3, 0.001, 'LHeel(2.0, 0.4, 0.3) = 1.3');
+assertClose(shared.calculateLHeel(1.5, 0.3, 0.2), 1.0, 0.001, 'LHeel(1.5, 0.3, 0.2) = 1.0');
+
+// --- W1-W4 + WTotal ---
+console.log('\n[W1-W4] Weight calculations (H=3, H1=0.9):');
+
+// Test design: use mid-range values for H=3m wall
+// tt=0.200, tb=0.300, TBase=0.350, Base=2.000, LToe=0.400
+// LHeel = 2.000 - 0.400 - 0.300 = 1.300
+var d = {
+  tt: 0.200,
+  tb: 0.300,
+  TBase: 0.350,
+  Base: 2.000,
+  LToe: 0.400,
+  LHeel: shared.calculateLHeel(2.000, 0.400, 0.300)
+};
+var H_test = 3.0;
+var H1_test = 0.9;
+var gs = 1.8;   // gamma_soil
+var gc = 2.4;   // gamma_concrete
+
+assertClose(d.LHeel, 1.3, 0.001, 'LHeel = 1.3');
+
+// W1: Soil on Toe
+// H_stem = 3.0 - 0.35 = 2.65
+// H1_toe = 0.9 - 0.35 = 0.55
+// base_triangle = (0.3 - 0.2) * 0.55 / 2.65 = 0.02075
+// A_rect = 0.4 * 0.55 = 0.22
+// A_tri = 0.5 * 0.02075 * 0.55 = 0.005706
+// W1 = (0.22 + 0.005706) * 1.8 = 0.40627
+var w1 = shared.calculateW1(d, H_test, H1_test, gs);
+assertClose(w1.W, 0.4063, 0.01, 'W1 = 0.4063 ton/m');
+assertClose(w1.x, 0.200, 0.001, 'x1 = LToe/2 = 0.200');
+
+// W2: Soil on Heel
+// H_wall = 3.0 - 0.35 = 2.65
+// W2 = 1.3 * 2.65 * 1.8 = 6.201
+var w2 = shared.calculateW2(d, H_test, gs);
+assertClose(w2.W, 6.201, 0.01, 'W2 = 6.201 ton/m');
+// x2 = 0.4 + 0.3 + 1.3/2 = 1.35
+assertClose(w2.x, 1.35, 0.001, 'x2 = 1.35');
+
+// W3: Stem (Concrete)
+// H_stem = 2.65
+// W3 = 0.5 * (0.2 + 0.3) * 2.65 * 2.4 = 1.59
+var w3 = shared.calculateW3(d, H_test, gc);
+assertClose(w3.W, 1.59, 0.01, 'W3 = 1.59 ton/m');
+// centroid: A_rect = 0.2*2.65=0.53, x_rect=0.1
+//           A_tri = 0.5*0.1*2.65=0.1325, x_tri=0.2+0.1/3=0.2333
+//           centroid = (0.53*0.1 + 0.1325*0.2333) / 0.6625 = 0.1267
+//           x3 = (0.4+0.3) - 0.1267 = 0.5733
+assertClose(w3.x, 0.5733, 0.01, 'x3 = 0.5733');
+
+// W4: Base Slab (Concrete)
+// W4 = 2.0 * 0.35 * 2.4 = 1.68
+var w4 = shared.calculateW4(d, gc);
+assertClose(w4.W, 1.68, 0.01, 'W4 = 1.68 ton/m');
+// x4 = 2.0/2 = 1.0
+assertClose(w4.x, 1.0, 0.001, 'x4 = 1.0');
+
+// WTotal
+var wt = shared.calculateWTotal(d, H_test, H1_test, gs, gc);
+var expectedTotal = w1.W + w2.W + w3.W + w4.W;
+assertClose(wt.WTotal, expectedTotal, 0.01, 'WTotal = sum of W1-W4');
+assertClose(wt.WTotal, 9.877, 0.05, 'WTotal ~ 9.877 ton/m');
+
 // --- Summary ---
 console.log('\n=============================');
 console.log('Total: ' + (passed + failed) + ' | PASS: ' + passed + ' | FAIL: ' + failed);
