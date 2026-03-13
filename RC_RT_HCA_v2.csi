@@ -1,0 +1,21 @@
+[History]
+1=#P0#=mb	#P1#=GetConcretePrice_BA	#P2#=Project1/modBA/GetConcretePrice_BA	#P3#=	#P4#=	#P5#=MembMethodPublic	#P6#=20260306110154	#P7#=0	#P8#=-6	.
+2=#P0#=mb	#P1#=InitializeCurrentDesign_BA	#P2#=Project1/modBA/InitializeCurrentDesign_BA	#P3#=	#P4#=	#P5#=MembMethodPublic	#P6#=20260306110226	#P7#=0	#P8#=-3	.
+3=#P0#=mb	#P1#=InitializeCurrentDesign	#P2#=Project1/modHillClimbing/InitializeCurrentDesign	#P3#=	#P4#=	#P5#=MembMethodPublic	#P6#=20251222160941	#P7#=0	#P8#=5	.
+4=#P0#=mb	#P1#=GetConcretePrice	#P2#=Project1/modShared/GetConcretePrice	#P3#=	#P4#=	#P5#=MembMethodPublic	#P6#=20251222155334	#P7#=0	#P8#=6	.
+5=#P0#=mb	#P1#=CalculateLHeel	#P2#=Project1/modShared/CalculateLHeel	#P3#=	#P4#=	#P5#=MembMethodPublic	#P6#=20251222144631	#P7#=0	#P8#=1	.
+6=#P0#=mb	#P1#=cmdRun_Click	#P2#=Project1/Form1/cmdRun_Click	#P3#=	#P4#=	#P5#=MembEventProcPrivate	#P6#=20251221144840	#P7#=0	#P8#=132	.
+7=#P0#=mb	#P1#=cmdBA_Click	#P2#=Project1/Form1/cmdBA_Click	#P3#=	#P4#=	#P5#=MembEventProcPrivate	#P6#=20251221144820	#P7#=0	#P8#=1	.
+8=#P0#=mb	#P1#=Form_Load	#P2#=Project1/Form1/Form_Load	#P3#=	#P4#=	#P5#=MembEventProcPrivate	#P6#=20251215231448	#P7#=0	#P8#=-3	.
+9=#P0#=mb	#P1#=DrawDualCostGraph	#P2#=Project1/Form1/DrawDualCostGraph	#P3#=	#P4#=	#P5#=MembMethodPublic	#P6#=20251213225553	#P7#=0	#P8#=194	.
+10=#P0#=mb	#P1#=cmdCompare_Click	#P2#=Project1/Form1/cmdCompare_Click	#P3#=	#P4#=	#P5#=MembMethodPublic	#P6#=20251213224556	#P7#=0	#P8#=-2	.
+11=#P0#=mb	#P1#=DrawCostGraph	#P2#=Project1/modGraphing/DrawCostGraph	#P3#=	#P4#=	#P5#=MembMethodPublic	#P6#=20251203223732	#P7#=0	#P8#=9	.
+12=#P0#=mb	#P1#=ValidateInputs	#P2#=Project1/Form1/ValidateInputs	#P3#=	#P4#=	#P5#=MembMethodPublic	#P6#=20251120155534	#P7#=0	#P8#=16	.
+13=#P0#=mb	#P1#=CheckIfDoubleLayerNeeded	#P2#=Project1/modWSD/CheckIfDoubleLayerNeeded	#P3#=	#P4#=	#P5#=MembMethodPublic	#P6#=20251119124030	#P7#=0	#P8#=-4	.
+14=#P0#=mb	#P1#=FormatSteelCheckResult	#P2#=Project1/modWSD/FormatSteelCheckResult	#P3#=	#P4#=	#P5#=MembMethodPublic	#P6#=20251119105058	#P7#=0	#P8#=-4	.
+15=#P0#=mb	#P1#=CheckSteelAdequacy	#P2#=Project1/modWSD/CheckSteelAdequacy	#P3#=	#P4#=	#P5#=MembMethodPublic	#P6#=20251119105032	#P7#=0	#P8#=-4	.
+16=#P0#=mb	#P1#=CalculateAsProvided	#P2#=Project1/modWSD/CalculateAsProvided	#P3#=	#P4#=	#P5#=MembMethodPublic	#P6#=20251119105020	#P7#=0	#P8#=-4	.
+17=#P0#=mb	#P1#=CalculateMomentCapacity	#P2#=Project1/modWSD/CalculateMomentCapacity	#P3#=	#P4#=	#P5#=MembMethodPublic	#P6#=20251119104953	#P7#=0	#P8#=-4	.
+18=#P0#=mb	#P1#=CalculateWSDParameters	#P2#=Project1/modWSD/CalculateWSDParameters	#P3#=	#P4#=	#P5#=MembMethodPublic	#P6#=20251119104912	#P7#=0	#P8#=0	.
+19=#P0#=mb	#P1#=cmdClear_Click	#P2#=Project1/Form1/cmdClear_Click	#P3#=	#P4#=	#P5#=MembMethodPublic	#P6#=20251118155606	#P7#=0	#P8#=1	.
+20=#P0#=mb	#P1#=CalculateAsRequired	#P2#=Project1/modWSD/CalculateAsRequired	#P3#=	#P4#=	#P5#=MembMethodPublic	#P6#=20251114184943	#P7#=0	#P8#=-4	.
