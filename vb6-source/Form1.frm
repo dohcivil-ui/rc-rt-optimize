@@ -529,6 +529,20 @@ Private HCA_BestIteration As Long
 Private BA_BestIteration As Long
 Private HCA_HasData As Boolean
 Private BA_HasData As Boolean
+
+' --- Stored results for Compare ---
+Dim hcaStoredHistory() As Double
+Dim hcaStoredBestCost As Double
+Dim hcaStoredBestIter As Long
+Dim hcaStoredMaxIter As Long
+Dim hcaHasRun As Boolean
+
+Dim baStoredHistory() As Double
+Dim baStoredBestCost As Double
+Dim baStoredBestIter As Long
+Dim baStoredMaxIter As Long
+Dim baHasRun As Boolean
+
 ' ==========================================
 ' Form Variables
 ' ==========================================
@@ -573,7 +587,19 @@ Private Sub cmdBA_Click()
     maxIter = CLng(txtMaxIter.Text)
     numTrials = 30
     
-    fc = 180
+    If cboConcreteStrength.Text = "Random" Then
+        Dim fcOptionsBA(1 To 5) As Integer
+        fcOptionsBA(1) = 180
+        fcOptionsBA(2) = 210
+        fcOptionsBA(3) = 240
+        fcOptionsBA(4) = 280
+        fcOptionsBA(5) = 320
+        Randomize Timer
+        fc = fcOptionsBA(Int(Rnd * 5) + 1)
+    Else
+        fc = CInt(cboConcreteStrength.Text)
+    End If
+    
     concretePrice = modShared.GetConcretePrice(fc)
     selectedMaterial = modShared.GetSD40Material(fc, concretePrice, modShared.STEEL_PRICE_SD40)
     
@@ -662,6 +688,20 @@ Private Sub cmdBA_Click()
     BA_MaxIter = maxIter
     BA_BestIteration = globalBestIteration
     BA_HasData = True
+    
+    ' --- Store results for Compare ---
+baStoredBestCost = globalBestCost
+baStoredBestIter = globalBestIteration
+baStoredMaxIter = maxIter
+ReDim baStoredHistory(1 To maxIter)
+Dim siBA As Long
+For siBA = 1 To maxIter
+    baStoredHistory(siBA) = globalBestCostHistory(siBA)
+Next siBA
+baHasRun = True
+    
+    
+    
 End Sub
 ' ========================================
 ' Form Load Event
@@ -706,6 +746,11 @@ Private Sub Form_Load()
     ' Enable Run button
     cmdRun.Enabled = True
     Me.MousePointer = vbDefault
+    
+    ' Reset stored compare flags
+hcaHasRun = False
+baHasRun = False
+    
 End Sub
 ' ========================================
 ' Run Button Click HCA Event
@@ -897,6 +942,19 @@ Private Sub cmdRun_Click()
     HCA_MaxIter = maxIter
     HCA_BestIteration = globalBestIteration
     HCA_HasData = True
+    
+    ' --- Store results for Compare ---
+hcaStoredBestCost = globalBestCost
+hcaStoredBestIter = globalBestIteration
+hcaStoredMaxIter = maxIter
+ReDim hcaStoredHistory(1 To maxIter)
+Dim siHCA As Long
+For siHCA = 1 To maxIter
+    hcaStoredHistory(siHCA) = globalBestCostHistory(siHCA)
+Next siHCA
+hcaHasRun = True
+    
+    
 End Sub
 
 ' ========================================
@@ -956,74 +1014,63 @@ Private Sub Form_Resize()
 End Sub
 
 '================================================================================
-' [4] cmdCompare_Click - Copy ทั้ง Sub ไปวางใน Form1
+' [4] cmdCompare_Click - Compare HCA vs BA with Shared Initial Solution
 '================================================================================
 Private Sub cmdCompare_Click()
-    ' ตรวจสอบว่ามีข้อมูล HCA หรือไม่
-    If Not HCA_HasData Then
-        MsgBox "กรุณารัน HCA ก่อน!" & vbCrLf & vbCrLf & _
-               "ขั้นตอน:" & vbCrLf & _
-               "1. กดปุ่ม 'Run HCA'" & vbCrLf & _
-               "2. รอจนเสร็จ" & vbCrLf & _
-               "3. กดปุ่ม 'Run BA'" & vbCrLf & _
-               "4. กดปุ่ม 'Compare'", _
-               vbExclamation, "ไม่มีข้อมูล HCA"
+    ' NEW compare mode: use already stored standalone-run results
+    
+    If Not hcaHasRun Then
+        MsgBox "Please run HCA first!", vbExclamation
         Exit Sub
     End If
     
-    ' ตรวจสอบว่ามีข้อมูล BA หรือไม่
-    If Not BA_HasData Then
-        MsgBox "กรุณารัน BA ก่อน!" & vbCrLf & vbCrLf & _
-               "ขั้นตอน:" & vbCrLf & _
-               "1. กดปุ่ม 'Run HCA'" & vbCrLf & _
-               "2. รอจนเสร็จ" & vbCrLf & _
-               "3. กดปุ่ม 'Run BA'" & vbCrLf & _
-               "4. กดปุ่ม 'Compare'", _
-               vbExclamation, "ไม่มีข้อมูล BA"
+    If Not baHasRun Then
+        MsgBox "Please run BA first!", vbExclamation
         Exit Sub
     End If
     
-    ' วาดกราฟซ้อน
+    Dim graphMaxIter As Long
+    If hcaStoredMaxIter <= baStoredMaxIter Then
+        graphMaxIter = hcaStoredMaxIter
+    Else
+        graphMaxIter = baStoredMaxIter
+    End If
+    
+    ' Draw graph from stored histories
     Call DrawDualCostGraph(picGraph, _
-                           HCA_CostHistory, HCA_MaxIter, HCA_BestIteration, _
-                           BA_CostHistory, BA_MaxIter, BA_BestIteration)
+                           hcaStoredHistory, hcaStoredMaxIter, hcaStoredBestIter, _
+                           baStoredHistory, baStoredMaxIter, baStoredBestIter)
     
-    ' แสดงข้อความสรุป
+    ' Display compare results
     lstResults.Clear
-    lstResults.AddItem "============================================"
+    lstResults.AddItem "============================================="
     lstResults.AddItem "COMPARE: HCA vs BA"
-    lstResults.AddItem "============================================"
+    lstResults.AddItem "============================================="
     lstResults.AddItem ""
     lstResults.AddItem "HCA (Blue Line):"
-    lstResults.AddItem "  - Iterations: " & Format(HCA_MaxIter, "#,##0")
-    lstResults.AddItem "  - Best at: " & Format(HCA_BestIteration, "#,##0")
-    lstResults.AddItem "  - Best Cost: " & Format(HCA_CostHistory(HCA_MaxIter), "#,##0.00") & " Baht/m"
+    lstResults.AddItem " - Best at Iteration: " & hcaStoredBestIter
+    lstResults.AddItem " - Best Cost: " & Format(hcaStoredBestCost, "#,##0.00") & " Baht/m"
     lstResults.AddItem ""
     lstResults.AddItem "BA (Green Line):"
-    lstResults.AddItem "  - Iterations: " & Format(BA_MaxIter, "#,##0")
-    lstResults.AddItem "  - Best at: " & Format(BA_BestIteration, "#,##0")
-    lstResults.AddItem "  - Best Cost: " & Format(BA_CostHistory(BA_MaxIter), "#,##0.00") & " Baht/m"
+    lstResults.AddItem " - Best at Iteration: " & baStoredBestIter
+    lstResults.AddItem " - Best Cost: " & Format(baStoredBestCost, "#,##0.00") & " Baht/m"
     lstResults.AddItem ""
-    lstResults.AddItem "============================================"
+    lstResults.AddItem "Graph Iteration Limit: " & graphMaxIter
+    lstResults.AddItem "============================================="
     
-    ' เปรียบเทียบผล
-    Dim HCA_Final As Double, BA_Final As Double
-    HCA_Final = HCA_CostHistory(HCA_MaxIter)
-    BA_Final = BA_CostHistory(BA_MaxIter)
-    
-    If HCA_Final < BA_Final Then
-        lstResults.AddItem "Winner: HCA"
-        lstResults.AddItem "  (ถูกกว่า " & Format(BA_Final - HCA_Final, "#,##0.00") & " Baht/m)"
-    ElseIf BA_Final < HCA_Final Then
-        lstResults.AddItem "Winner: BA"
-        lstResults.AddItem "  (ถูกกว่า " & Format(HCA_Final - BA_Final, "#,##0.00") & " Baht/m)"
+    ' Compare by convergence speed (iteration)
+    If hcaStoredBestIter < baStoredBestIter Then
+        lstResults.AddItem "Result: HCA wins! (faster convergence)"
+        lstResults.AddItem "HCA found best at iter " & hcaStoredBestIter & " vs BA at iter " & baStoredBestIter
+    ElseIf baStoredBestIter < hcaStoredBestIter Then
+        lstResults.AddItem "Result: BA wins! (faster convergence)"
+        lstResults.AddItem "BA found best at iter " & baStoredBestIter & " vs HCA at iter " & hcaStoredBestIter
     Else
-        lstResults.AddItem "Result: เท่ากัน!"
+        lstResults.AddItem "Result: Tie! Both found best at iteration " & hcaStoredBestIter
     End If
-    lstResults.AddItem "============================================"
     
+    lstResults.AddItem "============================================="
 End Sub
-
 
 '================================================================================
 ' [5] DrawDualCostGraph - Copy ทั้ง Sub ไปวางใน Form1
