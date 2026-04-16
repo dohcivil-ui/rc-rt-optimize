@@ -271,6 +271,39 @@ var M_stem_phi35 = shared.calculateMomentStem(0.9, 1.8, 35);
 assert(M_stem_phi35 < M_stem_phi25,
   'larger phi => smaller M_stem (' + M_stem_phi35 + ' < ' + M_stem_phi25 + ')');
 
+// --- calculateMomentToe ---
+console.log('\n[M_toe] Moment at toe (ton-m/m):');
+
+var M_toe = shared.calculateMomentToe(d, H_test, H1_test, gs, gc, 25);
+assert(M_toe >= 0, 'M_toe >= 0 (' + M_toe + ')');
+assert(!isNaN(M_toe) && isFinite(M_toe), 'M_toe is a valid number');
+
+// wider toe => larger M_toe
+var d_narrowToe = {
+  tt: 0.200, tb: 0.300, TBase: 0.350,
+  Base: 2.000, LToe: 0.300,
+  LHeel: shared.calculateLHeel(2.000, 0.300, 0.300)
+};
+var d_wideToe = {
+  tt: 0.200, tb: 0.300, TBase: 0.350,
+  Base: 2.000, LToe: 0.700,
+  LHeel: shared.calculateLHeel(2.000, 0.700, 0.300)
+};
+var M_toe_narrow = shared.calculateMomentToe(d_narrowToe, H_test, H1_test, gs, gc, 25);
+var M_toe_wide = shared.calculateMomentToe(d_wideToe, H_test, H1_test, gs, gc, 25);
+assert(M_toe_wide > M_toe_narrow,
+  'wider toe => larger M_toe (' + M_toe_wide + ' > ' + M_toe_narrow + ')');
+
+// near-zero toe => near-zero M_toe
+var d_tinyToe = {
+  tt: 0.200, tb: 0.300, TBase: 0.350,
+  Base: 2.000, LToe: 0.001,
+  LHeel: shared.calculateLHeel(2.000, 0.001, 0.300)
+};
+var M_toe_tiny = shared.calculateMomentToe(d_tinyToe, H_test, H1_test, gs, gc, 25);
+assert(M_toe_tiny < 0.01,
+  'near-zero toe => near-zero M_toe (' + M_toe_tiny + ' < 0.01)');
+
 // --- Summary ---
 console.log('\n=============================');
 console.log('Total: ' + (passed + failed) + ' | PASS: ' + passed + ' | FAIL: ' + failed);
