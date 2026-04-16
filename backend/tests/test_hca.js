@@ -386,6 +386,138 @@ assert(n3.toeSP === 113,  'Spot 3: n3.toeSP');
 assert(n3.heelDB === 103, 'Spot 3: n3.heelDB');
 assert(n3.heelSP === 110, 'Spot 3: n3.heelSP');
 
+// ============================================================================
+// Step 9.4: hcaOptimize tests
+// ============================================================================
+console.log('\n\n=== Test hcaOptimize (Step 9.4) ===\n');
+
+// Optimization-specific params with realistic H1 (embedment ~ 0.3H, min 0.9)
+function buildOptParams(H) {
+  var H1 = Math.max(0.3 * H, 0.9);
+  return {
+    H: H, H1: H1,
+    gamma_soil: 1.8, gamma_concrete: 2.4,
+    phi: 30, mu: 0.5, qa: 20, cover: 0.075,
+    material: testMaterial
+  };
+}
+
+// ---------- Part 1: Basic structure (small maxIter) ----------
+console.log('[Part 1] Basic structure (H=5, maxIter=100):');
+var basicResult = hca.hcaOptimize(buildOptParams(5), {
+  seed: 'basic-test',
+  maxIterations: 100
+});
+assert(typeof basicResult === 'object', 'result is object');
+assert(Array.isArray(basicResult.costHistory), 'costHistory is array');
+assert(basicResult.costHistory.length === 101, 'costHistory length = 101 (0..100)');
+assert(typeof basicResult.costHistory[0] === 'undefined', 'costHistory[0] is undefined (VB6 1-indexed)');
+assert(typeof basicResult.costHistory[100] === 'number', 'costHistory[100] is number');
+assert(Array.isArray(basicResult.log), 'log is array');
+assert(basicResult.log.length === 101, 'log length = 101 (iter 0 init + 1..100)');
+assert(typeof basicResult.bestCost === 'number', 'bestCost is number');
+assert(typeof basicResult.bestIteration === 'number', 'bestIteration is number');
+assert(basicResult.bestIteration >= 0 && basicResult.bestIteration <= 100, 'bestIteration in [0, 100]');
+assert(typeof basicResult.finalState === 'object', 'finalState preserved');
+
+var sampleEntry = basicResult.log[50];
+assert(typeof sampleEntry.iter === 'number', 'log entry has iter');
+assert(typeof sampleEntry.cost === 'number', 'log entry has cost');
+assert(typeof sampleEntry.valid === 'boolean', 'log entry has valid');
+assert(typeof sampleEntry.isBetter === 'boolean', 'log entry has isBetter');
+assert(typeof sampleEntry.accepted === 'boolean', 'log entry has accepted');
+assert(typeof sampleEntry.reason === 'string', 'log entry has reason');
+assert(typeof sampleEntry.bestSoFar === 'number', 'log entry has bestSoFar');
+assert(typeof sampleEntry.bestIter === 'number', 'log entry has bestIter');
+
+// ---------- Part 2: Convergence sanity (medium maxIter) ----------
+console.log('\n[Part 2] Convergence sanity (H=5, maxIter=5000):');
+var convResult = hca.hcaOptimize(buildOptParams(5), {
+  seed: 'convergence-test',
+  maxIterations: 5000
+});
+assert(convResult.bestIteration > 0, 'found at least one valid design');
+assert(convResult.bestCost < Infinity, 'bestCost is finite');
+assert(convResult.bestDesign !== null, 'bestDesign is populated');
+assert(convResult.bestSteel !== null, 'bestSteel is populated');
+
+var validCount = 0, betterCount = 0, acceptedCount = 0;
+for (var i = 1; i <= 5000; i++) {
+  if (convResult.log[i].valid) validCount++;
+  if (convResult.log[i].isBetter) betterCount++;
+  if (convResult.log[i].accepted) acceptedCount++;
+}
+assert(validCount > 0,  'at least one valid neighbor in 5000 iterations (got ' + validCount + ')');
+assert(betterCount > 0, 'at least one improvement in 5000 iterations (got ' + betterCount + ')');
+assert(acceptedCount >= betterCount, 'accepted >= isBetter (all isBetter imply accepted)');
+
+var lastBest = convResult.costHistory[1];
+var monotonic = true;
+for (var i = 2; i <= 5000; i++) {
+  if (convResult.costHistory[i] > lastBest && convResult.costHistory[i] !== 999000 && lastBest !== 999000) {
+    monotonic = false; break;
+  }
+  if (convResult.costHistory[i] !== 999000) lastBest = convResult.costHistory[i];
+}
+assert(monotonic, 'costHistory is monotonic non-increasing (best only improves)');
+
+// ---------- Part 3: Reproducibility (same seed -> same result) ----------
+console.log('\n[Part 3] Reproducibility (same seed = same result):');
+var repro1 = hca.hcaOptimize(buildOptParams(5), { seed: 'repro', maxIterations: 1000 });
+var repro2 = hca.hcaOptimize(buildOptParams(5), { seed: 'repro', maxIterations: 1000 });
+assert(repro1.bestCost === repro2.bestCost, 'same seed -> same bestCost');
+assert(repro1.bestIteration === repro2.bestIteration, 'same seed -> same bestIteration');
+
+var logMatch = true;
+for (var i = 0; i <= 1000; i++) {
+  if (repro1.log[i].cost !== repro2.log[i].cost ||
+      repro1.log[i].valid !== repro2.log[i].valid ||
+      repro1.log[i].isBetter !== repro2.log[i].isBetter) {
+    logMatch = false; break;
+  }
+}
+assert(logMatch, 'same seed -> identical log entries');
+
+// ---------- Part 4: Spot check (regression safety) ----------
+console.log('\n[Part 4] Spot check (H=5, seed=hca-spot, maxIter=500):');
+var spotResult = hca.hcaOptimize(buildOptParams(5), {
+  seed: 'hca-spot',
+  maxIterations: 500
+});
+// console.log('CAPTURE spot:', 'bestCost=' + spotResult.bestCost + ', bestIteration=' + spotResult.bestIteration);
+assert(Math.abs(spotResult.bestCost - 6615.034584) < 0.01, 'Spot: bestCost');
+assert(spotResult.bestIteration === 385, 'Spot: bestIteration');
+
+// ---------- Part 5: Multi-height smoke (all heights don't crash) ----------
+console.log('\n[Part 5] Multi-height smoke (H=3,4,5,6,7, maxIter=1000 each):');
+var heights = [3, 4, 5, 6, 7];
+for (var h = 0; h < heights.length; h++) {
+  var H = heights[h];
+  var r = hca.hcaOptimize(buildOptParams(H), {
+    seed: 'smoke-H' + H,
+    maxIterations: 1000
+  });
+  assert(typeof r.bestCost === 'number', 'H=' + H + ': bestCost is number');
+  assert(r.log.length === 1001, 'H=' + H + ': log length = 1001');
+  assert(r.costHistory.length === 1001, 'H=' + H + ': costHistory length = 1001');
+  assert(r.bestIteration >= 0, 'H=' + H + ': bestIteration >= 0');
+}
+
+// ---------- Part 6: onIteration callback ----------
+console.log('\n[Part 6] onIteration callback:');
+var callbackCount = 0;
+var lastSeenIter = -1;
+hca.hcaOptimize(buildOptParams(5), {
+  seed: 'callback-test',
+  maxIterations: 50,
+  onIteration: function(entry) {
+    callbackCount++;
+    lastSeenIter = entry.iter;
+  }
+});
+assert(callbackCount === 51, 'onIteration called 51 times (iter 0 + 1..50)');
+assert(lastSeenIter === 50, 'last onIteration call was iter 50');
+
 // === Summary ===
 console.log('\n=============================');
 console.log('Total: ' + (passed + failed) + ' | PASS: ' + passed + ' | FAIL: ' + failed);

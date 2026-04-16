@@ -148,6 +148,28 @@ function getDesignFromCurrent(state) {
   };
 }
 
+// Internal helper — convert VB6-style steel indices to 0-based for shared.checkDesignValid
+function steelTo0Based(steel) {
+  return {
+    stemDB_idx: steel.stemDB_idx - IDX.DB_MIN,
+    stemSP_idx: steel.stemSP_idx - IDX.SP_MIN,
+    toeDB_idx:  steel.toeDB_idx  - IDX.DB_MIN,
+    toeSP_idx:  steel.toeSP_idx  - IDX.SP_MIN,
+    heelDB_idx: steel.heelDB_idx - IDX.DB_MIN,
+    heelSP_idx: steel.heelSP_idx - IDX.SP_MIN
+  };
+}
+
+// Internal helper — shallow copy indices object for backup/restore
+function copyIndices(idx) {
+  return {
+    tt: idx.tt, tb: idx.tb, TBase: idx.TBase, Base: idx.Base, LToe: idx.LToe,
+    stemDB: idx.stemDB, stemSP: idx.stemSP,
+    toeDB:  idx.toeDB,  toeSP:  idx.toeSP,
+    heelDB: idx.heelDB, heelSP: idx.heelSP
+  };
+}
+
 // ==========================================================================
 // generateNeighbor — Hill Climbing neighbor generation (Step 9.3)
 // VB6 ref: modHillClimbing.bas lines 145-252 (Private Sub GenerateNeighbor)
@@ -264,11 +286,133 @@ function generateNeighbor(state) {
   };
 }
 
+// ==========================================================================
+// hcaOptimize — Main Hill Climbing Algorithm optimization loop (Step 9.4)
+// VB6 ref: modHillClimbing.bas lines 259-468 (HillClimbingOptimization)
+// ==========================================================================
+function hcaOptimize(params, options) {
+  options = options || {};
+  var maxIterations = options.maxIterations || 10000;
+
+  var state = createHCAState(params, { seed: options.seed, rng: options.rng });
+  initializeCurrentDesign(state);
+
+  var mat = params.material;
+  var logArr = [];
+  var costHistory = new Array(maxIterations + 1);
+
+  var initial = getDesignFromCurrent(state);
+  var initialCost = shared.calculateCost(
+    initial.design, params.H, params.gamma_concrete,
+    mat.concretePrice, mat.steelPrice, initial.steel
+  ).cost;
+  var initialValidity = shared.checkDesignValid(
+    initial.design, params.H, params.H1, params.gamma_soil, params.gamma_concrete,
+    params.phi, params.mu, params.qa, params.cover,
+    state.wsd, steelTo0Based(initial.steel), state.arrays
+  );
+
+  var best, bestSteel, bestCost, bestIteration;
+  var currentCost;
+
+  if (initialValidity.valid) {
+    best = initial.design;
+    bestSteel = initial.steel;
+    bestCost = initialCost;
+    bestIteration = 1;
+    currentCost = initialCost;
+    pushLog(logArr, 0, initialCost, true, true, true, '', bestCost, bestIteration, options.onIteration);
+  } else {
+    best = null;
+    bestSteel = null;
+    bestCost = Infinity;
+    bestIteration = 0;
+    currentCost = Infinity;
+    pushLog(logArr, 0, initialCost, false, false, false, initialValidity.reason, bestCost, bestIteration, options.onIteration);
+  }
+
+  for (var iter = 1; iter <= maxIterations; iter++) {
+    var backup = copyIndices(state.indices);
+
+    var newIndices = generateNeighbor(state);
+    state.indices = newIndices;
+
+    var neighbor = getDesignFromCurrent(state);
+    var neighborCost = shared.calculateCost(
+      neighbor.design, params.H, params.gamma_concrete,
+      mat.concretePrice, mat.steelPrice, neighbor.steel
+    ).cost;
+    var validity = shared.checkDesignValid(
+      neighbor.design, params.H, params.H1, params.gamma_soil, params.gamma_concrete,
+      params.phi, params.mu, params.qa, params.cover,
+      state.wsd, steelTo0Based(neighbor.steel), state.arrays
+    );
+
+    var accepted = false;
+    var isBetter = false;
+    var reason = '';
+
+    if (validity.valid) {
+      if (neighborCost < bestCost) {
+        best = neighbor.design;
+        bestSteel = neighbor.steel;
+        bestCost = neighborCost;
+        bestIteration = iter;
+        currentCost = neighborCost;
+        accepted = true;
+        isBetter = true;
+      } else if (neighborCost < currentCost) {
+        currentCost = neighborCost;
+        accepted = true;
+      } else {
+        state.indices = backup;
+      }
+    } else {
+      state.indices = backup;
+      reason = validity.reason;
+    }
+
+    if (bestIteration > 0) {
+      costHistory[iter] = bestCost;
+    } else {
+      costHistory[iter] = 999000;
+    }
+
+    pushLog(logArr, iter, neighborCost, validity.valid, isBetter, accepted, reason, bestCost, bestIteration, options.onIteration);
+  }
+
+  return {
+    bestDesign: best,
+    bestSteel: bestSteel,
+    bestCost: bestCost,
+    bestIteration: bestIteration,
+    costHistory: costHistory,
+    log: logArr,
+    finalState: state
+  };
+}
+
+function pushLog(logArr, iter, cost, valid, isBetter, accepted, reason, bestSoFar, bestIter, onIteration) {
+  var entry = {
+    iter: iter,
+    cost: cost,
+    valid: valid,
+    isBetter: isBetter,
+    accepted: accepted,
+    reason: reason,
+    bestSoFar: bestSoFar,
+    bestIter: bestIter
+  };
+  logArr.push(entry);
+  if (typeof onIteration === 'function') onIteration(entry);
+}
+
 module.exports = {
   IDX: IDX,
   wpLookup: wpLookup,
   createHCAState: createHCAState,
   initializeCurrentDesign: initializeCurrentDesign,
   getDesignFromCurrent: getDesignFromCurrent,
-  generateNeighbor: generateNeighbor
+  generateNeighbor: generateNeighbor,
+  hcaOptimize: hcaOptimize
 };
