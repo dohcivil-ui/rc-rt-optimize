@@ -247,6 +247,30 @@ assertClose(MO_zero, 0, 0.001, 'balanced Pa/Pp => MO ~0');
 var MO_noPp = shared.calculateMO(Pa, H_test, 0, H1_test);
 assertClose(MO_noPp, Pa * (H_test / 3), 0.001, 'Pp=0 => MO = Pa*(H/3)');
 
+// --- calculateMomentStem ---
+console.log('\n[M_stem] Moment at stem base (ton-m/m):');
+
+// M_stem = 0.5 * gamma_soil * Ka(phi) * H1^3 / 3
+// H1=0.9, gs=1.8, phi=30 => Ka=0.3333
+// = 0.5 * 1.8 * 0.3333 * 0.729 / 3 = 0.0729
+var M_stem = shared.calculateMomentStem(0.9, 1.8, 30);
+assertClose(M_stem, 0.0729, 0.001, 'M_stem(H1=0.9, gs=1.8, phi=30) = 0.0729');
+
+assert(M_stem > 0, 'M_stem is positive');
+
+// H1 cubic relationship: M_stem(1.5) > 20x M_stem(0.5)
+// ratio = (1.5/0.5)^3 = 27 > 20
+var M_stem_low = shared.calculateMomentStem(0.5, 1.8, 30);
+var M_stem_high = shared.calculateMomentStem(1.5, 1.8, 30);
+assert(M_stem_high > 20 * M_stem_low,
+  'H1 cubic: M_stem(1.5) > 20x M_stem(0.5) (' + M_stem_high + ' > ' + (20 * M_stem_low) + ')');
+
+// larger phi => smaller Ka => smaller M_stem
+var M_stem_phi25 = shared.calculateMomentStem(0.9, 1.8, 25);
+var M_stem_phi35 = shared.calculateMomentStem(0.9, 1.8, 35);
+assert(M_stem_phi35 < M_stem_phi25,
+  'larger phi => smaller M_stem (' + M_stem_phi35 + ' < ' + M_stem_phi25 + ')');
+
 // --- Summary ---
 console.log('\n=============================');
 console.log('Total: ' + (passed + failed) + ' | PASS: ' + passed + ' | FAIL: ' + failed);
