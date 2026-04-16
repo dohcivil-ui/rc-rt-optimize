@@ -67,6 +67,36 @@ assert(s4.indices.toeSP === 110,  'H=4: toeSP = 110');
 assert(s4.indices.heelDB === 104, 'H=4: heelDB = 104');
 assert(s4.indices.heelSP === 110, 'H=4: heelSP = 110');
 
+// === initializeCurrentDesign with H=5m ===
+console.log('\n[initializeCurrentDesign] H=5m:');
+var s5 = hca.createHCAState(buildParams(5));
+hca.initializeCurrentDesign(s5);
+
+// 0.12 * 5 = 0.60m -> WP_tb: 0.60 exact = idx 28
+assert(s5.indices.tb === 28, 'H=5: tb idx = 28 (WP_tb=0.60, exact match at 0.12*5)');
+assert(s5.indices.tb !== 20, 'H=5: tb idx != 20 (fixed, not buggy VB6)');
+
+// 0.15 * 5 = 0.75m -> WP_TBase: 0.75 exact = idx 49
+assert(s5.indices.TBase === 49, 'H=5: TBase idx = 49 (WP_TBase=0.75)');
+assert(s5.indices.TBase !== 40, 'H=5: TBase idx != 40 (fixed, not buggy VB6)');
+
+// 0.7 * 5 = 3.50m -> WP_Base: 3.50 exact = idx 64
+assert(s5.indices.Base === 64, 'H=5: Base idx = 64 (WP_Base=3.50, exact match at 0.7*5)');
+
+// 0.2 * 5 = 1.00m -> WP_LToe: 1.00 exact = idx 87
+assert(s5.indices.LToe === 87, 'H=5: LToe idx = 87 (WP_LToe=1.00)');
+
+// tt: largest where WP_tt <= WP_tb(28)=0.60. WP_tt(17)=0.600 <= 0.60 -> idx 17
+assert(s5.indices.tt === 17, 'H=5: tt idx = 17 (WP_tt=0.600, max idx since 0.60 <= WP_tb=0.60)');
+
+// Steel: max DB (DB28=idx 104), min SP (0.10m=idx 110)
+assert(s5.indices.stemDB === 104, 'H=5: stemDB = 104 (DB28)');
+assert(s5.indices.stemSP === 110, 'H=5: stemSP = 110 (0.10m)');
+assert(s5.indices.toeDB === 104,  'H=5: toeDB = 104');
+assert(s5.indices.toeSP === 110,  'H=5: toeSP = 110');
+assert(s5.indices.heelDB === 104, 'H=5: heelDB = 104');
+assert(s5.indices.heelSP === 110, 'H=5: heelSP = 110');
+
 // === initializeCurrentDesign with H=6m ===
 console.log('\n[initializeCurrentDesign] H=6m:');
 var s6 = hca.createHCAState(buildParams(6));
@@ -79,6 +109,36 @@ assert(s6.indices.TBase === 52, 'H=6: TBase idx = 52 (WP_TBase=0.90)');
 assert(s6.indices.Base === 65, 'H=6: Base idx = 65 (WP_Base=4.00)');
 // 0.2 * 6 = 1.20m -> WP_LToe: 1.20 exact = idx 89
 assert(s6.indices.LToe === 89, 'H=6: LToe idx = 89 (WP_LToe=1.20)');
+
+// === initializeCurrentDesign with H=7m ===
+console.log('\n[initializeCurrentDesign] H=7m:');
+var s7 = hca.createHCAState(buildParams(7));
+hca.initializeCurrentDesign(s7);
+
+// 0.12 * 7 = 0.84m -> WP_tb: 0.80 (idx 32). 0.85 > 0.84 rejected.
+assert(s7.indices.tb === 32, 'H=7: tb idx = 32 (WP_tb=0.80, max under 0.84)');
+assert(s7.indices.tb !== 20, 'H=7: tb idx != 20 (fixed, not buggy VB6)');
+
+// 0.15 * 7 = 1.05m -> WP_TBase: 1.00 (idx 54), max since arrays capped at 1.00
+assert(s7.indices.TBase === 54, 'H=7: TBase idx = 54 (WP_TBase=1.00, max under 1.05)');
+assert(s7.indices.TBase !== 40, 'H=7: TBase idx != 40 (fixed, not buggy VB6)');
+
+// 0.7 * 7 = 4.90m -> WP_Base: 4.50 (idx 66). 5.00 > 4.90 rejected.
+assert(s7.indices.Base === 66, 'H=7: Base idx = 66 (WP_Base=4.50, max under 4.90)');
+
+// 0.2 * 7 = 1.40m -> WP_LToe: 1.20 (idx 89), max since arrays capped at 1.20
+assert(s7.indices.LToe === 89, 'H=7: LToe idx = 89 (WP_LToe=1.20, max under 1.40)');
+
+// tt: largest where WP_tt <= WP_tb(32)=0.80. WP_tt(17)=0.600 <= 0.80 -> idx 17
+assert(s7.indices.tt === 17, 'H=7: tt idx = 17 (WP_tt=0.600, max idx since 0.600 <= WP_tb=0.80)');
+
+// Steel: max DB (DB28=idx 104), min SP (0.10m=idx 110)
+assert(s7.indices.stemDB === 104, 'H=7: stemDB = 104 (DB28)');
+assert(s7.indices.stemSP === 110, 'H=7: stemSP = 110 (0.10m)');
+assert(s7.indices.toeDB === 104,  'H=7: toeDB = 104');
+assert(s7.indices.toeSP === 110,  'H=7: toeSP = 110');
+assert(s7.indices.heelDB === 104, 'H=7: heelDB = 104');
+assert(s7.indices.heelSP === 110, 'H=7: heelSP = 110');
 
 // === initializeCurrentDesign with H=3m (edge case, small wall) ===
 console.log('\n[initializeCurrentDesign] H=3m edge:');
@@ -121,6 +181,54 @@ assert(typeof costResult.cost === 'number', 'cost is number');
 assert(costResult.cost > 0, 'cost > 0');
 assert(costResult.V_total > 0, 'V_total > 0');
 assert(costResult.W_total_steel > 0, 'W_total_steel > 0');
+
+// === getDesignFromCurrent H=5m ===
+console.log('\n[getDesignFromCurrent] H=5m:');
+var result5 = hca.getDesignFromCurrent(s5);
+assert(typeof result5.design === 'object', 'H=5: result has design object');
+assert(typeof result5.steel === 'object', 'H=5: result has steel object');
+assertClose(result5.design.tt, 0.600, 0.001, 'H=5: design.tt = 0.600m');
+assertClose(result5.design.tb, 0.60, 0.001, 'H=5: design.tb = 0.60m');
+assertClose(result5.design.TBase, 0.75, 0.001, 'H=5: design.TBase = 0.75m');
+assertClose(result5.design.Base, 3.50, 0.001, 'H=5: design.Base = 3.50m');
+assertClose(result5.design.LToe, 1.00, 0.001, 'H=5: design.LToe = 1.00m');
+// LHeel = 3.50 - 1.00 - 0.60 = 1.90
+assertClose(result5.design.LHeel, 1.90, 0.001, 'H=5: design.LHeel = 1.90m');
+assert(result5.steel.stemDB_idx === 104, 'H=5: steel.stemDB_idx = 104');
+assert(result5.steel.stemSP_idx === 110, 'H=5: steel.stemSP_idx = 110');
+
+// Integration: H=5m cost
+var costResult5 = shared.calculateCost(
+  result5.design, s5.params.H, s5.params.gamma_concrete,
+  testMaterial.concretePrice, testMaterial.steelPrice, result5.steel
+);
+assert(costResult5.cost > 0, 'H=5: cost > 0');
+assert(costResult5.V_total > 0, 'H=5: V_total > 0');
+assert(costResult5.W_total_steel > 0, 'H=5: W_total_steel > 0');
+
+// === getDesignFromCurrent H=7m ===
+console.log('\n[getDesignFromCurrent] H=7m:');
+var result7 = hca.getDesignFromCurrent(s7);
+assert(typeof result7.design === 'object', 'H=7: result has design object');
+assert(typeof result7.steel === 'object', 'H=7: result has steel object');
+assertClose(result7.design.tt, 0.600, 0.001, 'H=7: design.tt = 0.600m');
+assertClose(result7.design.tb, 0.80, 0.001, 'H=7: design.tb = 0.80m');
+assertClose(result7.design.TBase, 1.00, 0.001, 'H=7: design.TBase = 1.00m');
+assertClose(result7.design.Base, 4.50, 0.001, 'H=7: design.Base = 4.50m');
+assertClose(result7.design.LToe, 1.20, 0.001, 'H=7: design.LToe = 1.20m');
+// LHeel = 4.50 - 1.20 - 0.80 = 2.50
+assertClose(result7.design.LHeel, 2.50, 0.001, 'H=7: design.LHeel = 2.50m');
+assert(result7.steel.stemDB_idx === 104, 'H=7: steel.stemDB_idx = 104');
+assert(result7.steel.stemSP_idx === 110, 'H=7: steel.stemSP_idx = 110');
+
+// Integration: H=7m cost
+var costResult7 = shared.calculateCost(
+  result7.design, s7.params.H, s7.params.gamma_concrete,
+  testMaterial.concretePrice, testMaterial.steelPrice, result7.steel
+);
+assert(costResult7.cost > 0, 'H=7: cost > 0');
+assert(costResult7.V_total > 0, 'H=7: V_total > 0');
+assert(costResult7.W_total_steel > 0, 'H=7: W_total_steel > 0');
 
 // === Summary ===
 console.log('\n=============================');
