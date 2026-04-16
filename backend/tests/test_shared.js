@@ -1,5 +1,5 @@
 // test_shared.js — validate initArrays() against VB6 spec
-var shared = require('./src/shared');
+var shared = require('../src/shared');
 
 var passed = 0;
 var failed = 0;
@@ -197,6 +197,55 @@ var wt = shared.calculateWTotal(d, H_test, H1_test, gs, gc);
 var expectedTotal = w1.W + w2.W + w3.W + w4.W;
 assertClose(wt.WTotal, expectedTotal, 0.01, 'WTotal = sum of W1-W4');
 assertClose(wt.WTotal, 9.877, 0.05, 'WTotal ~ 9.877 ton/m');
+
+// --- calculateMR ---
+console.log('\n[MR] Resisting Moment (ton-m/m):');
+
+// MR = W1*x1 + W2*x2 + W3*x3 + W4*x4
+// = 0.4063*0.2 + 6.201*1.35 + 1.59*0.5733 + 1.68*1.0 = 11.0442
+var MR = shared.calculateMR(d, H_test, H1_test, gs, gc);
+assertClose(MR, 11.0442, 0.01, 'MR(default) = 11.0442');
+assert(MR > 0, 'MR is positive');
+
+// wider base => larger MR
+var d_wide = {
+  tt: 0.200, tb: 0.300, TBase: 0.350,
+  Base: 2.500, LToe: 0.400, LHeel: 1.800
+};
+var MR_wide = shared.calculateMR(d_wide, H_test, H1_test, gs, gc);
+assert(MR_wide > MR, 'wider base => larger MR (' + MR_wide + ' > ' + MR + ')');
+
+// higher H1 => larger MR
+var MR_lowH1 = shared.calculateMR(d, H_test, 0.5, gs, gc);
+var MR_highH1 = shared.calculateMR(d, H_test, 1.2, gs, gc);
+assert(MR_highH1 > MR_lowH1, 'higher H1 => larger MR');
+
+// --- calculateMO ---
+console.log('\n[MO] Overturning Moment (ton-m/m):');
+
+// MO = Pa*(H/3) - Pp*(H1/3) = 3.2875*1.0 - 1.7962*0.3 = 2.7486
+var MO = shared.calculateMO(Pa, H_test, Pp, H1_test);
+assertClose(MO, 2.7486, 0.01, 'MO(default) = 2.7486');
+assert(MO > 0, 'MO is positive');
+
+// larger Pa => larger MO
+var MO1 = shared.calculateMO(3.0, H_test, Pp, H1_test);
+var MO2 = shared.calculateMO(5.0, H_test, Pp, H1_test);
+assert(MO2 > MO1, 'larger Pa => larger MO');
+
+// larger Pp => smaller MO
+var MO3 = shared.calculateMO(Pa, H_test, 1.0, H1_test);
+var MO4 = shared.calculateMO(Pa, H_test, 3.0, H1_test);
+assert(MO4 < MO3, 'larger Pp => smaller MO');
+
+// balanced => MO ~0
+var Pp_cancel = Pa * H_test / H1_test;
+var MO_zero = shared.calculateMO(Pa, H_test, Pp_cancel, H1_test);
+assertClose(MO_zero, 0, 0.001, 'balanced Pa/Pp => MO ~0');
+
+// Pp=0 => MO = Pa*(H/3)
+var MO_noPp = shared.calculateMO(Pa, H_test, 0, H1_test);
+assertClose(MO_noPp, Pa * (H_test / 3), 0.001, 'Pp=0 => MO = Pa*(H/3)');
 
 // --- Summary ---
 console.log('\n=============================');
