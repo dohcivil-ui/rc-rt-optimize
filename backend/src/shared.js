@@ -324,6 +324,63 @@ function calculateMomentToe(d, H, H1, gamma_soil, gamma_concrete, phi) {
 }
 
 // =============================================
+// Moment at Heel — 1:1 port from VB6 CalculateMomentHeel (line 437-481)
+// =============================================
+// NOTE: VB6 M_bearing triangle term uses (LHeel/2)*(LHeel/3)
+// instead of 0.5*LHeel*(LHeel/3). Ported as-is for research parity.
+// =============================================
+
+function calculateMomentHeel(d, H, H1, gamma_soil, gamma_concrete, phi) {
+  var Ka = calculateKa(phi);
+  var Kp = calculateKp(phi);
+  var Pa = calculatePa(gamma_soil, Ka, H);
+  var Pp = calculatePp(gamma_soil, Kp, H1);
+
+  var r = calculateWTotal(d, H, H1, gamma_soil, gamma_concrete);
+  var W_total = r.WTotal;
+  var MR = r.W1 * r.x1 + r.W2 * r.x2 + r.W3 * r.x3 + r.W4 * r.x4;
+  var MO = calculateMO(Pa, H, Pp, H1);
+
+  var e, q_max, q_min;
+  var q_junction, q_heel;
+  var M_downward, M_bearing;
+  var H_soil, w_down, L_eff;
+
+  if (W_total > 0.1 && d.Base > 0.1) {
+    e = Math.abs((d.Base / 2) - ((MR - MO) / W_total));
+    if (e <= d.Base / 6) {
+      q_max = (W_total / d.Base) * (1 + (6 * e / d.Base));
+      q_min = (W_total / d.Base) * (1 - (6 * e / d.Base));
+    } else {
+      L_eff = 3 * (d.Base / 2 - e);
+      if (L_eff > 0.1) {
+        q_max = 2 * W_total / L_eff;
+      } else {
+        q_max = W_total / d.Base * 2;
+      }
+      q_min = 0;
+    }
+  } else {
+    q_max = 1;
+    q_min = 1;
+  }
+
+  if (d.Base > 0.01) {
+    q_junction = q_max - (q_max - q_min) * ((d.LToe + d.tb) / d.Base);
+  } else {
+    q_junction = q_max;
+  }
+  q_heel = q_min;
+  H_soil = H - d.TBase;
+  w_down = (d.TBase * gamma_concrete) + (H_soil * gamma_soil);
+  M_downward = w_down * d.LHeel * d.LHeel / 2;
+  M_bearing = q_heel * d.LHeel * (d.LHeel / 2) +
+              (q_junction - q_heel) * (d.LHeel / 2) * (d.LHeel / 3);
+
+  return Math.abs(M_downward - M_bearing);
+}
+
+// =============================================
 // Exports
 // =============================================
 module.exports = {
@@ -345,5 +402,6 @@ module.exports = {
   calculateMR: calculateMR,
   calculateMO: calculateMO,
   calculateMomentStem: calculateMomentStem,
-  calculateMomentToe: calculateMomentToe
+  calculateMomentToe: calculateMomentToe,
+  calculateMomentHeel: calculateMomentHeel
 };
