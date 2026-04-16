@@ -239,6 +239,23 @@ function steelUnitWeight(db_mm) {
 }
 
 // =============================================
+// Moment Calculations (ported from modShared.bas SECTION 9)
+// =============================================
+
+// MR: Resisting Moment about toe (ton-m/m)
+// MR = W1*x1 + W2*x2 + W3*x3 + W4*x4
+function calculateMR(d, H, H1, gamma_soil, gamma_concrete) {
+  var r = calculateWTotal(d, H, H1, gamma_soil, gamma_concrete);
+  return r.W1 * r.x1 + r.W2 * r.x2 + r.W3 * r.x3 + r.W4 * r.x4;
+}
+
+// MO: Overturning Moment about toe (ton-m/m)
+// MO = Pa*(H/3) - Pp*(H1/3)
+function calculateMO(Pa, H, Pp, H1) {
+  return Pa * (H / 3) - Pp * (H1 / 3);
+}
+
+// =============================================
 // Exports
 // =============================================
 module.exports = {
@@ -256,5 +273,7 @@ module.exports = {
   calculateW3: calculateW3,
   calculateW4: calculateW4,
   calculateWTotal: calculateWTotal,
-  steelUnitWeight: steelUnitWeight
+  steelUnitWeight: steelUnitWeight,
+  calculateMR: calculateMR,
+  calculateMO: calculateMO
 };
