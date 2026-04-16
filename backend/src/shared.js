@@ -559,6 +559,64 @@ function calculateAsProvided(DB_idx, SP_idx, arrays) {
 }
 
 // =============================================
+// Steel Adequacy Check (modShared line 618-633)
+// =============================================
+
+function checkSteelOK(M, d_eff, DB_idx, SP_idx, wsd, arrays) {
+  var As_req = calculateAsRequired(M, wsd.fs, wsd.j, d_eff);
+  var As_prov = calculateAsProvided(DB_idx, SP_idx, arrays);
+  return As_prov >= As_req;
+}
+
+// =============================================
+// Design Validity Check (modShared line 710-762)
+// =============================================
+
+function checkDesignValid(d, H, H1, gamma_soil, gamma_concrete, phi, mu, qa, cover, wsd, steel, arrays) {
+  var result = { valid: false, FS_OT: 0, FS_SL: 0, FS_BC: 0, reason: '' };
+
+  if (d.tb < d.tt) { result.reason = 'tb < tt'; return result; }
+  if (d.LHeel < 0.3) { result.reason = 'LHeel < 0.3'; return result; }
+  if (d.LHeel <= d.LToe) { result.reason = 'LHeel <= LToe'; return result; }
+
+  var fsOT = checkFS_OT(d, H, H1, gamma_soil, gamma_concrete, phi);
+  result.FS_OT = fsOT.FS_OT;
+  if (!fsOT.pass) { result.reason = 'FS_OT < 2.0'; return result; }
+
+  var fsSL = checkFS_SL(d, H, H1, gamma_soil, gamma_concrete, phi, mu);
+  result.FS_SL = fsSL.FS_SL;
+  if (!fsSL.pass) { result.reason = 'FS_SL < 1.5'; return result; }
+
+  var fsBC = checkFS_BC(d, H, H1, gamma_soil, gamma_concrete, phi, qa);
+  result.FS_BC = fsBC.FS_BC;
+  if (!fsBC.pass) { result.reason = 'FS_BC < 2.0'; return result; }
+
+  var M_stem = calculateMomentStem(H1, gamma_soil, phi);
+  var M_toe = calculateMomentToe(d, H, H1, gamma_soil, gamma_concrete, phi);
+  var M_heel = calculateMomentHeel(d, H, H1, gamma_soil, gamma_concrete, phi);
+
+  var d_stem = d.tb - cover;
+  var d_toe = d.TBase - cover;
+  var d_heel = d.TBase - cover;
+  if (d_stem <= 0.05) d_stem = 0.05;
+  if (d_toe <= 0.05) d_toe = 0.05;
+  if (d_heel <= 0.05) d_heel = 0.05;
+
+  if (!checkSteelOK(M_stem, d_stem, steel.stemDB_idx, steel.stemSP_idx, wsd, arrays)) {
+    result.reason = 'steel stem insufficient'; return result;
+  }
+  if (!checkSteelOK(M_toe, d_toe, steel.toeDB_idx, steel.toeSP_idx, wsd, arrays)) {
+    result.reason = 'steel toe insufficient'; return result;
+  }
+  if (!checkSteelOK(M_heel, d_heel, steel.heelDB_idx, steel.heelSP_idx, wsd, arrays)) {
+    result.reason = 'steel heel insufficient'; return result;
+  }
+
+  result.valid = true;
+  return result;
+}
+
+// =============================================
 // Exports
 // =============================================
 module.exports = {
@@ -591,5 +649,7 @@ module.exports = {
   calculateCost: calculateCost,
   calculateWSDParams: calculateWSDParams,
   calculateAsRequired: calculateAsRequired,
-  calculateAsProvided: calculateAsProvided
+  calculateAsProvided: calculateAsProvided,
+  checkSteelOK: checkSteelOK,
+  checkDesignValid: checkDesignValid
 };
