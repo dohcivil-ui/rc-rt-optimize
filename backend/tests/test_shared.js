@@ -388,6 +388,36 @@ var fsSL_highH1 = shared.checkFS_SL(d, H_test, 1.5, gs, gc, 25, 0.6);
 assert(fsSL_highH1.FS_SL > fsSL_lowH1.FS_SL,
   'larger H1 => larger FS_SL (' + fsSL_highH1.FS_SL + ' > ' + fsSL_lowH1.FS_SL + ')');
 
+// --- checkFS_BC ---
+console.log('\n[FS_BC] Bearing capacity safety factor:');
+
+// FS_BC(default d, qa=30)
+var fsBC = shared.checkFS_BC(d, H_test, H1_test, gs, gc, 25, 30);
+assert(fsBC.FS_BC > 0, 'FS_BC(default, qa=30) is positive (' + fsBC.FS_BC + ')');
+assert(!isNaN(fsBC.e) && isFinite(fsBC.e), 'e is a valid number');
+assert(!isNaN(fsBC.q_max) && isFinite(fsBC.q_max), 'q_max is a valid number');
+assert(!isNaN(fsBC.q_min) && isFinite(fsBC.q_min), 'q_min is a valid number');
+
+// q_max > q_min
+assert(fsBC.q_max > fsBC.q_min,
+  'q_max > q_min (' + fsBC.q_max + ' > ' + fsBC.q_min + ')');
+
+// larger qa => larger FS_BC
+var fsBC_lo = shared.checkFS_BC(d, H_test, H1_test, gs, gc, 25, 20);
+var fsBC_hi = shared.checkFS_BC(d, H_test, H1_test, gs, gc, 25, 50);
+assert(fsBC_hi.FS_BC > fsBC_lo.FS_BC,
+  'larger qa => larger FS_BC (' + fsBC_hi.FS_BC + ' > ' + fsBC_lo.FS_BC + ')');
+
+// tipping case: very narrow base, tall wall => e > B/3 => FS_BC=0, pass=false
+var d_tip = {
+  tt: 0.200, tb: 0.300, TBase: 0.350,
+  Base: 0.800, LToe: 0.200,
+  LHeel: shared.calculateLHeel(0.800, 0.200, 0.300)
+};
+var fsBC_tip = shared.checkFS_BC(d_tip, 5.0, 0.5, gs, gc, 25, 30);
+assert(fsBC_tip.FS_BC === 0, 'tipping => FS_BC = 0');
+assert(fsBC_tip.pass === false, 'tipping => pass = false');
+
 // --- Summary ---
 console.log('\n=============================');
 console.log('Total: ' + (passed + failed) + ' | PASS: ' + passed + ' | FAIL: ' + failed);
