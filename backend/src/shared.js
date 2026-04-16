@@ -24,6 +24,7 @@ var STEEL_PRICES = {
 // Safety Factor Limits (VB6 constants)
 // =============================================
 var FS_OT_MIN = 2.0;   // Overturning
+var FS_SL_MIN = 1.5;   // Sliding
 
 // =============================================
 // initArrays()
@@ -407,6 +408,25 @@ function checkFS_OT(d, H, H1, gamma_soil, gamma_concrete, phi) {
   return { FS_OT: FS_OT, pass: FS_OT >= FS_OT_MIN };
 }
 
+// CheckFS_SL — Sliding (line 508-528)
+function checkFS_SL(d, H, H1, gamma_soil, gamma_concrete, phi, mu) {
+  var Ka = calculateKa(phi);
+  var Kp = calculateKp(phi);
+  var Pa = calculatePa(gamma_soil, Ka, H);
+  var Pp = calculatePp(gamma_soil, Kp, H1);
+
+  var W_total = calculateWTotal(d, H, H1, gamma_soil, gamma_concrete).WTotal;
+
+  var Resistance = Pp + mu * W_total;
+
+  if (Pa <= 0.001) {
+    return { FS_SL: 999, pass: true };
+  }
+
+  var FS_SL = Resistance / Pa;
+  return { FS_SL: FS_SL, pass: FS_SL >= FS_SL_MIN };
+}
+
 // =============================================
 // Exports
 // =============================================
@@ -432,5 +452,7 @@ module.exports = {
   calculateMomentToe: calculateMomentToe,
   calculateMomentHeel: calculateMomentHeel,
   FS_OT_MIN: FS_OT_MIN,
-  checkFS_OT: checkFS_OT
+  checkFS_OT: checkFS_OT,
+  FS_SL_MIN: FS_SL_MIN,
+  checkFS_SL: checkFS_SL
 };
