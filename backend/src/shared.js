@@ -21,6 +21,11 @@ var STEEL_PRICES = {
 };
 
 // =============================================
+// Safety Factor Limits (VB6 constants)
+// =============================================
+var FS_OT_MIN = 2.0;   // Overturning
+
+// =============================================
 // initArrays()
 // =============================================
 // VB6 used 1D array with index ranges:
@@ -381,6 +386,28 @@ function calculateMomentHeel(d, H, H1, gamma_soil, gamma_concrete, phi) {
 }
 
 // =============================================
+// Safety Factor Checks (ported from modShared.bas SECTION 10)
+// =============================================
+
+// CheckFS_OT — Overturning (line 490-503)
+function checkFS_OT(d, H, H1, gamma_soil, gamma_concrete, phi) {
+  var Ka = calculateKa(phi);
+  var Kp = calculateKp(phi);
+  var Pa = calculatePa(gamma_soil, Ka, H);
+  var Pp = calculatePp(gamma_soil, Kp, H1);
+
+  var MR = calculateMR(d, H, H1, gamma_soil, gamma_concrete);
+  var MO = calculateMO(Pa, H, Pp, H1);
+
+  if (MO <= 0.001) {
+    return { FS_OT: 999, pass: true };
+  }
+
+  var FS_OT = MR / MO;
+  return { FS_OT: FS_OT, pass: FS_OT >= FS_OT_MIN };
+}
+
+// =============================================
 // Exports
 // =============================================
 module.exports = {
@@ -403,5 +430,7 @@ module.exports = {
   calculateMO: calculateMO,
   calculateMomentStem: calculateMomentStem,
   calculateMomentToe: calculateMomentToe,
-  calculateMomentHeel: calculateMomentHeel
+  calculateMomentHeel: calculateMomentHeel,
+  FS_OT_MIN: FS_OT_MIN,
+  checkFS_OT: checkFS_OT
 };
