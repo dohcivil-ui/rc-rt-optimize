@@ -362,6 +362,32 @@ var fsOT_narrow = shared.checkFS_OT(d_narrow, H_test, H1_test, gs, gc, 25);
 assert(fsOT_narrow.FS_OT < fsOT.FS_OT,
   'narrow base => lower FS_OT (' + fsOT_narrow.FS_OT + ' < ' + fsOT.FS_OT + ')');
 
+// --- checkFS_SL ---
+console.log('\n[FS_SL] Sliding safety factor:');
+
+// FS_SL(default) = (Pp + mu*WTotal) / Pa
+// Pa=3.2876, Pp=1.7945, WTotal=9.877, mu=0.6
+// Resistance = 1.7945 + 0.6*9.877 = 7.7207
+// FS_SL = 7.7207 / 3.2876 = 2.348
+var fsSL = shared.checkFS_SL(d, H_test, H1_test, gs, gc, 25, 0.6);
+var expected_resistance = Pp + 0.6 * wt.WTotal;
+var expected_fsSL = expected_resistance / Pa;
+assertClose(fsSL.FS_SL, expected_fsSL, 0.01,
+  'FS_SL(default, mu=0.6) = ' + expected_fsSL.toFixed(3));
+assert(fsSL.pass === true, 'pass = true when FS_SL >= 1.5');
+
+// larger mu => larger FS_SL
+var fsSL_lo = shared.checkFS_SL(d, H_test, H1_test, gs, gc, 25, 0.4);
+var fsSL_hi = shared.checkFS_SL(d, H_test, H1_test, gs, gc, 25, 0.8);
+assert(fsSL_hi.FS_SL > fsSL_lo.FS_SL,
+  'larger mu => larger FS_SL (' + fsSL_hi.FS_SL + ' > ' + fsSL_lo.FS_SL + ')');
+
+// larger Pp (higher H1) => larger FS_SL
+var fsSL_lowH1 = shared.checkFS_SL(d, H_test, 0.5, gs, gc, 25, 0.6);
+var fsSL_highH1 = shared.checkFS_SL(d, H_test, 1.5, gs, gc, 25, 0.6);
+assert(fsSL_highH1.FS_SL > fsSL_lowH1.FS_SL,
+  'larger H1 => larger FS_SL (' + fsSL_highH1.FS_SL + ' > ' + fsSL_lowH1.FS_SL + ')');
+
 // --- Summary ---
 console.log('\n=============================');
 console.log('Total: ' + (passed + failed) + ' | PASS: ' + passed + ' | FAIL: ' + failed);
