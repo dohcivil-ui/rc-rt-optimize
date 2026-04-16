@@ -418,6 +418,55 @@ var fsBC_tip = shared.checkFS_BC(d_tip, 5.0, 0.5, gs, gc, 25, 30);
 assert(fsBC_tip.FS_BC === 0, 'tipping => FS_BC = 0');
 assert(fsBC_tip.pass === false, 'tipping => pass = false');
 
+// --- calculateCost ---
+console.log('\n[Cost] Cost calculation:');
+
+var steel_default = {
+  stemDB_idx: 101, stemSP_idx: 111,
+  toeDB_idx: 100, toeSP_idx: 111,
+  heelDB_idx: 100, heelSP_idx: 111
+};
+var costResult = shared.calculateCost(d, H_test, gc, 2337, 24, steel_default);
+assert(costResult.cost > 0, 'cost > 0 (' + costResult.cost + ')');
+assert(!isNaN(costResult.V_total) && isFinite(costResult.V_total),
+  'V_total is a valid number (' + costResult.V_total + ')');
+assert(!isNaN(costResult.W_total_steel) && isFinite(costResult.W_total_steel),
+  'W_total_steel is a valid number (' + costResult.W_total_steel + ')');
+
+// more expensive concrete => higher cost
+var cost_cheap = shared.calculateCost(d, H_test, gc, 2337, 24, steel_default);
+var cost_expConcrete = shared.calculateCost(d, H_test, gc, 2850, 24, steel_default);
+assert(cost_expConcrete.cost > cost_cheap.cost,
+  'expensive concrete => higher cost (' + cost_expConcrete.cost + ' > ' + cost_cheap.cost + ')');
+
+// more expensive steel => higher cost
+var cost_expSteel = shared.calculateCost(d, H_test, gc, 2337, 28, steel_default);
+assert(cost_expSteel.cost > cost_cheap.cost,
+  'expensive steel => higher cost (' + cost_expSteel.cost + ' > ' + cost_cheap.cost + ')');
+
+// wider base => larger V_total => higher cost
+var d_wideBase = {
+  tt: 0.200, tb: 0.300, TBase: 0.350,
+  Base: 3.000, LToe: 0.400,
+  LHeel: shared.calculateLHeel(3.000, 0.400, 0.300)
+};
+var cost_wideBase = shared.calculateCost(d_wideBase, H_test, gc, 2337, 24, steel_default);
+assert(cost_wideBase.V_total > costResult.V_total,
+  'wider base => larger V_total (' + cost_wideBase.V_total + ' > ' + costResult.V_total + ')');
+assert(cost_wideBase.cost > costResult.cost,
+  'wider base => higher cost (' + cost_wideBase.cost + ' > ' + costResult.cost + ')');
+
+// DB_idx out of range => W_steel = 0 for that section
+var steel_bad = {
+  stemDB_idx: 99, stemSP_idx: 111,
+  toeDB_idx: 105, toeSP_idx: 111,
+  heelDB_idx: 100, heelSP_idx: 114
+};
+var costBad = shared.calculateCost(d, H_test, gc, 2337, 24, steel_bad);
+assert(costBad.W_total_steel === 0,
+  'all out-of-range steel => W_total_steel = 0 (' + costBad.W_total_steel + ')');
+assert(costBad.cost > 0, 'cost still > 0 from concrete (' + costBad.cost + ')');
+
 // --- Summary ---
 console.log('\n=============================');
 console.log('Total: ' + (passed + failed) + ' | PASS: ' + passed + ' | FAIL: ' + failed);
