@@ -467,6 +467,64 @@ assert(costBad.W_total_steel === 0,
   'all out-of-range steel => W_total_steel = 0 (' + costBad.W_total_steel + ')');
 assert(costBad.cost > 0, 'cost still > 0 from concrete (' + costBad.cost + ')');
 
+// --- calculateWSDParams ---
+console.log('\n[WSD] Working Stress Design parameters:');
+
+// fy=4000 (SD40), fc'=240
+var wsd40 = shared.calculateWSDParams(4000, 240);
+assert(wsd40.n === 9, 'n = 9');
+assert(wsd40.fs === 1700, 'SD40 => fs = 1700');
+assertClose(wsd40.fc, 108, 0.01, 'fc = 0.45*240 = 108');
+// k = 1/(1 + 1700/(9*108)) = 1/(1 + 1.74897) = 1/2.74897 = 0.3638
+assertClose(wsd40.k, 0.3638, 0.001, 'k ~ 0.364');
+// j = 1 - 0.3638/3 = 0.8787
+assertClose(wsd40.j, 0.8787, 0.001, 'j ~ 0.879');
+// R = 0.5*108*0.3638*0.8787 = 17.28
+assertClose(wsd40.R, 17.28, 0.1, 'R ~ 17.3');
+
+// fy=3000 (SD30), fc'=210
+var wsd30 = shared.calculateWSDParams(3000, 210);
+assert(wsd30.fs === 1500, 'SD30 => fs = 1500');
+assertClose(wsd30.fc, 94.5, 0.01, 'fc = 0.45*210 = 94.5');
+
+// --- calculateAsRequired ---
+console.log('\n[As_req] Required steel area:');
+
+// M=1.0 ton-m, fs=1700, j=0.879, d=0.35m
+// M_kg_cm = 100000, d_cm = 35
+// As = 100000 / (1700 * 0.879 * 35) = 1.912
+var As_req = shared.calculateAsRequired(1.0, 1700, 0.879, 0.35);
+assertClose(As_req, 1.912, 0.01, 'As_req(M=1.0) ~ 1.91 cm²');
+
+// M=0 => 0
+var As_zero = shared.calculateAsRequired(0, 1700, 0.879, 0.35);
+assert(As_zero === 0, 'M=0 => As_req = 0');
+
+// --- calculateAsProvided ---
+console.log('\n[As_prov] Provided steel area:');
+
+var arrays = shared.initArrays();
+
+// DB12@0.15 (DB_idx=0, SP_idx=1)
+// db_cm = 1.2, area = π*(0.6)² = 1.13097, n_bars = 1/0.15 = 6.6667
+// As = 1.13097 * 6.6667 = 7.5398
+var As_db12 = shared.calculateAsProvided(0, 1, arrays);
+assertClose(As_db12, 7.5398, 0.01, 'DB12@0.15m ~ 7.54 cm²/m');
+
+// DB20@0.20 (DB_idx=2, SP_idx=2)
+// db_cm = 2.0, area = π*(1.0)² = 3.14159, n_bars = 1/0.20 = 5
+// As = 3.14159 * 5 = 15.708
+var As_db20 = shared.calculateAsProvided(2, 2, arrays);
+assertClose(As_db20, 15.708, 0.01, 'DB20@0.20m ~ 15.71 cm²/m');
+
+// DB_idx out of range => 0
+assert(shared.calculateAsProvided(-1, 1, arrays) === 0, 'DB_idx=-1 => 0');
+assert(shared.calculateAsProvided(5, 1, arrays) === 0, 'DB_idx=5 => 0');
+
+// SP_idx out of range => 0
+assert(shared.calculateAsProvided(0, -1, arrays) === 0, 'SP_idx=-1 => 0');
+assert(shared.calculateAsProvided(0, 4, arrays) === 0, 'SP_idx=4 => 0');
+
 // --- Summary ---
 console.log('\n=============================');
 console.log('Total: ' + (passed + failed) + ' | PASS: ' + passed + ' | FAIL: ' + failed);
