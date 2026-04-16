@@ -304,6 +304,35 @@ var M_toe_tiny = shared.calculateMomentToe(d_tinyToe, H_test, H1_test, gs, gc, 2
 assert(M_toe_tiny < 0.01,
   'near-zero toe => near-zero M_toe (' + M_toe_tiny + ' < 0.01)');
 
+// --- calculateMomentHeel ---
+console.log('\n[M_heel] Moment at heel (ton-m/m):');
+
+var M_heel = shared.calculateMomentHeel(d, H_test, H1_test, gs, gc, 25);
+assert(M_heel >= 0, 'M_heel >= 0 (' + M_heel + ')');
+assert(!isNaN(M_heel) && isFinite(M_heel), 'M_heel is a valid number');
+
+// wider heel => larger M_heel
+var d_narrowHeel = {
+  tt: 0.200, tb: 0.300, TBase: 0.350,
+  Base: 2.000, LToe: 0.400,
+  LHeel: shared.calculateLHeel(2.000, 0.400, 0.300)
+};
+var d_wideHeel = {
+  tt: 0.200, tb: 0.300, TBase: 0.350,
+  Base: 3.500, LToe: 0.400,
+  LHeel: shared.calculateLHeel(3.500, 0.400, 0.300)
+};
+var M_heel_narrow = shared.calculateMomentHeel(d_narrowHeel, H_test, H1_test, gs, gc, 25);
+var M_heel_wide = shared.calculateMomentHeel(d_wideHeel, H_test, H1_test, gs, gc, 25);
+assert(M_heel_wide > M_heel_narrow,
+  'wider heel => larger M_heel (' + M_heel_wide + ' > ' + M_heel_narrow + ')');
+
+// higher H => larger M_heel (more soil weight)
+var M_heel_lowH = shared.calculateMomentHeel(d, 2.0, H1_test, gs, gc, 25);
+var M_heel_highH = shared.calculateMomentHeel(d, 4.0, H1_test, gs, gc, 25);
+assert(M_heel_highH > M_heel_lowH,
+  'higher H => larger M_heel (' + M_heel_highH + ' > ' + M_heel_lowH + ')');
+
 // --- Summary ---
 console.log('\n=============================');
 console.log('Total: ' + (passed + failed) + ' | PASS: ' + passed + ' | FAIL: ' + failed);
