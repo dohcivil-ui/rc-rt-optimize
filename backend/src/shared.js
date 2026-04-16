@@ -256,6 +256,18 @@ function calculateMO(Pa, H, Pp, H1) {
 }
 
 // =============================================
+// Moment at Stem Base (Section 9 — stem design)
+// =============================================
+// M_stem = 0.5 * gamma_soil * Ka * H1^3 / 3
+// H1 = embedment depth (m), phi in degrees
+// =============================================
+
+function calculateMomentStem(H1, gamma_soil, phi) {
+  var Ka = calculateKa(phi);
+  return 0.5 * gamma_soil * Ka * H1 * H1 * H1 / 3;
+}
+
+// =============================================
 // Exports
 // =============================================
 module.exports = {
@@ -275,5 +287,6 @@ module.exports = {
   calculateWTotal: calculateWTotal,
   steelUnitWeight: steelUnitWeight,
   calculateMR: calculateMR,
-  calculateMO: calculateMO
+  calculateMO: calculateMO,
+  calculateMomentStem: calculateMomentStem
 };
