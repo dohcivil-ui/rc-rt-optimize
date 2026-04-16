@@ -523,6 +523,42 @@ function calculateCost(d, H, gamma_concrete, concretePrice, steelPrice, steel) {
 }
 
 // =============================================
+// WSD Functions (ported from modWSD.bas)
+// =============================================
+
+// CalculateWSDParameters (line 22-50)
+function calculateWSDParams(fy, fc_prime) {
+  var n = 9;
+  var fs = fy <= 3000 ? 1500 : 1700;
+  var fc = 0.45 * fc_prime;
+  var k = 1 / (1 + fs / (n * fc));
+  var j = 1 - k / 3;
+  var R = 0.5 * fc * k * j;
+  return { n: n, fs: fs, fc: fc, k: k, j: j, R: R };
+}
+
+// CalculateAsRequired (line 73-89)
+function calculateAsRequired(M, fs, j, d) {
+  var M_kg_cm = M * 1000 * 100;
+  var d_cm = d * 100;
+  if (M_kg_cm <= 0 || d_cm <= 0 || fs <= 0 || j <= 0) return 0;
+  return M_kg_cm / (fs * j * d_cm);
+}
+
+// CalculateAsProvided (line 95-133)
+function calculateAsProvided(DB_idx, SP_idx, arrays) {
+  if (DB_idx < 0 || DB_idx >= arrays.DB.length) return 0;
+  if (SP_idx < 0 || SP_idx >= arrays.SP.length) return 0;
+
+  var db_mm = arrays.DB[DB_idx];
+  var spacing_m = arrays.SP[SP_idx];
+  var db_cm = db_mm / 10;
+  var area_per_bar = Math.PI * (db_cm / 2) * (db_cm / 2);
+  var n_bars = spacing_m > 0 ? 1 / spacing_m : 0;
+  return area_per_bar * n_bars;
+}
+
+// =============================================
 // Exports
 // =============================================
 module.exports = {
@@ -552,5 +588,8 @@ module.exports = {
   checkFS_SL: checkFS_SL,
   FS_BC_MIN: FS_BC_MIN,
   checkFS_BC: checkFS_BC,
-  calculateCost: calculateCost
+  calculateCost: calculateCost,
+  calculateWSDParams: calculateWSDParams,
+  calculateAsRequired: calculateAsRequired,
+  calculateAsProvided: calculateAsProvided
 };
