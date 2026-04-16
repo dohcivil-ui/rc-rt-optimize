@@ -268,6 +268,62 @@ function calculateMomentStem(H1, gamma_soil, phi) {
 }
 
 // =============================================
+// Moment at Toe — 1:1 port from VB6 CalculateMomentToe (line 390-432)
+// =============================================
+// NOTE: VB6 M_bearing triangle term uses (LToe/2)*(2*LToe/3)
+// instead of 0.5*LToe*(2*LToe/3). Ported as-is for research parity.
+// =============================================
+
+function calculateMomentToe(d, H, H1, gamma_soil, gamma_concrete, phi) {
+  var Ka = calculateKa(phi);
+  var Kp = calculateKp(phi);
+  var Pa = calculatePa(gamma_soil, Ka, H);
+  var Pp = calculatePp(gamma_soil, Kp, H1);
+
+  var r = calculateWTotal(d, H, H1, gamma_soil, gamma_concrete);
+  var W_total = r.WTotal;
+  var MR = r.W1 * r.x1 + r.W2 * r.x2 + r.W3 * r.x3 + r.W4 * r.x4;
+  var MO = calculateMO(Pa, H, Pp, H1);
+
+  var e, q_max, q_min;
+  var q_toe, q_junction;
+  var M_bearing, M_self, w_self, L_eff;
+
+  if (W_total > 0.1 && d.Base > 0.1) {
+    e = Math.abs((d.Base / 2) - ((MR - MO) / W_total));
+    if (e <= d.Base / 6) {
+      q_max = (W_total / d.Base) * (1 + (6 * e / d.Base));
+      q_min = (W_total / d.Base) * (1 - (6 * e / d.Base));
+    } else {
+      L_eff = 3 * (d.Base / 2 - e);
+      if (L_eff > 0.1) {
+        q_max = 2 * W_total / L_eff;
+      } else {
+        q_max = W_total / d.Base * 2;
+      }
+      q_min = 0;
+    }
+  } else {
+    q_max = 1;
+    q_min = 1;
+  }
+
+  q_toe = q_max;
+  if (d.Base > 0.01) {
+    q_junction = q_max - (q_max - q_min) * (d.LToe / d.Base);
+  } else {
+    q_junction = q_max;
+  }
+
+  M_bearing = q_junction * d.LToe * (d.LToe / 2) +
+              (q_toe - q_junction) * (d.LToe / 2) * (2 * d.LToe / 3);
+  w_self = gamma_concrete * d.TBase;
+  M_self = w_self * d.LToe * d.LToe / 2;
+
+  return Math.abs(M_bearing - M_self);
+}
+
+// =============================================
 // Exports
 // =============================================
 module.exports = {
@@ -288,5 +344,6 @@ module.exports = {
   steelUnitWeight: steelUnitWeight,
   calculateMR: calculateMR,
   calculateMO: calculateMO,
-  calculateMomentStem: calculateMomentStem
+  calculateMomentStem: calculateMomentStem,
+  calculateMomentToe: calculateMomentToe
 };
