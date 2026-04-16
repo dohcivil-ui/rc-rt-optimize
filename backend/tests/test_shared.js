@@ -525,6 +525,87 @@ assert(shared.calculateAsProvided(5, 1, arrays) === 0, 'DB_idx=5 => 0');
 assert(shared.calculateAsProvided(0, -1, arrays) === 0, 'SP_idx=-1 => 0');
 assert(shared.calculateAsProvided(0, 4, arrays) === 0, 'SP_idx=4 => 0');
 
+// --- checkSteelOK + checkDesignValid ---
+console.log('\n[DesignValid] Design validity check:');
+
+var wsd_test = shared.calculateWSDParams(4000, 240);
+
+// Valid design: DB20@0.15 for all sections (idx 2, 1)
+var steel_valid = {
+  stemDB_idx: 2, stemSP_idx: 1,
+  toeDB_idx: 2, toeSP_idx: 1,
+  heelDB_idx: 2, heelSP_idx: 1
+};
+var d_valid = {
+  tt: 0.200, tb: 0.300, TBase: 0.400,
+  Base: 2.500, LToe: 0.400,
+  LHeel: shared.calculateLHeel(2.500, 0.400, 0.300)
+};
+var dv = shared.checkDesignValid(d_valid, H_test, H1_test, gs, gc, 30, 0.6, 30, 0.075,
+  wsd_test, steel_valid, arrays);
+assert(dv.valid === true, 'valid design => valid=true');
+assert(dv.FS_OT >= 2.0, 'valid design => FS_OT >= 2.0 (' + dv.FS_OT + ')');
+assert(dv.FS_SL >= 1.5, 'valid design => FS_SL >= 1.5 (' + dv.FS_SL + ')');
+assert(dv.FS_BC >= 2.0, 'valid design => FS_BC >= 2.0 (' + dv.FS_BC + ')');
+assert(dv.reason === '', 'valid design => reason=""');
+
+// tb < tt => invalid
+var d_badTb = {
+  tt: 0.300, tb: 0.200, TBase: 0.400,
+  Base: 2.500, LToe: 0.400,
+  LHeel: shared.calculateLHeel(2.500, 0.400, 0.200)
+};
+var dv_tb = shared.checkDesignValid(d_badTb, H_test, H1_test, gs, gc, 30, 0.6, 30, 0.075,
+  wsd_test, steel_valid, arrays);
+assert(dv_tb.valid === false, 'tb < tt => valid=false');
+assert(dv_tb.reason.indexOf('tb') >= 0, 'reason contains "tb" (' + dv_tb.reason + ')');
+
+// LHeel < 0.3 => invalid
+var d_smallHeel = {
+  tt: 0.200, tb: 0.300, TBase: 0.400,
+  Base: 0.900, LToe: 0.400,
+  LHeel: shared.calculateLHeel(0.900, 0.400, 0.300)
+};
+var dv_lheel = shared.checkDesignValid(d_smallHeel, H_test, H1_test, gs, gc, 30, 0.6, 30, 0.075,
+  wsd_test, steel_valid, arrays);
+assert(dv_lheel.valid === false, 'LHeel < 0.3 => valid=false');
+
+// LHeel <= LToe => invalid
+var d_heelEqToe = {
+  tt: 0.200, tb: 0.300, TBase: 0.400,
+  Base: 1.100, LToe: 0.400,
+  LHeel: shared.calculateLHeel(1.100, 0.400, 0.300)
+};
+var dv_heelToe = shared.checkDesignValid(d_heelEqToe, H_test, H1_test, gs, gc, 30, 0.6, 30, 0.075,
+  wsd_test, steel_valid, arrays);
+assert(dv_heelToe.valid === false, 'LHeel <= LToe => valid=false');
+
+// Steel too small: DB12@0.25 (idx 0, 3)
+var steel_weak = {
+  stemDB_idx: 0, stemSP_idx: 3,
+  toeDB_idx: 0, toeSP_idx: 3,
+  heelDB_idx: 0, heelSP_idx: 3
+};
+var d_bigWall = {
+  tt: 0.200, tb: 0.400, TBase: 0.400,
+  Base: 2.500, LToe: 0.400,
+  LHeel: shared.calculateLHeel(2.500, 0.400, 0.400)
+};
+var dv_steel = shared.checkDesignValid(d_bigWall, 4.0, H1_test, gs, gc, 25, 0.6, 30, 0.075,
+  wsd_test, steel_weak, arrays);
+assert(dv_steel.valid === false, 'weak steel => valid=false');
+assert(dv_steel.reason.indexOf('steel') >= 0, 'reason contains "steel" (' + dv_steel.reason + ')');
+
+// Narrow base (tipping) => FS_BC fail
+var d_tipBC = {
+  tt: 0.200, tb: 0.300, TBase: 0.350,
+  Base: 1.500, LToe: 0.300,
+  LHeel: shared.calculateLHeel(1.500, 0.300, 0.300)
+};
+var dv_tip = shared.checkDesignValid(d_tipBC, 5.0, H1_test, gs, gc, 25, 0.6, 30, 0.075,
+  wsd_test, steel_valid, arrays);
+assert(dv_tip.valid === false, 'tipping => valid=false');
+
 // --- Summary ---
 console.log('\n=============================');
 console.log('Total: ' + (passed + failed) + ' | PASS: ' + passed + ' | FAIL: ' + failed);
