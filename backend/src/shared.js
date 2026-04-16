@@ -25,6 +25,7 @@ var STEEL_PRICES = {
 // =============================================
 var FS_OT_MIN = 2.0;   // Overturning
 var FS_SL_MIN = 1.5;   // Sliding
+var FS_BC_MIN = 2.0;   // Bearing Capacity
 
 // =============================================
 // initArrays()
@@ -427,6 +428,56 @@ function checkFS_SL(d, H, H1, gamma_soil, gamma_concrete, phi, mu) {
   return { FS_SL: FS_SL, pass: FS_SL >= FS_SL_MIN };
 }
 
+// CheckFS_BC — Bearing Capacity (line 533-586)
+function checkFS_BC(d, H, H1, gamma_soil, gamma_concrete, phi, qa) {
+  var Ka = calculateKa(phi);
+  var Kp = calculateKp(phi);
+  var Pa = calculatePa(gamma_soil, Ka, H);
+  var Pp = calculatePp(gamma_soil, Kp, H1);
+
+  var r = calculateWTotal(d, H, H1, gamma_soil, gamma_concrete);
+  var W_total = r.WTotal;
+
+  if (W_total < 0.1) {
+    return { FS_BC: 0, e: 0, q_max: 0, q_min: 0, pass: false };
+  }
+
+  if (d.Base < 0.1) {
+    return { FS_BC: 0, e: 0, q_max: 0, q_min: 0, pass: false };
+  }
+
+  var MR = r.W1 * r.x1 + r.W2 * r.x2 + r.W3 * r.x3 + r.W4 * r.x4;
+  var MO = calculateMO(Pa, H, Pp, H1);
+
+  var e = Math.abs((d.Base / 2) - ((MR - MO) / W_total));
+
+  if (e > d.Base / 3) {
+    return { FS_BC: 0, e: e, q_max: 0, q_min: 0, pass: false };
+  }
+
+  var q_max, q_min, L_eff;
+
+  if (e <= d.Base / 6) {
+    q_max = (W_total / d.Base) * (1 + (6 * e / d.Base));
+    q_min = (W_total / d.Base) * (1 - (6 * e / d.Base));
+  } else {
+    L_eff = 3 * (d.Base / 2 - e);
+    if (L_eff > 0.01) {
+      q_max = 2 * W_total / L_eff;
+    } else {
+      q_max = W_total / d.Base * 2;
+    }
+    q_min = 0;
+  }
+
+  if (q_min < 0 || q_max <= 0.001) {
+    return { FS_BC: 0, e: e, q_max: q_max, q_min: q_min, pass: false };
+  }
+
+  var FS_BC = qa / q_max;
+  return { FS_BC: FS_BC, e: e, q_max: q_max, q_min: q_min, pass: FS_BC >= FS_BC_MIN };
+}
+
 // =============================================
 // Exports
 // =============================================
@@ -454,5 +505,7 @@ module.exports = {
   FS_OT_MIN: FS_OT_MIN,
   checkFS_OT: checkFS_OT,
   FS_SL_MIN: FS_SL_MIN,
-  checkFS_SL: checkFS_SL
+  checkFS_SL: checkFS_SL,
+  FS_BC_MIN: FS_BC_MIN,
+  checkFS_BC: checkFS_BC
 };
