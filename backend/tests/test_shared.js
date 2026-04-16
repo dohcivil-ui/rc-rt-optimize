@@ -333,6 +333,35 @@ var M_heel_highH = shared.calculateMomentHeel(d, 4.0, H1_test, gs, gc, 25);
 assert(M_heel_highH > M_heel_lowH,
   'higher H => larger M_heel (' + M_heel_highH + ' > ' + M_heel_lowH + ')');
 
+// --- checkFS_OT ---
+console.log('\n[FS_OT] Overturning safety factor:');
+
+// FS_OT(default) = MR/MO = 11.0442/2.7486 = 4.018
+var fsOT = shared.checkFS_OT(d, H_test, H1_test, gs, gc, 25);
+assertClose(fsOT.FS_OT, 4.018, 0.01, 'FS_OT(default) = 4.018');
+assert(fsOT.pass === true, 'pass = true when FS_OT >= 2.0');
+
+// MO <= 0.001 case: very high phi makes Ka tiny, large H1 makes Pp dominate
+// Use phi=45, H1=2.5 so Pp*(H1/3) >> Pa*(H/3) => MO <= 0
+var d_stable = {
+  tt: 0.200, tb: 0.300, TBase: 0.350,
+  Base: 3.000, LToe: 0.400,
+  LHeel: shared.calculateLHeel(3.000, 0.400, 0.300)
+};
+var fsOT_zero = shared.checkFS_OT(d_stable, 3.0, 2.5, gs, gc, 45);
+assert(fsOT_zero.FS_OT === 999, 'MO~0 => FS_OT = 999 (FS_OT=' + fsOT_zero.FS_OT + ')');
+assert(fsOT_zero.pass === true, 'MO~0 => pass = true');
+
+// narrow base => lower FS_OT (may fail)
+var d_narrow = {
+  tt: 0.200, tb: 0.300, TBase: 0.350,
+  Base: 1.500, LToe: 0.400,
+  LHeel: shared.calculateLHeel(1.500, 0.400, 0.300)
+};
+var fsOT_narrow = shared.checkFS_OT(d_narrow, H_test, H1_test, gs, gc, 25);
+assert(fsOT_narrow.FS_OT < fsOT.FS_OT,
+  'narrow base => lower FS_OT (' + fsOT_narrow.FS_OT + ' < ' + fsOT.FS_OT + ')');
+
 // --- Summary ---
 console.log('\n=============================');
 console.log('Total: ' + (passed + failed) + ' | PASS: ' + passed + ' | FAIL: ' + failed);
