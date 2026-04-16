@@ -230,6 +230,162 @@ assert(costResult7.cost > 0, 'H=7: cost > 0');
 assert(costResult7.V_total > 0, 'H=7: V_total > 0');
 assert(costResult7.W_total_steel > 0, 'H=7: W_total_steel > 0');
 
+// ============================================================================
+// Step 9.3: generateNeighbor tests
+// ============================================================================
+var rng = require('../src/rng');
+
+console.log('\n\n=== Test generateNeighbor (Step 9.3) ===\n');
+
+function copyIndices(idx) {
+  return {
+    tt: idx.tt, tb: idx.tb, TBase: idx.TBase, Base: idx.Base, LToe: idx.LToe,
+    stemDB: idx.stemDB, stemSP: idx.stemSP,
+    toeDB: idx.toeDB, toeSP: idx.toeSP,
+    heelDB: idx.heelDB, heelSP: idx.heelSP
+  };
+}
+
+function indicesEqual(a, b) {
+  return a.tt === b.tt && a.tb === b.tb && a.TBase === b.TBase &&
+         a.Base === b.Base && a.LToe === b.LToe &&
+         a.stemDB === b.stemDB && a.stemSP === b.stemSP &&
+         a.toeDB === b.toeDB && a.toeSP === b.toeSP &&
+         a.heelDB === b.heelDB && a.heelSP === b.heelSP;
+}
+
+// ============================================================================
+// Part 1: Statistical tests (5 heights x 1000 iterations each)
+// ============================================================================
+console.log('[Part 1] Statistical invariants (5 heights x 1000 iter):');
+
+var testHeights = [3, 4, 5, 6, 7];
+var EPS = 1e-9;
+
+for (var h = 0; h < testHeights.length; h++) {
+  var H = testHeights[h];
+  console.log('\n  H=' + H + 'm:');
+
+  var state = hca.createHCAState(buildParams(H), {
+    rng: rng.createSeededRng('stat-H' + H)
+  });
+  hca.initializeCurrentDesign(state);
+
+  var allInRange = true;
+  var allTbLim = true;
+  var allTBaseLim = true;
+  var allLToeInBand = true;
+  var allBaseInBand = true;
+  var allSteelInRange = true;
+  var changeCount = 0;
+
+  for (var iter = 0; iter < 1000; iter++) {
+    var n = hca.generateNeighbor(state);
+
+    if (n.tt < hca.IDX.TT_MIN || n.tt > hca.IDX.TT_MAX) allInRange = false;
+    if (n.tb < hca.IDX.TB_MIN || n.tb > hca.IDX.TB_MAX) allInRange = false;
+    if (n.TBase < hca.IDX.TBASE_MIN || n.TBase > hca.IDX.TBASE_MAX) allInRange = false;
+    if (n.Base < hca.IDX.BASE_MIN || n.Base > hca.IDX.BASE_MAX) allInRange = false;
+    if (n.LToe < hca.IDX.LTOE_MIN || n.LToe > hca.IDX.LTOE_MAX) allInRange = false;
+
+    var wpTt = hca.wpLookup(state.arrays, 'tt', n.tt);
+    var wpTb = hca.wpLookup(state.arrays, 'tb', n.tb);
+    var wpTBase = hca.wpLookup(state.arrays, 'TBase', n.TBase);
+    var wpBase = hca.wpLookup(state.arrays, 'Base', n.Base);
+    var wpLToe = hca.wpLookup(state.arrays, 'LToe', n.LToe);
+
+    if (wpTb > 0.12 * H + EPS) allTbLim = false;
+    if (wpTBase > 0.15 * H + EPS) allTBaseLim = false;
+    if (wpLToe < 0.10 * H - EPS || wpLToe > 0.20 * H + EPS) allLToeInBand = false;
+    if (wpBase < 0.50 * H - EPS || wpBase > 0.70 * H + EPS) allBaseInBand = false;
+
+    if (n.stemDB < hca.IDX.DB_MIN || n.stemDB > hca.IDX.DB_MAX) allSteelInRange = false;
+    if (n.stemSP < hca.IDX.SP_MIN || n.stemSP > hca.IDX.SP_MAX) allSteelInRange = false;
+    if (n.toeDB < hca.IDX.DB_MIN || n.toeDB > hca.IDX.DB_MAX) allSteelInRange = false;
+    if (n.toeSP < hca.IDX.SP_MIN || n.toeSP > hca.IDX.SP_MAX) allSteelInRange = false;
+    if (n.heelDB < hca.IDX.DB_MIN || n.heelDB > hca.IDX.DB_MAX) allSteelInRange = false;
+    if (n.heelSP < hca.IDX.SP_MIN || n.heelSP > hca.IDX.SP_MAX) allSteelInRange = false;
+
+    if (!indicesEqual(n, state.indices)) changeCount++;
+
+    state.indices = n;
+  }
+
+  assert(allInRange,       'H=' + H + ': all 5 dims within VB6 index ranges (1000 iter)');
+  // NOTE: tb>=tt is NOT guaranteed by generateNeighbor — VB6 relies on
+  // checkDesignValid to filter neighbors where 0.12H limit conflicts with tt.
+  assert(allTbLim,         'H=' + H + ': WP_tb <= 0.12H always (1000 iter)');
+  assert(allTBaseLim,      'H=' + H + ': WP_TBase <= 0.15H always (1000 iter)');
+  assert(allLToeInBand,    'H=' + H + ': 0.1H <= WP_LToe <= 0.2H always (1000 iter)');
+  assert(allBaseInBand,    'H=' + H + ': 0.5H <= WP_Base <= 0.7H always (1000 iter)');
+  assert(allSteelInRange,  'H=' + H + ': all steel indices in valid ranges (1000 iter)');
+  assert(changeCount > 500, 'H=' + H + ': changeCount > 500 (randomness working) — got ' + changeCount);
+}
+
+// ============================================================================
+// Part 2: Fixed-seed spot checks (3 cases)
+// ============================================================================
+console.log('\n[Part 2] Fixed-seed spot checks:');
+
+// --- Spot 1: H=4, seed='spot-1', after 1 call ---
+console.log('\n  Spot 1: H=4, seed=spot-1, 1 call:');
+var sp1 = hca.createHCAState(buildParams(4), { rng: rng.createSeededRng('spot-1') });
+hca.initializeCurrentDesign(sp1);
+var n1 = hca.generateNeighbor(sp1);
+assert(n1.tt === 12,      'Spot 1: n1.tt');
+assert(n1.tb === 25,      'Spot 1: n1.tb');
+assert(n1.TBase === 46,   'Spot 1: n1.TBase');
+assert(n1.Base === 62,    'Spot 1: n1.Base');
+assert(n1.LToe === 85,    'Spot 1: n1.LToe');
+assert(n1.stemDB === 104, 'Spot 1: n1.stemDB');
+assert(n1.stemSP === 110, 'Spot 1: n1.stemSP');
+assert(n1.toeDB === 103,  'Spot 1: n1.toeDB');
+assert(n1.toeSP === 112,  'Spot 1: n1.toeSP');
+assert(n1.heelDB === 104, 'Spot 1: n1.heelDB');
+assert(n1.heelSP === 112, 'Spot 1: n1.heelSP');
+
+// --- Spot 2: H=5, seed='spot-2', after 10 calls ---
+console.log('\n  Spot 2: H=5, seed=spot-2, 10 calls:');
+var sp2 = hca.createHCAState(buildParams(5), { rng: rng.createSeededRng('spot-2') });
+hca.initializeCurrentDesign(sp2);
+var n2;
+for (var i = 0; i < 10; i++) {
+  n2 = hca.generateNeighbor(sp2);
+  sp2.indices = n2;
+}
+assert(n2.tt === 17,      'Spot 2: n2.tt');
+assert(n2.tb === 28,      'Spot 2: n2.tb');
+assert(n2.TBase === 48,   'Spot 2: n2.TBase');
+assert(n2.Base === 64,    'Spot 2: n2.Base');
+assert(n2.LToe === 85,    'Spot 2: n2.LToe');
+assert(n2.stemDB === 101, 'Spot 2: n2.stemDB');
+assert(n2.stemSP === 110, 'Spot 2: n2.stemSP');
+assert(n2.toeDB === 100,  'Spot 2: n2.toeDB');
+assert(n2.toeSP === 111,  'Spot 2: n2.toeSP');
+assert(n2.heelDB === 104, 'Spot 2: n2.heelDB');
+assert(n2.heelSP === 113, 'Spot 2: n2.heelSP');
+
+// --- Spot 3: H=6, seed='spot-3', after 100 calls ---
+console.log('\n  Spot 3: H=6, seed=spot-3, 100 calls:');
+var sp3 = hca.createHCAState(buildParams(6), { rng: rng.createSeededRng('spot-3') });
+hca.initializeCurrentDesign(sp3);
+var n3;
+for (var i = 0; i < 100; i++) {
+  n3 = hca.generateNeighbor(sp3);
+  sp3.indices = n3;
+}
+assert(n3.tt === 17,      'Spot 3: n3.tt');
+assert(n3.tb === 28,      'Spot 3: n3.tb');
+assert(n3.TBase === 40,   'Spot 3: n3.TBase');
+assert(n3.Base === 64,    'Spot 3: n3.Base');
+assert(n3.LToe === 83,    'Spot 3: n3.LToe');
+assert(n3.stemDB === 101, 'Spot 3: n3.stemDB');
+assert(n3.stemSP === 113, 'Spot 3: n3.stemSP');
+assert(n3.toeDB === 100,  'Spot 3: n3.toeDB');
+assert(n3.toeSP === 113,  'Spot 3: n3.toeSP');
+assert(n3.heelDB === 103, 'Spot 3: n3.heelDB');
+assert(n3.heelSP === 110, 'Spot 3: n3.heelSP');
+
 // === Summary ===
 console.log('\n=============================');
 console.log('Total: ' + (passed + failed) + ' | PASS: ' + passed + ' | FAIL: ' + failed);

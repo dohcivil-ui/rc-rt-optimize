@@ -148,10 +148,127 @@ function getDesignFromCurrent(state) {
   };
 }
 
+// ==========================================================================
+// generateNeighbor — Hill Climbing neighbor generation (Step 9.3)
+// VB6 ref: modHillClimbing.bas lines 145-252 (Private Sub GenerateNeighbor)
+//
+// Returns NEW indices object; does NOT mutate state.indices.
+// ==========================================================================
+function generateNeighbor(state) {
+  var arrays = state.arrays;
+  var cur = state.indices;
+  var H = state.params.H;
+  var rng = state.rng;
+
+  var lim_tb      = shared.roundTo(0.12 * H, 3);
+  var lim_TBase   = shared.roundTo(0.15 * H, 3);
+  var lim_LToe_hi = shared.roundTo(0.20 * H, 3);
+  var lim_LToe_lo = shared.roundTo(0.10 * H, 3);
+  var lim_Base_hi = shared.roundTo(0.70 * H, 3);
+  var lim_Base_lo = shared.roundTo(0.50 * H, 3);
+
+  var step;
+
+  // 1) tt: step = Rand(-2, 2), clamp only
+  step = rngLib.rand(-2, 2, rng);
+  var newTt = cur.tt + step;
+  if (newTt < IDX.TT_MIN) newTt = IDX.TT_MIN;
+  if (newTt > IDX.TT_MAX) newTt = IDX.TT_MAX;
+
+  // 2) tb: step = Rand(-1, 1), clamp, then tb>=tt (walk UP), then tb<=0.12H (walk DOWN)
+  step = rngLib.rand(-1, 1, rng);
+  var newTb = cur.tb + step;
+  if (newTb < IDX.TB_MIN) newTb = IDX.TB_MIN;
+  if (newTb > IDX.TB_MAX) newTb = IDX.TB_MAX;
+  if (wpLookup(arrays, 'tb', newTb) < wpLookup(arrays, 'tt', newTt)) {
+    newTb = IDX.TB_MIN;
+    while (newTb <= IDX.TB_MAX) {
+      if (wpLookup(arrays, 'tb', newTb) >= wpLookup(arrays, 'tt', newTt)) break;
+      newTb = newTb + 1;
+    }
+    if (newTb > IDX.TB_MAX) newTb = IDX.TB_MAX;
+  }
+  while (newTb > IDX.TB_MIN && wpLookup(arrays, 'tb', newTb) > lim_tb) {
+    newTb = newTb - 1;
+  }
+
+  // 3) TBase: step = Rand(-1, 1), clamp, then <=0.15H (walk DOWN)
+  step = rngLib.rand(-1, 1, rng);
+  var newTBase = cur.TBase + step;
+  if (newTBase < IDX.TBASE_MIN) newTBase = IDX.TBASE_MIN;
+  if (newTBase > IDX.TBASE_MAX) newTBase = IDX.TBASE_MAX;
+  while (newTBase > IDX.TBASE_MIN && wpLookup(arrays, 'TBase', newTBase) > lim_TBase) {
+    newTBase = newTBase - 1;
+  }
+
+  // 4) LToe: step = Rand(-2, 2), clamp, then <=0.2H (DOWN), then >=0.1H (UP)
+  step = rngLib.rand(-2, 2, rng);
+  var newLToe = cur.LToe + step;
+  if (newLToe < IDX.LTOE_MIN) newLToe = IDX.LTOE_MIN;
+  if (newLToe > IDX.LTOE_MAX) newLToe = IDX.LTOE_MAX;
+  while (newLToe > IDX.LTOE_MIN && wpLookup(arrays, 'LToe', newLToe) > lim_LToe_hi) {
+    newLToe = newLToe - 1;
+  }
+  while (newLToe < IDX.LTOE_MAX && wpLookup(arrays, 'LToe', newLToe) < lim_LToe_lo) {
+    newLToe = newLToe + 1;
+  }
+
+  // 5) Base: step = Rand(-1, 1), clamp, then >=0.5H (UP), then <=0.7H (DOWN)
+  step = rngLib.rand(-1, 1, rng);
+  var newBase = cur.Base + step;
+  if (newBase < IDX.BASE_MIN) newBase = IDX.BASE_MIN;
+  if (newBase > IDX.BASE_MAX) newBase = IDX.BASE_MAX;
+  while (newBase < IDX.BASE_MAX && wpLookup(arrays, 'Base', newBase) < lim_Base_lo) {
+    newBase = newBase + 1;
+  }
+  while (newBase > IDX.BASE_MIN && wpLookup(arrays, 'Base', newBase) > lim_Base_hi) {
+    newBase = newBase - 1;
+  }
+
+  // 6-11) Steel: step = Rand(-2, 2) each, clamp only
+  step = rngLib.rand(-2, 2, rng);
+  var newStemDB = cur.stemDB + step;
+  if (newStemDB < IDX.DB_MIN) newStemDB = IDX.DB_MIN;
+  if (newStemDB > IDX.DB_MAX) newStemDB = IDX.DB_MAX;
+
+  step = rngLib.rand(-2, 2, rng);
+  var newStemSP = cur.stemSP + step;
+  if (newStemSP < IDX.SP_MIN) newStemSP = IDX.SP_MIN;
+  if (newStemSP > IDX.SP_MAX) newStemSP = IDX.SP_MAX;
+
+  step = rngLib.rand(-2, 2, rng);
+  var newToeDB = cur.toeDB + step;
+  if (newToeDB < IDX.DB_MIN) newToeDB = IDX.DB_MIN;
+  if (newToeDB > IDX.DB_MAX) newToeDB = IDX.DB_MAX;
+
+  step = rngLib.rand(-2, 2, rng);
+  var newToeSP = cur.toeSP + step;
+  if (newToeSP < IDX.SP_MIN) newToeSP = IDX.SP_MIN;
+  if (newToeSP > IDX.SP_MAX) newToeSP = IDX.SP_MAX;
+
+  step = rngLib.rand(-2, 2, rng);
+  var newHeelDB = cur.heelDB + step;
+  if (newHeelDB < IDX.DB_MIN) newHeelDB = IDX.DB_MIN;
+  if (newHeelDB > IDX.DB_MAX) newHeelDB = IDX.DB_MAX;
+
+  step = rngLib.rand(-2, 2, rng);
+  var newHeelSP = cur.heelSP + step;
+  if (newHeelSP < IDX.SP_MIN) newHeelSP = IDX.SP_MIN;
+  if (newHeelSP > IDX.SP_MAX) newHeelSP = IDX.SP_MAX;
+
+  return {
+    tt: newTt, tb: newTb, TBase: newTBase, Base: newBase, LToe: newLToe,
+    stemDB: newStemDB, stemSP: newStemSP,
+    toeDB:  newToeDB,  toeSP:  newToeSP,
+    heelDB: newHeelDB, heelSP: newHeelSP
+  };
+}
+
 module.exports = {
   IDX: IDX,
   wpLookup: wpLookup,
   createHCAState: createHCAState,
   initializeCurrentDesign: initializeCurrentDesign,
-  getDesignFromCurrent: getDesignFromCurrent
+  getDesignFromCurrent: getDesignFromCurrent,
+  generateNeighbor: generateNeighbor
 };
