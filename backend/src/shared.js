@@ -479,6 +479,50 @@ function checkFS_BC(d, H, H1, gamma_soil, gamma_concrete, phi, qa) {
 }
 
 // =============================================
+// Steel Weight helper (VB6 CalculateSteelWeight, line 685-704)
+// =============================================
+// DB_idx: 100-104 (maps to arrays.DB[0..4])
+// SP_idx: 110-113 (maps to arrays.SP[0..3])
+// =============================================
+
+function calculateSteelWeight(DB_idx, SP_idx, length, arrays) {
+  if (DB_idx < 100 || DB_idx > 104) return 0;
+  if (SP_idx < 110 || SP_idx > 113) return 0;
+
+  var db_mm = arrays.DB[DB_idx - 100];
+  var spacing_m = arrays.SP[SP_idx - 110];
+  var n_bars = 1 / spacing_m;
+  var weight_per_m = 0.00617 * db_mm * db_mm;
+  return n_bars * weight_per_m * length;
+}
+
+// =============================================
+// Cost Calculation (VB6 CalculateCostFull, line 651-680)
+// =============================================
+
+function calculateCost(d, H, gamma_concrete, concretePrice, steelPrice, steel) {
+  var arrays = initArrays();
+  var H_stem = H - d.TBase;
+
+  var V_stem = 0.5 * (d.tt + d.tb) * H_stem;
+  var V_base = d.Base * d.TBase;
+  var V_total = V_stem + V_base;
+
+  var L_stem = H_stem + 0.4;
+  var L_toe = d.LToe + 0.4;
+  var L_heel = d.LHeel + 0.4;
+
+  var W_stem = calculateSteelWeight(steel.stemDB_idx, steel.stemSP_idx, L_stem, arrays);
+  var W_toe = calculateSteelWeight(steel.toeDB_idx, steel.toeSP_idx, L_toe, arrays);
+  var W_heel = calculateSteelWeight(steel.heelDB_idx, steel.heelSP_idx, L_heel, arrays);
+  var W_total_steel = W_stem + W_toe + W_heel;
+
+  var cost = V_total * concretePrice + W_total_steel * steelPrice;
+
+  return { V_total: V_total, W_total_steel: W_total_steel, cost: cost };
+}
+
+// =============================================
 // Exports
 // =============================================
 module.exports = {
@@ -507,5 +551,6 @@ module.exports = {
   FS_SL_MIN: FS_SL_MIN,
   checkFS_SL: checkFS_SL,
   FS_BC_MIN: FS_BC_MIN,
-  checkFS_BC: checkFS_BC
+  checkFS_BC: checkFS_BC,
+  calculateCost: calculateCost
 };
