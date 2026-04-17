@@ -460,7 +460,7 @@ Begin VB.Form Form1
          Height          =   555
          Left            =   3000
          TabIndex        =   5
-         Text            =   "1.00"
+         Text            =   "1.20"
          Top             =   960
          Width           =   1200
       End

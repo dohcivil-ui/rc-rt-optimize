@@ -4,5 +4,5 @@ Form1 = 209, 115, 1224, 930, , 0, 0, 0, 0, C
 modWSD = 132, 123, 1154, 937, C
 modDataStructures = 0, 0, 0, 0, C
 modShared = 132, 120, 1494, 937, C
-modBA = 132, 120, 1422, 937, 
+modBA = 132, 120, 1422, 937, C
 modHillClimbing = 132, 120, 1372, 937, C
