@@ -1,0 +1,36 @@
+﻿{
+  "source": "VB6 RC_RT_HCA v2.0 (v5.1 algorithm)",
+  "run_date": "2569-04-17",
+  "algorithm": "HCA",
+  "maxIterations": 5000,
+  "numTrials": 30,
+  "heights_m": [3, 4, 5],
+  "fc_values": [280],
+  "params": {
+    "H1": 1.20,
+    "mu": 0.60,
+    "gamma_soil": 1.80,
+    "phi": 30,
+    "qa": 30,
+    "gamma_concrete": 2.40,
+    "cover": 0.075,
+    "fy": 4000
+  },
+  "prices": {
+    "concrete_280": 2524,
+    "steel_4000": 24
+  },
+  "step_9_5_scope": {
+    "purpose": "Validate Node.js port equivalence with VB6",
+    "runs": 3,
+    "rationale": "fc=280 verified from UI screenshot (best=2942.29 at H=3)"
+  },
+  "step_11_scope": {
+    "purpose": "Full research matrix for paper",
+    "fc_values_planned": [240, 280, 320],
+    "heights_planned": [3, 4, 5],
+    "total_scenarios": 9,
+    "rationale": "Research focus is modernization (VB6 to web+AI), not fc sensitivity"
+  },
+  "notes": "Step 9.5 validates port only. Step 11 adds fc=240,320 for paper matrix."
+}
