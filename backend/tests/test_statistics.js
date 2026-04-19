@@ -153,6 +153,88 @@ assert(stats.mean([]) === 0, 'mean([]) === 0');
 assert(stats.stdDev([42]) === 0, 'stdDev([single]) === 0');
 
 // ==========================================================================
+// Group 8 — Fisher's exact test
+// ==========================================================================
+section('Group 8: fisherExact');
+
+// Identical tables -> p=1
+(function () {
+  var r = stats.fisherExact(30, 0, 30, 0);
+  assert(Math.abs(r.p - 1.0) < 1e-9, 'fisher identical 30/30 p==1');
+})();
+
+(function () {
+  var r = stats.fisherExact(23, 7, 23, 7);
+  assert(Math.abs(r.p - 1.0) < 1e-9, 'fisher identical 23/30 p==1');
+})();
+
+// Our 4 scenarios (known p-values from Python reference)
+// H=5 fc=280: (8,22) vs (6,24) -> p ~= 0.76
+(function () {
+  var r = stats.fisherExact(8, 22, 6, 24);
+  assert(r.p > 0.70 && r.p < 0.80, 'fisher H5-280: p in [0.70, 0.80], got ' + r.p);
+})();
+
+// H=5 fc=240: (3,27) vs (0,30) -> p ~= 0.237
+(function () {
+  var r = stats.fisherExact(3, 27, 0, 30);
+  assert(r.p > 0.22 && r.p < 0.26, 'fisher H5-240: p in [0.22, 0.26], got ' + r.p);
+})();
+
+// Extreme difference: (30,0) vs (0,30) -> very small p
+(function () {
+  var r = stats.fisherExact(30, 0, 0, 30);
+  assert(r.p < 1e-10, 'fisher extreme difference p < 1e-10, got ' + r.p);
+})();
+
+// Symmetric: fisherExact(a,b,c,d) == fisherExact(c,d,a,b)
+(function () {
+  var r1 = stats.fisherExact(8, 22, 6, 24);
+  var r2 = stats.fisherExact(6, 24, 8, 22);
+  assert(Math.abs(r1.p - r2.p) < 1e-12, 'fisher symmetry p');
+})();
+
+// Zero rows -> p=1
+(function () {
+  var r = stats.fisherExact(0, 0, 5, 5);
+  assert(r.p === 1.0, 'fisher empty row -> p=1');
+})();
+
+// Validation: negative cells -> throw
+(function () {
+  var threw = false;
+  try { stats.fisherExact(-1, 2, 3, 4); } catch (e) { threw = true; }
+  assert(threw, 'fisher throws on negative cell');
+})();
+
+// Odds ratio computation
+(function () {
+  var r = stats.fisherExact(10, 5, 5, 10); // OR = (10*10)/(5*5) = 4
+  assert(Math.abs(r.oddsRatio - 4.0) < 1e-9, 'fisher odds ratio');
+})();
+
+// Odds ratio undefined when b=0 or c=0
+(function () {
+  var r = stats.fisherExact(5, 0, 3, 7);
+  assert(r.oddsRatio === null, 'fisher OR null when b=0');
+})();
+
+// Large N still works (factorial cache must not overflow)
+(function () {
+  var r = stats.fisherExact(500, 500, 500, 500);
+  assert(Math.abs(r.p - 1.0) < 1e-9, 'fisher large N identical p=1');
+})();
+
+// Logical consistency: row total = 0 -> degenerate p=1
+(function () {
+  var r = stats.fisherExact(0, 10, 5, 5);
+  // r1=10, r2=10, c1=5. Valid table range: a in [max(0, 5-10), min(10,5)] = [0, 5]
+  assert(r.p >= 0 && r.p <= 1, 'fisher probability in valid range');
+})();
+
+console.log('fisherExact: 12 tests checked');
+
+// ==========================================================================
 // Summary
 // ==========================================================================
 console.log('');

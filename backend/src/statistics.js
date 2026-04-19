@@ -193,6 +193,93 @@ function meanWithinTolerance(sample, reference, relativeTol) {
 }
 
 // ==========================================================================
+// D.2) Fisher's exact test (2x2 contingency table, two-sided)
+// ==========================================================================
+//
+// Table layout:
+//   Group 1 (e.g., Node): a hits, b misses  (row total = a+b)
+//   Group 2 (e.g., VB6):  c hits, d misses  (row total = c+d)
+//
+// Returns { p, oddsRatio, a, b, c, d } with p clamped to [0,1].
+// Two-sided p uses "sum of probabilities of tables with P <= P(observed)".
+// Uses log-space combinations to avoid overflow at N > ~170.
+
+// logFactorial table + on-demand extension
+var LOG_FACT_CACHE = [0, 0]; // logFact[0]=0, logFact[1]=0
+
+function logFactorial(n) {
+  var k;
+  if (n < 0) return NaN;
+  if (n < LOG_FACT_CACHE.length) return LOG_FACT_CACHE[n];
+  var last = LOG_FACT_CACHE.length - 1;
+  var acc = LOG_FACT_CACHE[last];
+  for (k = last + 1; k <= n; k++) {
+    acc = acc + Math.log(k);
+    LOG_FACT_CACHE[k] = acc;
+  }
+  return acc;
+}
+
+function logCombinations(n, k) {
+  if (k < 0 || k > n) return -Infinity;
+  return logFactorial(n) - logFactorial(k) - logFactorial(n - k);
+}
+
+// Probability of a specific 2x2 table under Fisher's null (hypergeometric)
+function hypergeomLogProb(a, b, c, d) {
+  var r1 = a + b;
+  var r2 = c + d;
+  var c1 = a + c;
+  var n = r1 + r2;
+  // P = C(r1,a)*C(r2,c) / C(n,c1)
+  return logCombinations(r1, a) + logCombinations(r2, c) - logCombinations(n, c1);
+}
+
+function fisherExact(a, b, c, d) {
+  if (a < 0 || b < 0 || c < 0 || d < 0) {
+    throw new Error('fisherExact: all cells must be non-negative');
+  }
+  var r1 = a + b;
+  var r2 = c + d;
+  var c1 = a + c;
+  var n = r1 + r2;
+
+  // Degenerate cases
+  if (r1 === 0 || r2 === 0 || c1 === 0 || c1 === n) {
+    return { p: 1.0, oddsRatio: null, a: a, b: b, c: c, d: d };
+  }
+
+  var logPobs = hypergeomLogProb(a, b, c, d);
+  var epsLog = 1e-9; // slack for "as extreme or more" comparison in log-space
+
+  // Iterate over all valid tables with same marginals:
+  //   a' in [max(0, c1 - r2), min(r1, c1)]
+  var aMin = Math.max(0, c1 - r2);
+  var aMax = Math.min(r1, c1);
+  var sumP = 0;
+  var ai;
+  for (ai = aMin; ai <= aMax; ai++) {
+    var bi = r1 - ai;
+    var ci = c1 - ai;
+    var di = r2 - ci;
+    var logP = hypergeomLogProb(ai, bi, ci, di);
+    if (logP <= logPobs + epsLog) {
+      sumP = sumP + Math.exp(logP);
+    }
+  }
+
+  if (sumP > 1) sumP = 1;
+  if (sumP < 0) sumP = 0;
+
+  var oddsRatio = null;
+  if (b > 0 && c > 0) {
+    oddsRatio = (a * d) / (b * c);
+  }
+
+  return { p: sumP, oddsRatio: oddsRatio, a: a, b: b, c: c, d: d };
+}
+
+// ==========================================================================
 // E) Basic descriptive stats
 // ==========================================================================
 
@@ -227,6 +314,7 @@ module.exports = {
   exactMatch: exactMatch,
   allMatch: allMatch,
   meanWithinTolerance: meanWithinTolerance,
+  fisherExact: fisherExact,
   mean: mean,
   stdDev: stdDev
 };
