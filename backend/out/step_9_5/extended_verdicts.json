@@ -1,0 +1,23 @@
+{
+  "runDate": "2026-04-19T13:38:46.003Z",
+  "iterations": 20000,
+  "scenarios": [
+    {
+      "H": 5,
+      "fc": 240,
+      "iterations": 20000,
+      "numTrials": 30,
+      "nodeOptimum": 5459.795808,
+      "vb6Optimum": 5459.8,
+      "gap": -0.004192000000330154,
+      "reachedOptimum": true,
+      "hits": 6,
+      "hitRatePct": 20,
+      "loopMean": 7446.5,
+      "loopMin": 1040,
+      "loopMax": 19095,
+      "elapsedMs": 1002
+    }
+  ],
+  "totalRuntimeMs": 1003
+}

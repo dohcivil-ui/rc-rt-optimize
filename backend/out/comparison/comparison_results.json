@@ -1,0 +1,3928 @@
+{
+  "runDate": "2026-04-22T05:43:13.659Z",
+  "config": {
+    "numTrials": 30,
+    "maxIterations": 5000,
+    "seedStrategy": "deterministic",
+    "costTolerance": 0.01
+  },
+  "scenarios": [
+    {
+      "H": 3,
+      "fc": 240,
+      "vb6Optimum": 2849.23,
+      "n": 30,
+      "hca": {
+        "hits": 30,
+        "loopMean": 377.6666666666667,
+        "loopStd": 212.49557128583166,
+        "costMean": 2849.229216000001,
+        "costMin": 2849.2292159999997
+      },
+      "ba": {
+        "hits": 30,
+        "loopMean": 84.36666666666666,
+        "loopStd": 58.881812269086566,
+        "costMean": 2849.229216000001,
+        "costMin": 2849.2292159999997
+      },
+      "paired": {
+        "n": 30,
+        "wilcoxon": {
+          "Wplus": 465,
+          "Wminus": 0,
+          "W": 0,
+          "Z": 4.771854730335432,
+          "p": 0.000001827659442232843,
+          "r": 0.8712174923141492,
+          "nNonZero": 30,
+          "tieCorrected": false,
+          "direction": "BA_FASTER"
+        },
+        "mcnemar": {
+          "b": 0,
+          "c": 0,
+          "bothHit": 30,
+          "bothMiss": 0,
+          "p": 1,
+          "chi2": 0,
+          "Z": 0,
+          "exact": false,
+          "direction": "TIED"
+        },
+        "costDelta": {
+          "mean": 0,
+          "sd": 0,
+          "se": 0,
+          "ci95lo": 0,
+          "ci95hi": 0,
+          "n": 30
+        }
+      },
+      "elapsedMs": 330
+    },
+    {
+      "H": 3,
+      "fc": 280,
+      "vb6Optimum": 2942.29,
+      "n": 30,
+      "hca": {
+        "hits": 30,
+        "loopMean": 367.5,
+        "loopStd": 218.55067273226166,
+        "costMean": 2942.289216,
+        "costMin": 2942.2892159999997
+      },
+      "ba": {
+        "hits": 30,
+        "loopMean": 83.06666666666666,
+        "loopStd": 59.56794632925545,
+        "costMean": 2942.289216,
+        "costMin": 2942.2892159999997
+      },
+      "paired": {
+        "n": 30,
+        "wilcoxon": {
+          "Wplus": 465,
+          "Wminus": 0,
+          "W": 0,
+          "Z": 4.771854730335432,
+          "p": 0.000001827659442232843,
+          "r": 0.8712174923141492,
+          "nNonZero": 30,
+          "tieCorrected": false,
+          "direction": "BA_FASTER"
+        },
+        "mcnemar": {
+          "b": 0,
+          "c": 0,
+          "bothHit": 30,
+          "bothMiss": 0,
+          "p": 1,
+          "chi2": 0,
+          "Z": 0,
+          "exact": false,
+          "direction": "TIED"
+        },
+        "costDelta": {
+          "mean": 0,
+          "sd": 0,
+          "se": 0,
+          "ci95lo": 0,
+          "ci95hi": 0,
+          "n": 30
+        }
+      },
+      "elapsedMs": 257
+    },
+    {
+      "H": 3,
+      "fc": 320,
+      "vb6Optimum": 3034.36,
+      "n": 30,
+      "hca": {
+        "hits": 30,
+        "loopMean": 354.4,
+        "loopStd": 219.822593046741,
+        "costMean": 3034.3592159999985,
+        "costMin": 3034.359216
+      },
+      "ba": {
+        "hits": 30,
+        "loopMean": 84.86666666666666,
+        "loopStd": 59.22414077531824,
+        "costMean": 3034.3592159999985,
+        "costMin": 3034.359216
+      },
+      "paired": {
+        "n": 30,
+        "wilcoxon": {
+          "Wplus": 464,
+          "Wminus": 1,
+          "W": 1,
+          "Z": 4.751286390980538,
+          "p": 0.0000020237443560944257,
+          "r": 0.8674622445024504,
+          "nNonZero": 30,
+          "tieCorrected": false,
+          "direction": "BA_FASTER"
+        },
+        "mcnemar": {
+          "b": 0,
+          "c": 0,
+          "bothHit": 30,
+          "bothMiss": 0,
+          "p": 1,
+          "chi2": 0,
+          "Z": 0,
+          "exact": false,
+          "direction": "TIED"
+        },
+        "costDelta": {
+          "mean": 0,
+          "sd": 0,
+          "se": 0,
+          "ci95lo": 0,
+          "ci95hi": 0,
+          "n": 30
+        }
+      },
+      "elapsedMs": 253
+    },
+    {
+      "H": 4,
+      "fc": 240,
+      "vb6Optimum": 3975.51,
+      "n": 30,
+      "hca": {
+        "hits": 25,
+        "loopMean": 2185.9333333333334,
+        "loopStd": 1335.9981915467145,
+        "costMean": 3980.2835583999995,
+        "costMin": 3975.5134080000003
+      },
+      "ba": {
+        "hits": 30,
+        "loopMean": 568.5333333333333,
+        "loopStd": 466.80245643455356,
+        "costMean": 3975.5134079999993,
+        "costMin": 3975.5134080000003
+      },
+      "paired": {
+        "n": 30,
+        "wilcoxon": {
+          "Wplus": 453,
+          "Wminus": 12,
+          "W": 12,
+          "Z": 4.525034658076703,
+          "p": 0.000006044292843565557,
+          "r": 0.8261545185737622,
+          "nNonZero": 30,
+          "tieCorrected": false,
+          "direction": "BA_FASTER"
+        },
+        "mcnemar": {
+          "b": 0,
+          "c": 5,
+          "bothHit": 25,
+          "bothMiss": 0,
+          "p": 0.0625,
+          "chi2": null,
+          "Z": null,
+          "exact": true,
+          "direction": "BA_MORE_RELIABLE"
+        },
+        "costDelta": {
+          "mean": 4.770150400000042,
+          "sd": 14.5733445691776,
+          "se": 2.660716519611326,
+          "ci95lo": -0.44485397843815644,
+          "ci95hi": 9.98515477843824,
+          "n": 30
+        }
+      },
+      "elapsedMs": 316
+    },
+    {
+      "H": 4,
+      "fc": 280,
+      "vb6Optimum": 4101.47,
+      "n": 30,
+      "hca": {
+        "hits": 23,
+        "loopMean": 2345.9666666666667,
+        "loopStd": 1362.699058115366,
+        "costMean": 4105.990835200002,
+        "costMin": 4101.473408
+      },
+      "ba": {
+        "hits": 30,
+        "loopMean": 568.5333333333333,
+        "loopStd": 466.80245643455356,
+        "costMean": 4101.473408000002,
+        "costMin": 4101.473408
+      },
+      "paired": {
+        "n": 30,
+        "wilcoxon": {
+          "Wplus": 453,
+          "Wminus": 12,
+          "W": 12,
+          "Z": 4.525034658076703,
+          "p": 0.000006044292843565557,
+          "r": 0.8261545185737622,
+          "nNonZero": 30,
+          "tieCorrected": false,
+          "direction": "BA_FASTER"
+        },
+        "mcnemar": {
+          "b": 0,
+          "c": 7,
+          "bothHit": 23,
+          "bothMiss": 0,
+          "p": 0.015625000000000003,
+          "chi2": null,
+          "Z": null,
+          "exact": true,
+          "direction": "BA_MORE_RELIABLE"
+        },
+        "costDelta": {
+          "mean": 4.517427200000172,
+          "sd": 10.56627680743468,
+          "se": 1.9291293854252147,
+          "ci95lo": 0.736333604566751,
+          "ci95hi": 8.298520795433593,
+          "n": 30
+        }
+      },
+      "elapsedMs": 248
+    },
+    {
+      "H": 4,
+      "fc": 320,
+      "vb6Optimum": 4226.09,
+      "n": 30,
+      "hca": {
+        "hits": 24,
+        "loopMean": 2223.233333333333,
+        "loopStd": 1548.2913982913515,
+        "costMean": 4229.2998336,
+        "costMin": 4226.093408000001
+      },
+      "ba": {
+        "hits": 30,
+        "loopMean": 574.1,
+        "loopStd": 467.7290219037455,
+        "costMean": 4226.093408000001,
+        "costMin": 4226.093408000001
+      },
+      "paired": {
+        "n": 30,
+        "wilcoxon": {
+          "Wplus": 426,
+          "Wminus": 39,
+          "W": 39,
+          "Z": 3.969689495494562,
+          "p": 0.00007199842496641295,
+          "r": 0.7247628276578914,
+          "nNonZero": 30,
+          "tieCorrected": false,
+          "direction": "BA_FASTER"
+        },
+        "mcnemar": {
+          "b": 0,
+          "c": 6,
+          "bothHit": 24,
+          "bothMiss": 0,
+          "p": 0.031250000000000014,
+          "chi2": null,
+          "Z": null,
+          "exact": true,
+          "direction": "BA_MORE_RELIABLE"
+        },
+        "costDelta": {
+          "mean": 3.206425599999966,
+          "sd": 8.178776460056143,
+          "se": 1.4932334533216667,
+          "ci95lo": 0.27968803148949917,
+          "ci95hi": 6.133163168510433,
+          "n": 30
+        }
+      },
+      "elapsedMs": 253
+    },
+    {
+      "H": 5,
+      "fc": 240,
+      "vb6Optimum": 5459.8,
+      "n": 30,
+      "hca": {
+        "hits": 0,
+        "loopMean": 2678.733333333333,
+        "loopStd": 1382.9034158144466,
+        "costMean": 5552.3958272,
+        "costMin": 5500.962047999999
+      },
+      "ba": {
+        "hits": 9,
+        "loopMean": 1167.2666666666667,
+        "loopStd": 1372.6340128866593,
+        "costMean": 5503.950193066665,
+        "costMin": 5459.795808
+      },
+      "paired": {
+        "n": 30,
+        "wilcoxon": {
+          "Wplus": 423,
+          "Wminus": 42,
+          "W": 42,
+          "Z": 3.90798447742988,
+          "p": 0.00009310687738572909,
+          "r": 0.7134970842227947,
+          "nNonZero": 30,
+          "tieCorrected": false,
+          "direction": "BA_FASTER"
+        },
+        "mcnemar": {
+          "b": 0,
+          "c": 9,
+          "bothHit": 0,
+          "bothMiss": 21,
+          "p": 0.00390625,
+          "chi2": null,
+          "Z": null,
+          "exact": true,
+          "direction": "BA_MORE_RELIABLE"
+        },
+        "costDelta": {
+          "mean": 48.44563413333347,
+          "sd": 56.555693579816975,
+          "se": 10.325609709671951,
+          "ci95lo": 28.207439102376448,
+          "ci95hi": 68.6838291642905,
+          "n": 30
+        }
+      },
+      "elapsedMs": 245
+    },
+    {
+      "H": 5,
+      "fc": 280,
+      "vb6Optimum": 5659.82,
+      "n": 30,
+      "hca": {
+        "hits": 6,
+        "loopMean": 2461.9333333333334,
+        "loopStd": 1189.7720423020864,
+        "costMean": 5697.544276266667,
+        "costMin": 5659.822048
+      },
+      "ba": {
+        "hits": 12,
+        "loopMean": 752.3333333333334,
+        "loopStd": 606.5604176253879,
+        "costMean": 5687.891780266668,
+        "costMin": 5659.822048
+      },
+      "paired": {
+        "n": 30,
+        "wilcoxon": {
+          "Wplus": 449,
+          "Wminus": 16,
+          "W": 16,
+          "Z": 4.442761300657127,
+          "p": 0.000008888798620709792,
+          "r": 0.8111335273269665,
+          "nNonZero": 30,
+          "tieCorrected": false,
+          "direction": "BA_FASTER"
+        },
+        "mcnemar": {
+          "b": 3,
+          "c": 9,
+          "bothHit": 3,
+          "bothMiss": 15,
+          "p": 0.1459960937500003,
+          "chi2": null,
+          "Z": null,
+          "exact": true,
+          "direction": "BA_MORE_RELIABLE"
+        },
+        "costDelta": {
+          "mean": 9.652495999999791,
+          "sd": 62.05926727625934,
+          "se": 11.330420196483143,
+          "ci95lo": -12.555127585107167,
+          "ci95hi": 31.86011958510675,
+          "n": 30
+        }
+      },
+      "elapsedMs": 247
+    },
+    {
+      "H": 5,
+      "fc": 320,
+      "vb6Optimum": 5816.99,
+      "n": 30,
+      "hca": {
+        "hits": 4,
+        "loopMean": 2828.3333333333335,
+        "loopStd": 1221.0937814060417,
+        "costMean": 5859.846306933333,
+        "costMin": 5816.992048
+      },
+      "ba": {
+        "hits": 12,
+        "loopMean": 732.4666666666667,
+        "loopStd": 534.5066518945674,
+        "costMean": 5837.909971733331,
+        "costMin": 5816.992048
+      },
+      "paired": {
+        "n": 30,
+        "wilcoxon": {
+          "Wplus": 457,
+          "Wminus": 8,
+          "W": 8,
+          "Z": 4.6073080154962796,
+          "p": 0.00000408341744928542,
+          "r": 0.8411755098205579,
+          "nNonZero": 30,
+          "tieCorrected": false,
+          "direction": "BA_FASTER"
+        },
+        "mcnemar": {
+          "b": 3,
+          "c": 11,
+          "bothHit": 1,
+          "bothMiss": 15,
+          "p": 0.057373046875000125,
+          "chi2": null,
+          "Z": null,
+          "exact": true,
+          "direction": "BA_MORE_RELIABLE"
+        },
+        "costDelta": {
+          "mean": 21.936335199999878,
+          "sd": 34.616901836219505,
+          "se": 6.3201526688798095,
+          "ci95lo": 9.548835968995451,
+          "ci95hi": 34.3238344310043,
+          "n": 30
+        }
+      },
+      "elapsedMs": 246
+    }
+  ],
+  "stratified": {
+    "H3": {
+      "n": 90,
+      "wilcoxon": {
+        "Wplus": 4094,
+        "Wminus": 1,
+        "W": 1,
+        "Z": 8.233325405560967,
+        "p": 2.220446049250313e-16,
+        "r": 0.8678686999634069,
+        "nNonZero": 90,
+        "tieCorrected": true,
+        "direction": "BA_FASTER"
+      },
+      "mcnemar": {
+        "b": 0,
+        "c": 0,
+        "bothHit": 90,
+        "bothMiss": 0,
+        "p": 1,
+        "chi2": 0,
+        "Z": 0,
+        "exact": false,
+        "direction": "TIED"
+      },
+      "costDelta": {
+        "mean": 0,
+        "sd": 0,
+        "se": 0,
+        "ci95lo": 0,
+        "ci95hi": 0,
+        "n": 90
+      }
+    },
+    "H4": {
+      "n": 90,
+      "wilcoxon": {
+        "Wplus": 3910,
+        "Wminus": 185,
+        "W": 185,
+        "Z": 7.492639251848787,
+        "p": 6.794564910705958e-14,
+        "r": 0.7897935240607379,
+        "nNonZero": 90,
+        "tieCorrected": true,
+        "direction": "BA_FASTER"
+      },
+      "mcnemar": {
+        "b": 0,
+        "c": 18,
+        "bothHit": 72,
+        "bothMiss": 0,
+        "p": 0.000007629394531250002,
+        "chi2": null,
+        "Z": null,
+        "exact": true,
+        "direction": "BA_MORE_RELIABLE"
+      },
+      "costDelta": {
+        "mean": 4.164667733333393,
+        "sd": 11.307244465749125,
+        "se": 1.1918882190700333,
+        "ci95lo": 1.8285668239561277,
+        "ci95hi": 6.500768642710658,
+        "n": 90
+      }
+    },
+    "H5": {
+      "n": 90,
+      "wilcoxon": {
+        "Wplus": 3903,
+        "Wminus": 192,
+        "W": 192,
+        "Z": 7.464055987945309,
+        "p": 8.459899447643693e-14,
+        "r": 0.7867805834975157,
+        "nNonZero": 90,
+        "tieCorrected": true,
+        "direction": "BA_FASTER"
+      },
+      "mcnemar": {
+        "b": 6,
+        "c": 29,
+        "bothHit": 4,
+        "bothMiss": 51,
+        "p": 0.00020032604371866825,
+        "chi2": 13.82857142857143,
+        "Z": 3.7186787208054732,
+        "exact": false,
+        "direction": "BA_MORE_RELIABLE"
+      },
+      "costDelta": {
+        "mean": 26.678155111111046,
+        "sd": 54.33810855819015,
+        "se": 5.727739559645631,
+        "ci95lo": 15.45178557420561,
+        "ci95hi": 37.90452464801648,
+        "n": 90
+      }
+    }
+  },
+  "pooled": {
+    "n": 270,
+    "wilcoxon": {
+      "Wplus": 34511,
+      "Wminus": 2074,
+      "W": 2074,
+      "Z": 12.628189711782463,
+      "p": 0,
+      "r": 0.7685271517331019,
+      "nNonZero": 270,
+      "tieCorrected": true,
+      "direction": "BA_FASTER"
+    },
+    "mcnemar": {
+      "b": 6,
+      "c": 47,
+      "bothHit": 166,
+      "bothMiss": 51,
+      "p": 3.9295335874101056e-8,
+      "chi2": 30.18867924528302,
+      "Z": 5.494422557947561,
+      "exact": false,
+      "direction": "BA_MORE_RELIABLE"
+    },
+    "costDelta": {
+      "mean": 10.280940948148148,
+      "sd": 34.015130344340506,
+      "se": 2.0700949095637515,
+      "ci95lo": 6.223554925403195,
+      "ci95hi": 14.3383269708931,
+      "n": 270
+    }
+  },
+  "trials": {
+    "H3_fc240": {
+      "hca": [
+        {
+          "trial": 1,
+          "seed": 1,
+          "bestCost": 2849.2292159999997,
+          "bestIter": 464
+        },
+        {
+          "trial": 2,
+          "seed": 2,
+          "bestCost": 2849.2292159999997,
+          "bestIter": 236
+        },
+        {
+          "trial": 3,
+          "seed": 3,
+          "bestCost": 2849.2292159999997,
+          "bestIter": 280
+        },
+        {
+          "trial": 4,
+          "seed": 4,
+          "bestCost": 2849.2292159999997,
+          "bestIter": 251
+        },
+        {
+          "trial": 5,
+          "seed": 5,
+          "bestCost": 2849.2292159999997,
+          "bestIter": 505
+        },
+        {
+          "trial": 6,
+          "seed": 6,
+          "bestCost": 2849.2292159999997,
+          "bestIter": 1158
+        },
+        {
+          "trial": 7,
+          "seed": 7,
+          "bestCost": 2849.2292159999997,
+          "bestIter": 526
+        },
+        {
+          "trial": 8,
+          "seed": 8,
+          "bestCost": 2849.2292159999997,
+          "bestIter": 384
+        },
+        {
+          "trial": 9,
+          "seed": 9,
+          "bestCost": 2849.2292159999997,
+          "bestIter": 707
+        },
+        {
+          "trial": 10,
+          "seed": 10,
+          "bestCost": 2849.2292159999997,
+          "bestIter": 323
+        },
+        {
+          "trial": 11,
+          "seed": 11,
+          "bestCost": 2849.2292159999997,
+          "bestIter": 126
+        },
+        {
+          "trial": 12,
+          "seed": 12,
+          "bestCost": 2849.2292159999997,
+          "bestIter": 311
+        },
+        {
+          "trial": 13,
+          "seed": 13,
+          "bestCost": 2849.2292159999997,
+          "bestIter": 401
+        },
+        {
+          "trial": 14,
+          "seed": 14,
+          "bestCost": 2849.2292159999997,
+          "bestIter": 241
+        },
+        {
+          "trial": 15,
+          "seed": 15,
+          "bestCost": 2849.2292159999997,
+          "bestIter": 256
+        },
+        {
+          "trial": 16,
+          "seed": 16,
+          "bestCost": 2849.2292159999997,
+          "bestIter": 304
+        },
+        {
+          "trial": 17,
+          "seed": 17,
+          "bestCost": 2849.2292159999997,
+          "bestIter": 208
+        },
+        {
+          "trial": 18,
+          "seed": 18,
+          "bestCost": 2849.2292159999997,
+          "bestIter": 656
+        },
+        {
+          "trial": 19,
+          "seed": 19,
+          "bestCost": 2849.2292159999997,
+          "bestIter": 418
+        },
+        {
+          "trial": 20,
+          "seed": 20,
+          "bestCost": 2849.2292159999997,
+          "bestIter": 214
+        },
+        {
+          "trial": 21,
+          "seed": 21,
+          "bestCost": 2849.2292159999997,
+          "bestIter": 475
+        },
+        {
+          "trial": 22,
+          "seed": 22,
+          "bestCost": 2849.2292159999997,
+          "bestIter": 477
+        },
+        {
+          "trial": 23,
+          "seed": 23,
+          "bestCost": 2849.2292159999997,
+          "bestIter": 341
+        },
+        {
+          "trial": 24,
+          "seed": 24,
+          "bestCost": 2849.2292159999997,
+          "bestIter": 482
+        },
+        {
+          "trial": 25,
+          "seed": 25,
+          "bestCost": 2849.2292159999997,
+          "bestIter": 478
+        },
+        {
+          "trial": 26,
+          "seed": 26,
+          "bestCost": 2849.2292159999997,
+          "bestIter": 170
+        },
+        {
+          "trial": 27,
+          "seed": 27,
+          "bestCost": 2849.2292159999997,
+          "bestIter": 84
+        },
+        {
+          "trial": 28,
+          "seed": 28,
+          "bestCost": 2849.2292159999997,
+          "bestIter": 221
+        },
+        {
+          "trial": 29,
+          "seed": 29,
+          "bestCost": 2849.2292159999997,
+          "bestIter": 479
+        },
+        {
+          "trial": 30,
+          "seed": 30,
+          "bestCost": 2849.2292159999997,
+          "bestIter": 154
+        }
+      ],
+      "ba": [
+        {
+          "trial": 1,
+          "seed": 1,
+          "bestCost": 2849.2292159999997,
+          "bestIter": 128
+        },
+        {
+          "trial": 2,
+          "seed": 2,
+          "bestCost": 2849.2292159999997,
+          "bestIter": 30
+        },
+        {
+          "trial": 3,
+          "seed": 3,
+          "bestCost": 2849.2292159999997,
+          "bestIter": 169
+        },
+        {
+          "trial": 4,
+          "seed": 4,
+          "bestCost": 2849.2292159999997,
+          "bestIter": 236
+        },
+        {
+          "trial": 5,
+          "seed": 5,
+          "bestCost": 2849.2292159999997,
+          "bestIter": 119
+        },
+        {
+          "trial": 6,
+          "seed": 6,
+          "bestCost": 2849.2292159999997,
+          "bestIter": 75
+        },
+        {
+          "trial": 7,
+          "seed": 7,
+          "bestCost": 2849.2292159999997,
+          "bestIter": 46
+        },
+        {
+          "trial": 8,
+          "seed": 8,
+          "bestCost": 2849.2292159999997,
+          "bestIter": 99
+        },
+        {
+          "trial": 9,
+          "seed": 9,
+          "bestCost": 2849.2292159999997,
+          "bestIter": 32
+        },
+        {
+          "trial": 10,
+          "seed": 10,
+          "bestCost": 2849.2292159999997,
+          "bestIter": 76
+        },
+        {
+          "trial": 11,
+          "seed": 11,
+          "bestCost": 2849.2292159999997,
+          "bestIter": 72
+        },
+        {
+          "trial": 12,
+          "seed": 12,
+          "bestCost": 2849.2292159999997,
+          "bestIter": 65
+        },
+        {
+          "trial": 13,
+          "seed": 13,
+          "bestCost": 2849.2292159999997,
+          "bestIter": 83
+        },
+        {
+          "trial": 14,
+          "seed": 14,
+          "bestCost": 2849.2292159999997,
+          "bestIter": 107
+        },
+        {
+          "trial": 15,
+          "seed": 15,
+          "bestCost": 2849.2292159999997,
+          "bestIter": 23
+        },
+        {
+          "trial": 16,
+          "seed": 16,
+          "bestCost": 2849.2292159999997,
+          "bestIter": 31
+        },
+        {
+          "trial": 17,
+          "seed": 17,
+          "bestCost": 2849.2292159999997,
+          "bestIter": 18
+        },
+        {
+          "trial": 18,
+          "seed": 18,
+          "bestCost": 2849.2292159999997,
+          "bestIter": 41
+        },
+        {
+          "trial": 19,
+          "seed": 19,
+          "bestCost": 2849.2292159999997,
+          "bestIter": 69
+        },
+        {
+          "trial": 20,
+          "seed": 20,
+          "bestCost": 2849.2292159999997,
+          "bestIter": 31
+        },
+        {
+          "trial": 21,
+          "seed": 21,
+          "bestCost": 2849.2292159999997,
+          "bestIter": 25
+        },
+        {
+          "trial": 22,
+          "seed": 22,
+          "bestCost": 2849.2292159999997,
+          "bestIter": 166
+        },
+        {
+          "trial": 23,
+          "seed": 23,
+          "bestCost": 2849.2292159999997,
+          "bestIter": 73
+        },
+        {
+          "trial": 24,
+          "seed": 24,
+          "bestCost": 2849.2292159999997,
+          "bestIter": 57
+        },
+        {
+          "trial": 25,
+          "seed": 25,
+          "bestCost": 2849.2292159999997,
+          "bestIter": 248
+        },
+        {
+          "trial": 26,
+          "seed": 26,
+          "bestCost": 2849.2292159999997,
+          "bestIter": 144
+        },
+        {
+          "trial": 27,
+          "seed": 27,
+          "bestCost": 2849.2292159999997,
+          "bestIter": 63
+        },
+        {
+          "trial": 28,
+          "seed": 28,
+          "bestCost": 2849.2292159999997,
+          "bestIter": 66
+        },
+        {
+          "trial": 29,
+          "seed": 29,
+          "bestCost": 2849.2292159999997,
+          "bestIter": 63
+        },
+        {
+          "trial": 30,
+          "seed": 30,
+          "bestCost": 2849.2292159999997,
+          "bestIter": 76
+        }
+      ]
+    },
+    "H3_fc280": {
+      "hca": [
+        {
+          "trial": 1,
+          "seed": 1,
+          "bestCost": 2942.2892159999997,
+          "bestIter": 464
+        },
+        {
+          "trial": 2,
+          "seed": 2,
+          "bestCost": 2942.2892159999997,
+          "bestIter": 236
+        },
+        {
+          "trial": 3,
+          "seed": 3,
+          "bestCost": 2942.2892159999997,
+          "bestIter": 280
+        },
+        {
+          "trial": 4,
+          "seed": 4,
+          "bestCost": 2942.2892159999997,
+          "bestIter": 251
+        },
+        {
+          "trial": 5,
+          "seed": 5,
+          "bestCost": 2942.2892159999997,
+          "bestIter": 505
+        },
+        {
+          "trial": 6,
+          "seed": 6,
+          "bestCost": 2942.2892159999997,
+          "bestIter": 1158
+        },
+        {
+          "trial": 7,
+          "seed": 7,
+          "bestCost": 2942.2892159999997,
+          "bestIter": 526
+        },
+        {
+          "trial": 8,
+          "seed": 8,
+          "bestCost": 2942.2892159999997,
+          "bestIter": 384
+        },
+        {
+          "trial": 9,
+          "seed": 9,
+          "bestCost": 2942.2892159999997,
+          "bestIter": 707
+        },
+        {
+          "trial": 10,
+          "seed": 10,
+          "bestCost": 2942.2892159999997,
+          "bestIter": 323
+        },
+        {
+          "trial": 11,
+          "seed": 11,
+          "bestCost": 2942.2892159999997,
+          "bestIter": 126
+        },
+        {
+          "trial": 12,
+          "seed": 12,
+          "bestCost": 2942.2892159999997,
+          "bestIter": 311
+        },
+        {
+          "trial": 13,
+          "seed": 13,
+          "bestCost": 2942.2892159999997,
+          "bestIter": 96
+        },
+        {
+          "trial": 14,
+          "seed": 14,
+          "bestCost": 2942.2892159999997,
+          "bestIter": 241
+        },
+        {
+          "trial": 15,
+          "seed": 15,
+          "bestCost": 2942.2892159999997,
+          "bestIter": 256
+        },
+        {
+          "trial": 16,
+          "seed": 16,
+          "bestCost": 2942.2892159999997,
+          "bestIter": 304
+        },
+        {
+          "trial": 17,
+          "seed": 17,
+          "bestCost": 2942.2892159999997,
+          "bestIter": 208
+        },
+        {
+          "trial": 18,
+          "seed": 18,
+          "bestCost": 2942.2892159999997,
+          "bestIter": 656
+        },
+        {
+          "trial": 19,
+          "seed": 19,
+          "bestCost": 2942.2892159999997,
+          "bestIter": 418
+        },
+        {
+          "trial": 20,
+          "seed": 20,
+          "bestCost": 2942.2892159999997,
+          "bestIter": 214
+        },
+        {
+          "trial": 21,
+          "seed": 21,
+          "bestCost": 2942.2892159999997,
+          "bestIter": 475
+        },
+        {
+          "trial": 22,
+          "seed": 22,
+          "bestCost": 2942.2892159999997,
+          "bestIter": 477
+        },
+        {
+          "trial": 23,
+          "seed": 23,
+          "bestCost": 2942.2892159999997,
+          "bestIter": 341
+        },
+        {
+          "trial": 24,
+          "seed": 24,
+          "bestCost": 2942.2892159999997,
+          "bestIter": 482
+        },
+        {
+          "trial": 25,
+          "seed": 25,
+          "bestCost": 2942.2892159999997,
+          "bestIter": 478
+        },
+        {
+          "trial": 26,
+          "seed": 26,
+          "bestCost": 2942.2892159999997,
+          "bestIter": 170
+        },
+        {
+          "trial": 27,
+          "seed": 27,
+          "bestCost": 2942.2892159999997,
+          "bestIter": 84
+        },
+        {
+          "trial": 28,
+          "seed": 28,
+          "bestCost": 2942.2892159999997,
+          "bestIter": 221
+        },
+        {
+          "trial": 29,
+          "seed": 29,
+          "bestCost": 2942.2892159999997,
+          "bestIter": 479
+        },
+        {
+          "trial": 30,
+          "seed": 30,
+          "bestCost": 2942.2892159999997,
+          "bestIter": 154
+        }
+      ],
+      "ba": [
+        {
+          "trial": 1,
+          "seed": 1,
+          "bestCost": 2942.2892159999997,
+          "bestIter": 128
+        },
+        {
+          "trial": 2,
+          "seed": 2,
+          "bestCost": 2942.2892159999997,
+          "bestIter": 30
+        },
+        {
+          "trial": 3,
+          "seed": 3,
+          "bestCost": 2942.2892159999997,
+          "bestIter": 169
+        },
+        {
+          "trial": 4,
+          "seed": 4,
+          "bestCost": 2942.2892159999997,
+          "bestIter": 236
+        },
+        {
+          "trial": 5,
+          "seed": 5,
+          "bestCost": 2942.2892159999997,
+          "bestIter": 119
+        },
+        {
+          "trial": 6,
+          "seed": 6,
+          "bestCost": 2942.2892159999997,
+          "bestIter": 75
+        },
+        {
+          "trial": 7,
+          "seed": 7,
+          "bestCost": 2942.2892159999997,
+          "bestIter": 46
+        },
+        {
+          "trial": 8,
+          "seed": 8,
+          "bestCost": 2942.2892159999997,
+          "bestIter": 99
+        },
+        {
+          "trial": 9,
+          "seed": 9,
+          "bestCost": 2942.2892159999997,
+          "bestIter": 32
+        },
+        {
+          "trial": 10,
+          "seed": 10,
+          "bestCost": 2942.2892159999997,
+          "bestIter": 76
+        },
+        {
+          "trial": 11,
+          "seed": 11,
+          "bestCost": 2942.2892159999997,
+          "bestIter": 72
+        },
+        {
+          "trial": 12,
+          "seed": 12,
+          "bestCost": 2942.2892159999997,
+          "bestIter": 65
+        },
+        {
+          "trial": 13,
+          "seed": 13,
+          "bestCost": 2942.2892159999997,
+          "bestIter": 83
+        },
+        {
+          "trial": 14,
+          "seed": 14,
+          "bestCost": 2942.2892159999997,
+          "bestIter": 107
+        },
+        {
+          "trial": 15,
+          "seed": 15,
+          "bestCost": 2942.2892159999997,
+          "bestIter": 23
+        },
+        {
+          "trial": 16,
+          "seed": 16,
+          "bestCost": 2942.2892159999997,
+          "bestIter": 31
+        },
+        {
+          "trial": 17,
+          "seed": 17,
+          "bestCost": 2942.2892159999997,
+          "bestIter": 18
+        },
+        {
+          "trial": 18,
+          "seed": 18,
+          "bestCost": 2942.2892159999997,
+          "bestIter": 41
+        },
+        {
+          "trial": 19,
+          "seed": 19,
+          "bestCost": 2942.2892159999997,
+          "bestIter": 69
+        },
+        {
+          "trial": 20,
+          "seed": 20,
+          "bestCost": 2942.2892159999997,
+          "bestIter": 31
+        },
+        {
+          "trial": 21,
+          "seed": 21,
+          "bestCost": 2942.2892159999997,
+          "bestIter": 25
+        },
+        {
+          "trial": 22,
+          "seed": 22,
+          "bestCost": 2942.2892159999997,
+          "bestIter": 166
+        },
+        {
+          "trial": 23,
+          "seed": 23,
+          "bestCost": 2942.2892159999997,
+          "bestIter": 34
+        },
+        {
+          "trial": 24,
+          "seed": 24,
+          "bestCost": 2942.2892159999997,
+          "bestIter": 57
+        },
+        {
+          "trial": 25,
+          "seed": 25,
+          "bestCost": 2942.2892159999997,
+          "bestIter": 248
+        },
+        {
+          "trial": 26,
+          "seed": 26,
+          "bestCost": 2942.2892159999997,
+          "bestIter": 144
+        },
+        {
+          "trial": 27,
+          "seed": 27,
+          "bestCost": 2942.2892159999997,
+          "bestIter": 63
+        },
+        {
+          "trial": 28,
+          "seed": 28,
+          "bestCost": 2942.2892159999997,
+          "bestIter": 66
+        },
+        {
+          "trial": 29,
+          "seed": 29,
+          "bestCost": 2942.2892159999997,
+          "bestIter": 63
+        },
+        {
+          "trial": 30,
+          "seed": 30,
+          "bestCost": 2942.2892159999997,
+          "bestIter": 76
+        }
+      ]
+    },
+    "H3_fc320": {
+      "hca": [
+        {
+          "trial": 1,
+          "seed": 1,
+          "bestCost": 3034.359216,
+          "bestIter": 464
+        },
+        {
+          "trial": 2,
+          "seed": 2,
+          "bestCost": 3034.359216,
+          "bestIter": 236
+        },
+        {
+          "trial": 3,
+          "seed": 3,
+          "bestCost": 3034.359216,
+          "bestIter": 280
+        },
+        {
+          "trial": 4,
+          "seed": 4,
+          "bestCost": 3034.359216,
+          "bestIter": 251
+        },
+        {
+          "trial": 5,
+          "seed": 5,
+          "bestCost": 3034.359216,
+          "bestIter": 505
+        },
+        {
+          "trial": 6,
+          "seed": 6,
+          "bestCost": 3034.359216,
+          "bestIter": 1158
+        },
+        {
+          "trial": 7,
+          "seed": 7,
+          "bestCost": 3034.359216,
+          "bestIter": 526
+        },
+        {
+          "trial": 8,
+          "seed": 8,
+          "bestCost": 3034.359216,
+          "bestIter": 384
+        },
+        {
+          "trial": 9,
+          "seed": 9,
+          "bestCost": 3034.359216,
+          "bestIter": 707
+        },
+        {
+          "trial": 10,
+          "seed": 10,
+          "bestCost": 3034.359216,
+          "bestIter": 323
+        },
+        {
+          "trial": 11,
+          "seed": 11,
+          "bestCost": 3034.359216,
+          "bestIter": 126
+        },
+        {
+          "trial": 12,
+          "seed": 12,
+          "bestCost": 3034.359216,
+          "bestIter": 311
+        },
+        {
+          "trial": 13,
+          "seed": 13,
+          "bestCost": 3034.359216,
+          "bestIter": 131
+        },
+        {
+          "trial": 14,
+          "seed": 14,
+          "bestCost": 3034.359216,
+          "bestIter": 241
+        },
+        {
+          "trial": 15,
+          "seed": 15,
+          "bestCost": 3034.359216,
+          "bestIter": 256
+        },
+        {
+          "trial": 16,
+          "seed": 16,
+          "bestCost": 3034.359216,
+          "bestIter": 211
+        },
+        {
+          "trial": 17,
+          "seed": 17,
+          "bestCost": 3034.359216,
+          "bestIter": 208
+        },
+        {
+          "trial": 18,
+          "seed": 18,
+          "bestCost": 3034.359216,
+          "bestIter": 656
+        },
+        {
+          "trial": 19,
+          "seed": 19,
+          "bestCost": 3034.359216,
+          "bestIter": 418
+        },
+        {
+          "trial": 20,
+          "seed": 20,
+          "bestCost": 3034.359216,
+          "bestIter": 214
+        },
+        {
+          "trial": 21,
+          "seed": 21,
+          "bestCost": 3034.359216,
+          "bestIter": 475
+        },
+        {
+          "trial": 22,
+          "seed": 22,
+          "bestCost": 3034.359216,
+          "bestIter": 477
+        },
+        {
+          "trial": 23,
+          "seed": 23,
+          "bestCost": 3034.359216,
+          "bestIter": 237
+        },
+        {
+          "trial": 24,
+          "seed": 24,
+          "bestCost": 3034.359216,
+          "bestIter": 482
+        },
+        {
+          "trial": 25,
+          "seed": 25,
+          "bestCost": 3034.359216,
+          "bestIter": 247
+        },
+        {
+          "trial": 26,
+          "seed": 26,
+          "bestCost": 3034.359216,
+          "bestIter": 170
+        },
+        {
+          "trial": 27,
+          "seed": 27,
+          "bestCost": 3034.359216,
+          "bestIter": 84
+        },
+        {
+          "trial": 28,
+          "seed": 28,
+          "bestCost": 3034.359216,
+          "bestIter": 221
+        },
+        {
+          "trial": 29,
+          "seed": 29,
+          "bestCost": 3034.359216,
+          "bestIter": 479
+        },
+        {
+          "trial": 30,
+          "seed": 30,
+          "bestCost": 3034.359216,
+          "bestIter": 154
+        }
+      ],
+      "ba": [
+        {
+          "trial": 1,
+          "seed": 1,
+          "bestCost": 3034.359216,
+          "bestIter": 128
+        },
+        {
+          "trial": 2,
+          "seed": 2,
+          "bestCost": 3034.359216,
+          "bestIter": 30
+        },
+        {
+          "trial": 3,
+          "seed": 3,
+          "bestCost": 3034.359216,
+          "bestIter": 169
+        },
+        {
+          "trial": 4,
+          "seed": 4,
+          "bestCost": 3034.359216,
+          "bestIter": 236
+        },
+        {
+          "trial": 5,
+          "seed": 5,
+          "bestCost": 3034.359216,
+          "bestIter": 119
+        },
+        {
+          "trial": 6,
+          "seed": 6,
+          "bestCost": 3034.359216,
+          "bestIter": 75
+        },
+        {
+          "trial": 7,
+          "seed": 7,
+          "bestCost": 3034.359216,
+          "bestIter": 100
+        },
+        {
+          "trial": 8,
+          "seed": 8,
+          "bestCost": 3034.359216,
+          "bestIter": 99
+        },
+        {
+          "trial": 9,
+          "seed": 9,
+          "bestCost": 3034.359216,
+          "bestIter": 32
+        },
+        {
+          "trial": 10,
+          "seed": 10,
+          "bestCost": 3034.359216,
+          "bestIter": 76
+        },
+        {
+          "trial": 11,
+          "seed": 11,
+          "bestCost": 3034.359216,
+          "bestIter": 72
+        },
+        {
+          "trial": 12,
+          "seed": 12,
+          "bestCost": 3034.359216,
+          "bestIter": 65
+        },
+        {
+          "trial": 13,
+          "seed": 13,
+          "bestCost": 3034.359216,
+          "bestIter": 83
+        },
+        {
+          "trial": 14,
+          "seed": 14,
+          "bestCost": 3034.359216,
+          "bestIter": 107
+        },
+        {
+          "trial": 15,
+          "seed": 15,
+          "bestCost": 3034.359216,
+          "bestIter": 23
+        },
+        {
+          "trial": 16,
+          "seed": 16,
+          "bestCost": 3034.359216,
+          "bestIter": 31
+        },
+        {
+          "trial": 17,
+          "seed": 17,
+          "bestCost": 3034.359216,
+          "bestIter": 18
+        },
+        {
+          "trial": 18,
+          "seed": 18,
+          "bestCost": 3034.359216,
+          "bestIter": 41
+        },
+        {
+          "trial": 19,
+          "seed": 19,
+          "bestCost": 3034.359216,
+          "bestIter": 69
+        },
+        {
+          "trial": 20,
+          "seed": 20,
+          "bestCost": 3034.359216,
+          "bestIter": 31
+        },
+        {
+          "trial": 21,
+          "seed": 21,
+          "bestCost": 3034.359216,
+          "bestIter": 25
+        },
+        {
+          "trial": 22,
+          "seed": 22,
+          "bestCost": 3034.359216,
+          "bestIter": 166
+        },
+        {
+          "trial": 23,
+          "seed": 23,
+          "bestCost": 3034.359216,
+          "bestIter": 34
+        },
+        {
+          "trial": 24,
+          "seed": 24,
+          "bestCost": 3034.359216,
+          "bestIter": 57
+        },
+        {
+          "trial": 25,
+          "seed": 25,
+          "bestCost": 3034.359216,
+          "bestIter": 248
+        },
+        {
+          "trial": 26,
+          "seed": 26,
+          "bestCost": 3034.359216,
+          "bestIter": 144
+        },
+        {
+          "trial": 27,
+          "seed": 27,
+          "bestCost": 3034.359216,
+          "bestIter": 63
+        },
+        {
+          "trial": 28,
+          "seed": 28,
+          "bestCost": 3034.359216,
+          "bestIter": 66
+        },
+        {
+          "trial": 29,
+          "seed": 29,
+          "bestCost": 3034.359216,
+          "bestIter": 63
+        },
+        {
+          "trial": 30,
+          "seed": 30,
+          "bestCost": 3034.359216,
+          "bestIter": 76
+        }
+      ]
+    },
+    "H4_fc240": {
+      "hca": [
+        {
+          "trial": 1,
+          "seed": 1,
+          "bestCost": 3975.5134080000003,
+          "bestIter": 4949
+        },
+        {
+          "trial": 2,
+          "seed": 2,
+          "bestCost": 3975.5134080000003,
+          "bestIter": 888
+        },
+        {
+          "trial": 3,
+          "seed": 3,
+          "bestCost": 3975.5134080000003,
+          "bestIter": 652
+        },
+        {
+          "trial": 4,
+          "seed": 4,
+          "bestCost": 3975.5134080000003,
+          "bestIter": 2684
+        },
+        {
+          "trial": 5,
+          "seed": 5,
+          "bestCost": 3975.5134080000003,
+          "bestIter": 2804
+        },
+        {
+          "trial": 6,
+          "seed": 6,
+          "bestCost": 3975.5134080000003,
+          "bestIter": 392
+        },
+        {
+          "trial": 7,
+          "seed": 7,
+          "bestCost": 3975.5134080000003,
+          "bestIter": 1668
+        },
+        {
+          "trial": 8,
+          "seed": 8,
+          "bestCost": 3975.5134080000003,
+          "bestIter": 2385
+        },
+        {
+          "trial": 9,
+          "seed": 9,
+          "bestCost": 3975.5134080000003,
+          "bestIter": 1314
+        },
+        {
+          "trial": 10,
+          "seed": 10,
+          "bestCost": 3975.5134080000003,
+          "bestIter": 3571
+        },
+        {
+          "trial": 11,
+          "seed": 11,
+          "bestCost": 3975.5134080000003,
+          "bestIter": 1522
+        },
+        {
+          "trial": 12,
+          "seed": 12,
+          "bestCost": 3975.5134080000003,
+          "bestIter": 2751
+        },
+        {
+          "trial": 13,
+          "seed": 13,
+          "bestCost": 3975.5134080000003,
+          "bestIter": 2066
+        },
+        {
+          "trial": 14,
+          "seed": 14,
+          "bestCost": 3985.9382400000004,
+          "bestIter": 3209
+        },
+        {
+          "trial": 15,
+          "seed": 15,
+          "bestCost": 3975.5134080000003,
+          "bestIter": 1039
+        },
+        {
+          "trial": 16,
+          "seed": 16,
+          "bestCost": 4015.7911680000007,
+          "bestIter": 2190
+        },
+        {
+          "trial": 17,
+          "seed": 17,
+          "bestCost": 3975.5134080000003,
+          "bestIter": 648
+        },
+        {
+          "trial": 18,
+          "seed": 18,
+          "bestCost": 3975.5134080000003,
+          "bestIter": 2117
+        },
+        {
+          "trial": 19,
+          "seed": 19,
+          "bestCost": 3975.5134080000003,
+          "bestIter": 1440
+        },
+        {
+          "trial": 20,
+          "seed": 20,
+          "bestCost": 3975.5134080000003,
+          "bestIter": 1933
+        },
+        {
+          "trial": 21,
+          "seed": 21,
+          "bestCost": 3975.5134080000003,
+          "bestIter": 4780
+        },
+        {
+          "trial": 22,
+          "seed": 22,
+          "bestCost": 3975.5134080000003,
+          "bestIter": 3987
+        },
+        {
+          "trial": 23,
+          "seed": 23,
+          "bestCost": 4045.1702400000004,
+          "bestIter": 3895
+        },
+        {
+          "trial": 24,
+          "seed": 24,
+          "bestCost": 3975.5134080000003,
+          "bestIter": 531
+        },
+        {
+          "trial": 25,
+          "seed": 25,
+          "bestCost": 3975.5134080000003,
+          "bestIter": 410
+        },
+        {
+          "trial": 26,
+          "seed": 26,
+          "bestCost": 3986.8859520000005,
+          "bestIter": 4063
+        },
+        {
+          "trial": 27,
+          "seed": 27,
+          "bestCost": 3975.5134080000003,
+          "bestIter": 1123
+        },
+        {
+          "trial": 28,
+          "seed": 28,
+          "bestCost": 3975.5134080000003,
+          "bestIter": 1401
+        },
+        {
+          "trial": 29,
+          "seed": 29,
+          "bestCost": 3986.8859520000005,
+          "bestIter": 3757
+        },
+        {
+          "trial": 30,
+          "seed": 30,
+          "bestCost": 3975.5134080000003,
+          "bestIter": 1409
+        }
+      ],
+      "ba": [
+        {
+          "trial": 1,
+          "seed": 1,
+          "bestCost": 3975.5134080000003,
+          "bestIter": 735
+        },
+        {
+          "trial": 2,
+          "seed": 2,
+          "bestCost": 3975.5134080000003,
+          "bestIter": 256
+        },
+        {
+          "trial": 3,
+          "seed": 3,
+          "bestCost": 3975.5134080000003,
+          "bestIter": 1331
+        },
+        {
+          "trial": 4,
+          "seed": 4,
+          "bestCost": 3975.5134080000003,
+          "bestIter": 1453
+        },
+        {
+          "trial": 5,
+          "seed": 5,
+          "bestCost": 3975.5134080000003,
+          "bestIter": 1385
+        },
+        {
+          "trial": 6,
+          "seed": 6,
+          "bestCost": 3975.5134080000003,
+          "bestIter": 143
+        },
+        {
+          "trial": 7,
+          "seed": 7,
+          "bestCost": 3975.5134080000003,
+          "bestIter": 330
+        },
+        {
+          "trial": 8,
+          "seed": 8,
+          "bestCost": 3975.5134080000003,
+          "bestIter": 1620
+        },
+        {
+          "trial": 9,
+          "seed": 9,
+          "bestCost": 3975.5134080000003,
+          "bestIter": 187
+        },
+        {
+          "trial": 10,
+          "seed": 10,
+          "bestCost": 3975.5134080000003,
+          "bestIter": 236
+        },
+        {
+          "trial": 11,
+          "seed": 11,
+          "bestCost": 3975.5134080000003,
+          "bestIter": 265
+        },
+        {
+          "trial": 12,
+          "seed": 12,
+          "bestCost": 3975.5134080000003,
+          "bestIter": 526
+        },
+        {
+          "trial": 13,
+          "seed": 13,
+          "bestCost": 3975.5134080000003,
+          "bestIter": 606
+        },
+        {
+          "trial": 14,
+          "seed": 14,
+          "bestCost": 3975.5134080000003,
+          "bestIter": 328
+        },
+        {
+          "trial": 15,
+          "seed": 15,
+          "bestCost": 3975.5134080000003,
+          "bestIter": 70
+        },
+        {
+          "trial": 16,
+          "seed": 16,
+          "bestCost": 3975.5134080000003,
+          "bestIter": 1541
+        },
+        {
+          "trial": 17,
+          "seed": 17,
+          "bestCost": 3975.5134080000003,
+          "bestIter": 355
+        },
+        {
+          "trial": 18,
+          "seed": 18,
+          "bestCost": 3975.5134080000003,
+          "bestIter": 214
+        },
+        {
+          "trial": 19,
+          "seed": 19,
+          "bestCost": 3975.5134080000003,
+          "bestIter": 201
+        },
+        {
+          "trial": 20,
+          "seed": 20,
+          "bestCost": 3975.5134080000003,
+          "bestIter": 218
+        },
+        {
+          "trial": 21,
+          "seed": 21,
+          "bestCost": 3975.5134080000003,
+          "bestIter": 148
+        },
+        {
+          "trial": 22,
+          "seed": 22,
+          "bestCost": 3975.5134080000003,
+          "bestIter": 239
+        },
+        {
+          "trial": 23,
+          "seed": 23,
+          "bestCost": 3975.5134080000003,
+          "bestIter": 899
+        },
+        {
+          "trial": 24,
+          "seed": 24,
+          "bestCost": 3975.5134080000003,
+          "bestIter": 1037
+        },
+        {
+          "trial": 25,
+          "seed": 25,
+          "bestCost": 3975.5134080000003,
+          "bestIter": 544
+        },
+        {
+          "trial": 26,
+          "seed": 26,
+          "bestCost": 3975.5134080000003,
+          "bestIter": 563
+        },
+        {
+          "trial": 27,
+          "seed": 27,
+          "bestCost": 3975.5134080000003,
+          "bestIter": 391
+        },
+        {
+          "trial": 28,
+          "seed": 28,
+          "bestCost": 3975.5134080000003,
+          "bestIter": 454
+        },
+        {
+          "trial": 29,
+          "seed": 29,
+          "bestCost": 3975.5134080000003,
+          "bestIter": 211
+        },
+        {
+          "trial": 30,
+          "seed": 30,
+          "bestCost": 3975.5134080000003,
+          "bestIter": 570
+        }
+      ]
+    },
+    "H4_fc280": {
+      "hca": [
+        {
+          "trial": 1,
+          "seed": 1,
+          "bestCost": 4101.473408,
+          "bestIter": 4949
+        },
+        {
+          "trial": 2,
+          "seed": 2,
+          "bestCost": 4101.473408,
+          "bestIter": 1383
+        },
+        {
+          "trial": 3,
+          "seed": 3,
+          "bestCost": 4101.473408,
+          "bestIter": 652
+        },
+        {
+          "trial": 4,
+          "seed": 4,
+          "bestCost": 4101.473408,
+          "bestIter": 2684
+        },
+        {
+          "trial": 5,
+          "seed": 5,
+          "bestCost": 4101.473408,
+          "bestIter": 2804
+        },
+        {
+          "trial": 6,
+          "seed": 6,
+          "bestCost": 4101.473408,
+          "bestIter": 4021
+        },
+        {
+          "trial": 7,
+          "seed": 7,
+          "bestCost": 4101.473408,
+          "bestIter": 1668
+        },
+        {
+          "trial": 8,
+          "seed": 8,
+          "bestCost": 4101.473408,
+          "bestIter": 2385
+        },
+        {
+          "trial": 9,
+          "seed": 9,
+          "bestCost": 4111.89824,
+          "bestIter": 3478
+        },
+        {
+          "trial": 10,
+          "seed": 10,
+          "bestCost": 4101.473408,
+          "bestIter": 3571
+        },
+        {
+          "trial": 11,
+          "seed": 11,
+          "bestCost": 4101.473408,
+          "bestIter": 1878
+        },
+        {
+          "trial": 12,
+          "seed": 12,
+          "bestCost": 4101.473408,
+          "bestIter": 1350
+        },
+        {
+          "trial": 13,
+          "seed": 13,
+          "bestCost": 4141.751168000001,
+          "bestIter": 4352
+        },
+        {
+          "trial": 14,
+          "seed": 14,
+          "bestCost": 4111.89824,
+          "bestIter": 3209
+        },
+        {
+          "trial": 15,
+          "seed": 15,
+          "bestCost": 4101.473408,
+          "bestIter": 1039
+        },
+        {
+          "trial": 16,
+          "seed": 16,
+          "bestCost": 4141.751168000001,
+          "bestIter": 2190
+        },
+        {
+          "trial": 17,
+          "seed": 17,
+          "bestCost": 4101.473408,
+          "bestIter": 648
+        },
+        {
+          "trial": 18,
+          "seed": 18,
+          "bestCost": 4101.473408,
+          "bestIter": 2117
+        },
+        {
+          "trial": 19,
+          "seed": 19,
+          "bestCost": 4101.473408,
+          "bestIter": 1440
+        },
+        {
+          "trial": 20,
+          "seed": 20,
+          "bestCost": 4101.473408,
+          "bestIter": 1933
+        },
+        {
+          "trial": 21,
+          "seed": 21,
+          "bestCost": 4101.473408,
+          "bestIter": 4780
+        },
+        {
+          "trial": 22,
+          "seed": 22,
+          "bestCost": 4101.473408,
+          "bestIter": 3987
+        },
+        {
+          "trial": 23,
+          "seed": 23,
+          "bestCost": 4112.845952000001,
+          "bestIter": 1223
+        },
+        {
+          "trial": 24,
+          "seed": 24,
+          "bestCost": 4101.473408,
+          "bestIter": 531
+        },
+        {
+          "trial": 25,
+          "seed": 25,
+          "bestCost": 4101.473408,
+          "bestIter": 410
+        },
+        {
+          "trial": 26,
+          "seed": 26,
+          "bestCost": 4112.845952000001,
+          "bestIter": 4063
+        },
+        {
+          "trial": 27,
+          "seed": 27,
+          "bestCost": 4101.473408,
+          "bestIter": 1067
+        },
+        {
+          "trial": 28,
+          "seed": 28,
+          "bestCost": 4101.473408,
+          "bestIter": 1401
+        },
+        {
+          "trial": 29,
+          "seed": 29,
+          "bestCost": 4112.845952000001,
+          "bestIter": 3757
+        },
+        {
+          "trial": 30,
+          "seed": 30,
+          "bestCost": 4101.473408,
+          "bestIter": 1409
+        }
+      ],
+      "ba": [
+        {
+          "trial": 1,
+          "seed": 1,
+          "bestCost": 4101.473408,
+          "bestIter": 735
+        },
+        {
+          "trial": 2,
+          "seed": 2,
+          "bestCost": 4101.473408,
+          "bestIter": 256
+        },
+        {
+          "trial": 3,
+          "seed": 3,
+          "bestCost": 4101.473408,
+          "bestIter": 1331
+        },
+        {
+          "trial": 4,
+          "seed": 4,
+          "bestCost": 4101.473408,
+          "bestIter": 1453
+        },
+        {
+          "trial": 5,
+          "seed": 5,
+          "bestCost": 4101.473408,
+          "bestIter": 1385
+        },
+        {
+          "trial": 6,
+          "seed": 6,
+          "bestCost": 4101.473408,
+          "bestIter": 143
+        },
+        {
+          "trial": 7,
+          "seed": 7,
+          "bestCost": 4101.473408,
+          "bestIter": 330
+        },
+        {
+          "trial": 8,
+          "seed": 8,
+          "bestCost": 4101.473408,
+          "bestIter": 1620
+        },
+        {
+          "trial": 9,
+          "seed": 9,
+          "bestCost": 4101.473408,
+          "bestIter": 187
+        },
+        {
+          "trial": 10,
+          "seed": 10,
+          "bestCost": 4101.473408,
+          "bestIter": 236
+        },
+        {
+          "trial": 11,
+          "seed": 11,
+          "bestCost": 4101.473408,
+          "bestIter": 265
+        },
+        {
+          "trial": 12,
+          "seed": 12,
+          "bestCost": 4101.473408,
+          "bestIter": 526
+        },
+        {
+          "trial": 13,
+          "seed": 13,
+          "bestCost": 4101.473408,
+          "bestIter": 606
+        },
+        {
+          "trial": 14,
+          "seed": 14,
+          "bestCost": 4101.473408,
+          "bestIter": 328
+        },
+        {
+          "trial": 15,
+          "seed": 15,
+          "bestCost": 4101.473408,
+          "bestIter": 70
+        },
+        {
+          "trial": 16,
+          "seed": 16,
+          "bestCost": 4101.473408,
+          "bestIter": 1541
+        },
+        {
+          "trial": 17,
+          "seed": 17,
+          "bestCost": 4101.473408,
+          "bestIter": 355
+        },
+        {
+          "trial": 18,
+          "seed": 18,
+          "bestCost": 4101.473408,
+          "bestIter": 214
+        },
+        {
+          "trial": 19,
+          "seed": 19,
+          "bestCost": 4101.473408,
+          "bestIter": 201
+        },
+        {
+          "trial": 20,
+          "seed": 20,
+          "bestCost": 4101.473408,
+          "bestIter": 218
+        },
+        {
+          "trial": 21,
+          "seed": 21,
+          "bestCost": 4101.473408,
+          "bestIter": 148
+        },
+        {
+          "trial": 22,
+          "seed": 22,
+          "bestCost": 4101.473408,
+          "bestIter": 239
+        },
+        {
+          "trial": 23,
+          "seed": 23,
+          "bestCost": 4101.473408,
+          "bestIter": 899
+        },
+        {
+          "trial": 24,
+          "seed": 24,
+          "bestCost": 4101.473408,
+          "bestIter": 1037
+        },
+        {
+          "trial": 25,
+          "seed": 25,
+          "bestCost": 4101.473408,
+          "bestIter": 544
+        },
+        {
+          "trial": 26,
+          "seed": 26,
+          "bestCost": 4101.473408,
+          "bestIter": 563
+        },
+        {
+          "trial": 27,
+          "seed": 27,
+          "bestCost": 4101.473408,
+          "bestIter": 391
+        },
+        {
+          "trial": 28,
+          "seed": 28,
+          "bestCost": 4101.473408,
+          "bestIter": 454
+        },
+        {
+          "trial": 29,
+          "seed": 29,
+          "bestCost": 4101.473408,
+          "bestIter": 211
+        },
+        {
+          "trial": 30,
+          "seed": 30,
+          "bestCost": 4101.473408,
+          "bestIter": 570
+        }
+      ]
+    },
+    "H4_fc320": {
+      "hca": [
+        {
+          "trial": 1,
+          "seed": 1,
+          "bestCost": 4226.093408000001,
+          "bestIter": 4949
+        },
+        {
+          "trial": 2,
+          "seed": 2,
+          "bestCost": 4226.093408000001,
+          "bestIter": 844
+        },
+        {
+          "trial": 3,
+          "seed": 3,
+          "bestCost": 4226.093408000001,
+          "bestIter": 652
+        },
+        {
+          "trial": 4,
+          "seed": 4,
+          "bestCost": 4226.093408000001,
+          "bestIter": 145
+        },
+        {
+          "trial": 5,
+          "seed": 5,
+          "bestCost": 4226.093408000001,
+          "bestIter": 2804
+        },
+        {
+          "trial": 6,
+          "seed": 6,
+          "bestCost": 4226.093408000001,
+          "bestIter": 4021
+        },
+        {
+          "trial": 7,
+          "seed": 7,
+          "bestCost": 4226.093408000001,
+          "bestIter": 1668
+        },
+        {
+          "trial": 8,
+          "seed": 8,
+          "bestCost": 4226.093408000001,
+          "bestIter": 428
+        },
+        {
+          "trial": 9,
+          "seed": 9,
+          "bestCost": 4226.093408000001,
+          "bestIter": 2560
+        },
+        {
+          "trial": 10,
+          "seed": 10,
+          "bestCost": 4226.093408000001,
+          "bestIter": 552
+        },
+        {
+          "trial": 11,
+          "seed": 11,
+          "bestCost": 4226.093408000001,
+          "bestIter": 1878
+        },
+        {
+          "trial": 12,
+          "seed": 12,
+          "bestCost": 4226.093408000001,
+          "bestIter": 4956
+        },
+        {
+          "trial": 13,
+          "seed": 13,
+          "bestCost": 4266.371168000001,
+          "bestIter": 4352
+        },
+        {
+          "trial": 14,
+          "seed": 14,
+          "bestCost": 4236.51824,
+          "bestIter": 3209
+        },
+        {
+          "trial": 15,
+          "seed": 15,
+          "bestCost": 4226.093408000001,
+          "bestIter": 1039
+        },
+        {
+          "trial": 16,
+          "seed": 16,
+          "bestCost": 4226.093408000001,
+          "bestIter": 2942
+        },
+        {
+          "trial": 17,
+          "seed": 17,
+          "bestCost": 4226.093408000001,
+          "bestIter": 648
+        },
+        {
+          "trial": 18,
+          "seed": 18,
+          "bestCost": 4226.093408000001,
+          "bestIter": 593
+        },
+        {
+          "trial": 19,
+          "seed": 19,
+          "bestCost": 4226.093408000001,
+          "bestIter": 1440
+        },
+        {
+          "trial": 20,
+          "seed": 20,
+          "bestCost": 4226.093408000001,
+          "bestIter": 1933
+        },
+        {
+          "trial": 21,
+          "seed": 21,
+          "bestCost": 4226.093408000001,
+          "bestIter": 4780
+        },
+        {
+          "trial": 22,
+          "seed": 22,
+          "bestCost": 4237.4659520000005,
+          "bestIter": 4073
+        },
+        {
+          "trial": 23,
+          "seed": 23,
+          "bestCost": 4237.4659520000005,
+          "bestIter": 1223
+        },
+        {
+          "trial": 24,
+          "seed": 24,
+          "bestCost": 4226.093408000001,
+          "bestIter": 531
+        },
+        {
+          "trial": 25,
+          "seed": 25,
+          "bestCost": 4226.093408000001,
+          "bestIter": 2780
+        },
+        {
+          "trial": 26,
+          "seed": 26,
+          "bestCost": 4237.4659520000005,
+          "bestIter": 4063
+        },
+        {
+          "trial": 27,
+          "seed": 27,
+          "bestCost": 4226.093408000001,
+          "bestIter": 1067
+        },
+        {
+          "trial": 28,
+          "seed": 28,
+          "bestCost": 4226.093408000001,
+          "bestIter": 1401
+        },
+        {
+          "trial": 29,
+          "seed": 29,
+          "bestCost": 4237.4659520000005,
+          "bestIter": 3757
+        },
+        {
+          "trial": 30,
+          "seed": 30,
+          "bestCost": 4226.093408000001,
+          "bestIter": 1409
+        }
+      ],
+      "ba": [
+        {
+          "trial": 1,
+          "seed": 1,
+          "bestCost": 4226.093408000001,
+          "bestIter": 735
+        },
+        {
+          "trial": 2,
+          "seed": 2,
+          "bestCost": 4226.093408000001,
+          "bestIter": 256
+        },
+        {
+          "trial": 3,
+          "seed": 3,
+          "bestCost": 4226.093408000001,
+          "bestIter": 1331
+        },
+        {
+          "trial": 4,
+          "seed": 4,
+          "bestCost": 4226.093408000001,
+          "bestIter": 1453
+        },
+        {
+          "trial": 5,
+          "seed": 5,
+          "bestCost": 4226.093408000001,
+          "bestIter": 1385
+        },
+        {
+          "trial": 6,
+          "seed": 6,
+          "bestCost": 4226.093408000001,
+          "bestIter": 143
+        },
+        {
+          "trial": 7,
+          "seed": 7,
+          "bestCost": 4226.093408000001,
+          "bestIter": 330
+        },
+        {
+          "trial": 8,
+          "seed": 8,
+          "bestCost": 4226.093408000001,
+          "bestIter": 1620
+        },
+        {
+          "trial": 9,
+          "seed": 9,
+          "bestCost": 4226.093408000001,
+          "bestIter": 187
+        },
+        {
+          "trial": 10,
+          "seed": 10,
+          "bestCost": 4226.093408000001,
+          "bestIter": 236
+        },
+        {
+          "trial": 11,
+          "seed": 11,
+          "bestCost": 4226.093408000001,
+          "bestIter": 265
+        },
+        {
+          "trial": 12,
+          "seed": 12,
+          "bestCost": 4226.093408000001,
+          "bestIter": 526
+        },
+        {
+          "trial": 13,
+          "seed": 13,
+          "bestCost": 4226.093408000001,
+          "bestIter": 606
+        },
+        {
+          "trial": 14,
+          "seed": 14,
+          "bestCost": 4226.093408000001,
+          "bestIter": 328
+        },
+        {
+          "trial": 15,
+          "seed": 15,
+          "bestCost": 4226.093408000001,
+          "bestIter": 70
+        },
+        {
+          "trial": 16,
+          "seed": 16,
+          "bestCost": 4226.093408000001,
+          "bestIter": 1541
+        },
+        {
+          "trial": 17,
+          "seed": 17,
+          "bestCost": 4226.093408000001,
+          "bestIter": 355
+        },
+        {
+          "trial": 18,
+          "seed": 18,
+          "bestCost": 4226.093408000001,
+          "bestIter": 214
+        },
+        {
+          "trial": 19,
+          "seed": 19,
+          "bestCost": 4226.093408000001,
+          "bestIter": 201
+        },
+        {
+          "trial": 20,
+          "seed": 20,
+          "bestCost": 4226.093408000001,
+          "bestIter": 218
+        },
+        {
+          "trial": 21,
+          "seed": 21,
+          "bestCost": 4226.093408000001,
+          "bestIter": 148
+        },
+        {
+          "trial": 22,
+          "seed": 22,
+          "bestCost": 4226.093408000001,
+          "bestIter": 239
+        },
+        {
+          "trial": 23,
+          "seed": 23,
+          "bestCost": 4226.093408000001,
+          "bestIter": 899
+        },
+        {
+          "trial": 24,
+          "seed": 24,
+          "bestCost": 4226.093408000001,
+          "bestIter": 1037
+        },
+        {
+          "trial": 25,
+          "seed": 25,
+          "bestCost": 4226.093408000001,
+          "bestIter": 544
+        },
+        {
+          "trial": 26,
+          "seed": 26,
+          "bestCost": 4226.093408000001,
+          "bestIter": 730
+        },
+        {
+          "trial": 27,
+          "seed": 27,
+          "bestCost": 4226.093408000001,
+          "bestIter": 391
+        },
+        {
+          "trial": 28,
+          "seed": 28,
+          "bestCost": 4226.093408000001,
+          "bestIter": 454
+        },
+        {
+          "trial": 29,
+          "seed": 29,
+          "bestCost": 4226.093408000001,
+          "bestIter": 211
+        },
+        {
+          "trial": 30,
+          "seed": 30,
+          "bestCost": 4226.093408000001,
+          "bestIter": 570
+        }
+      ]
+    },
+    "H5_fc240": {
+      "hca": [
+        {
+          "trial": 1,
+          "seed": 1,
+          "bestCost": 5578.213744000001,
+          "bestIter": 735
+        },
+        {
+          "trial": 2,
+          "seed": 2,
+          "bestCost": 5517.843167999999,
+          "bestIter": 2554
+        },
+        {
+          "trial": 3,
+          "seed": 3,
+          "bestCost": 5517.843167999999,
+          "bestIter": 4006
+        },
+        {
+          "trial": 4,
+          "seed": 4,
+          "bestCost": 5546.274528,
+          "bestIter": 4108
+        },
+        {
+          "trial": 5,
+          "seed": 5,
+          "bestCost": 5529.393408,
+          "bestIter": 1011
+        },
+        {
+          "trial": 6,
+          "seed": 6,
+          "bestCost": 5529.393408,
+          "bestIter": 2592
+        },
+        {
+          "trial": 7,
+          "seed": 7,
+          "bestCost": 5539.956448,
+          "bestIter": 3578
+        },
+        {
+          "trial": 8,
+          "seed": 8,
+          "bestCost": 5548.347648,
+          "bestIter": 4125
+        },
+        {
+          "trial": 9,
+          "seed": 9,
+          "bestCost": 5600.471808,
+          "bestIter": 1918
+        },
+        {
+          "trial": 10,
+          "seed": 10,
+          "bestCost": 5546.274528,
+          "bestIter": 2539
+        },
+        {
+          "trial": 11,
+          "seed": 11,
+          "bestCost": 5539.956448,
+          "bestIter": 4540
+        },
+        {
+          "trial": 12,
+          "seed": 12,
+          "bestCost": 5563.451808,
+          "bestIter": 1275
+        },
+        {
+          "trial": 13,
+          "seed": 13,
+          "bestCost": 5552.592608,
+          "bestIter": 772
+        },
+        {
+          "trial": 14,
+          "seed": 14,
+          "bestCost": 5607.039984000001,
+          "bestIter": 1316
+        },
+        {
+          "trial": 15,
+          "seed": 15,
+          "bestCost": 5565.228768,
+          "bestIter": 3476
+        },
+        {
+          "trial": 16,
+          "seed": 16,
+          "bestCost": 5578.213744000001,
+          "bestIter": 3643
+        },
+        {
+          "trial": 17,
+          "seed": 17,
+          "bestCost": 5517.843167999999,
+          "bestIter": 3231
+        },
+        {
+          "trial": 18,
+          "seed": 18,
+          "bestCost": 5546.274528,
+          "bestIter": 2835
+        },
+        {
+          "trial": 19,
+          "seed": 19,
+          "bestCost": 5500.962047999999,
+          "bestIter": 916
+        },
+        {
+          "trial": 20,
+          "seed": 20,
+          "bestCost": 5563.451808,
+          "bestIter": 4877
+        },
+        {
+          "trial": 21,
+          "seed": 21,
+          "bestCost": 5546.274528,
+          "bestIter": 3470
+        },
+        {
+          "trial": 22,
+          "seed": 22,
+          "bestCost": 5500.962047999999,
+          "bestIter": 1040
+        },
+        {
+          "trial": 23,
+          "seed": 23,
+          "bestCost": 5500.962047999999,
+          "bestIter": 2909
+        },
+        {
+          "trial": 24,
+          "seed": 24,
+          "bestCost": 5539.956448,
+          "bestIter": 509
+        },
+        {
+          "trial": 25,
+          "seed": 25,
+          "bestCost": 5563.451808,
+          "bestIter": 2548
+        },
+        {
+          "trial": 26,
+          "seed": 26,
+          "bestCost": 5598.0038079999995,
+          "bestIter": 4822
+        },
+        {
+          "trial": 27,
+          "seed": 27,
+          "bestCost": 5578.213744000001,
+          "bestIter": 1121
+        },
+        {
+          "trial": 28,
+          "seed": 28,
+          "bestCost": 5500.962047999999,
+          "bestIter": 4762
+        },
+        {
+          "trial": 29,
+          "seed": 29,
+          "bestCost": 5500.962047999999,
+          "bestIter": 3385
+        },
+        {
+          "trial": 30,
+          "seed": 30,
+          "bestCost": 5753.09952,
+          "bestIter": 1749
+        }
+      ],
+      "ba": [
+        {
+          "trial": 1,
+          "seed": 1,
+          "bestCost": 5500.962047999999,
+          "bestIter": 566
+        },
+        {
+          "trial": 2,
+          "seed": 2,
+          "bestCost": 5459.795808,
+          "bestIter": 1575
+        },
+        {
+          "trial": 3,
+          "seed": 3,
+          "bestCost": 5459.795808,
+          "bestIter": 735
+        },
+        {
+          "trial": 4,
+          "seed": 4,
+          "bestCost": 5459.795808,
+          "bestIter": 3406
+        },
+        {
+          "trial": 5,
+          "seed": 5,
+          "bestCost": 5517.843167999999,
+          "bestIter": 358
+        },
+        {
+          "trial": 6,
+          "seed": 6,
+          "bestCost": 5529.393408,
+          "bestIter": 365
+        },
+        {
+          "trial": 7,
+          "seed": 7,
+          "bestCost": 5546.274528,
+          "bestIter": 332
+        },
+        {
+          "trial": 8,
+          "seed": 8,
+          "bestCost": 5459.795808,
+          "bestIter": 3830
+        },
+        {
+          "trial": 9,
+          "seed": 9,
+          "bestCost": 5529.393408,
+          "bestIter": 857
+        },
+        {
+          "trial": 10,
+          "seed": 10,
+          "bestCost": 5517.843167999999,
+          "bestIter": 850
+        },
+        {
+          "trial": 11,
+          "seed": 11,
+          "bestCost": 5459.795808,
+          "bestIter": 4438
+        },
+        {
+          "trial": 12,
+          "seed": 12,
+          "bestCost": 5500.962047999999,
+          "bestIter": 575
+        },
+        {
+          "trial": 13,
+          "seed": 13,
+          "bestCost": 5500.962047999999,
+          "bestIter": 129
+        },
+        {
+          "trial": 14,
+          "seed": 14,
+          "bestCost": 5500.962047999999,
+          "bestIter": 696
+        },
+        {
+          "trial": 15,
+          "seed": 15,
+          "bestCost": 5529.393408,
+          "bestIter": 119
+        },
+        {
+          "trial": 16,
+          "seed": 16,
+          "bestCost": 5459.795808,
+          "bestIter": 3096
+        },
+        {
+          "trial": 17,
+          "seed": 17,
+          "bestCost": 5517.843167999999,
+          "bestIter": 169
+        },
+        {
+          "trial": 18,
+          "seed": 18,
+          "bestCost": 5517.843167999999,
+          "bestIter": 107
+        },
+        {
+          "trial": 19,
+          "seed": 19,
+          "bestCost": 5459.795808,
+          "bestIter": 1573
+        },
+        {
+          "trial": 20,
+          "seed": 20,
+          "bestCost": 5529.393408,
+          "bestIter": 266
+        },
+        {
+          "trial": 21,
+          "seed": 21,
+          "bestCost": 5546.274528,
+          "bestIter": 219
+        },
+        {
+          "trial": 22,
+          "seed": 22,
+          "bestCost": 5517.843167999999,
+          "bestIter": 1536
+        },
+        {
+          "trial": 23,
+          "seed": 23,
+          "bestCost": 5578.213744000001,
+          "bestIter": 390
+        },
+        {
+          "trial": 24,
+          "seed": 24,
+          "bestCost": 5459.795808,
+          "bestIter": 4969
+        },
+        {
+          "trial": 25,
+          "seed": 25,
+          "bestCost": 5500.962047999999,
+          "bestIter": 197
+        },
+        {
+          "trial": 26,
+          "seed": 26,
+          "bestCost": 5578.213744000001,
+          "bestIter": 1711
+        },
+        {
+          "trial": 27,
+          "seed": 27,
+          "bestCost": 5517.843167999999,
+          "bestIter": 234
+        },
+        {
+          "trial": 28,
+          "seed": 28,
+          "bestCost": 5459.795808,
+          "bestIter": 837
+        },
+        {
+          "trial": 29,
+          "seed": 29,
+          "bestCost": 5500.962047999999,
+          "bestIter": 413
+        },
+        {
+          "trial": 30,
+          "seed": 30,
+          "bestCost": 5500.962047999999,
+          "bestIter": 470
+        }
+      ]
+    },
+    "H5_fc280": {
+      "hca": [
+        {
+          "trial": 1,
+          "seed": 1,
+          "bestCost": 5688.253408,
+          "bestIter": 1797
+        },
+        {
+          "trial": 2,
+          "seed": 2,
+          "bestCost": 5688.253408,
+          "bestIter": 1189
+        },
+        {
+          "trial": 3,
+          "seed": 3,
+          "bestCost": 5827.389375999999,
+          "bestIter": 1512
+        },
+        {
+          "trial": 4,
+          "seed": 4,
+          "bestCost": 5676.703168,
+          "bestIter": 2015
+        },
+        {
+          "trial": 5,
+          "seed": 5,
+          "bestCost": 5688.253408,
+          "bestIter": 1011
+        },
+        {
+          "trial": 6,
+          "seed": 6,
+          "bestCost": 5688.253408,
+          "bestIter": 2592
+        },
+        {
+          "trial": 7,
+          "seed": 7,
+          "bestCost": 5796.351807999999,
+          "bestIter": 3584
+        },
+        {
+          "trial": 8,
+          "seed": 8,
+          "bestCost": 5659.822048,
+          "bestIter": 1350
+        },
+        {
+          "trial": 9,
+          "seed": 9,
+          "bestCost": 5706.714048,
+          "bestIter": 3883
+        },
+        {
+          "trial": 10,
+          "seed": 10,
+          "bestCost": 5705.134528,
+          "bestIter": 2539
+        },
+        {
+          "trial": 11,
+          "seed": 11,
+          "bestCost": 5688.253408,
+          "bestIter": 2974
+        },
+        {
+          "trial": 12,
+          "seed": 12,
+          "bestCost": 5688.253408,
+          "bestIter": 879
+        },
+        {
+          "trial": 13,
+          "seed": 13,
+          "bestCost": 5711.452608,
+          "bestIter": 772
+        },
+        {
+          "trial": 14,
+          "seed": 14,
+          "bestCost": 5659.822048,
+          "bestIter": 4205
+        },
+        {
+          "trial": 15,
+          "seed": 15,
+          "bestCost": 5724.088768,
+          "bestIter": 3476
+        },
+        {
+          "trial": 16,
+          "seed": 16,
+          "bestCost": 5735.145407999999,
+          "bestIter": 2127
+        },
+        {
+          "trial": 17,
+          "seed": 17,
+          "bestCost": 5676.703168,
+          "bestIter": 2325
+        },
+        {
+          "trial": 18,
+          "seed": 18,
+          "bestCost": 5659.822048,
+          "bestIter": 2626
+        },
+        {
+          "trial": 19,
+          "seed": 19,
+          "bestCost": 5705.134528,
+          "bestIter": 3137
+        },
+        {
+          "trial": 20,
+          "seed": 20,
+          "bestCost": 5754.099647999999,
+          "bestIter": 4061
+        },
+        {
+          "trial": 21,
+          "seed": 21,
+          "bestCost": 5659.822048,
+          "bestIter": 4472
+        },
+        {
+          "trial": 22,
+          "seed": 22,
+          "bestCost": 5688.253408,
+          "bestIter": 712
+        },
+        {
+          "trial": 23,
+          "seed": 23,
+          "bestCost": 5659.822048,
+          "bestIter": 2909
+        },
+        {
+          "trial": 24,
+          "seed": 24,
+          "bestCost": 5676.703168,
+          "bestIter": 4057
+        },
+        {
+          "trial": 25,
+          "seed": 25,
+          "bestCost": 5705.134528,
+          "bestIter": 2164
+        },
+        {
+          "trial": 26,
+          "seed": 26,
+          "bestCost": 5676.703168,
+          "bestIter": 3979
+        },
+        {
+          "trial": 27,
+          "seed": 27,
+          "bestCost": 5688.253408,
+          "bestIter": 1490
+        },
+        {
+          "trial": 28,
+          "seed": 28,
+          "bestCost": 5707.207648,
+          "bestIter": 429
+        },
+        {
+          "trial": 29,
+          "seed": 29,
+          "bestCost": 5676.703168,
+          "bestIter": 3446
+        },
+        {
+          "trial": 30,
+          "seed": 30,
+          "bestCost": 5659.822048,
+          "bestIter": 2146
+        }
+      ],
+      "ba": [
+        {
+          "trial": 1,
+          "seed": 1,
+          "bestCost": 5676.703168,
+          "bestIter": 938
+        },
+        {
+          "trial": 2,
+          "seed": 2,
+          "bestCost": 5705.134528,
+          "bestIter": 1391
+        },
+        {
+          "trial": 3,
+          "seed": 3,
+          "bestCost": 5659.822048,
+          "bestIter": 341
+        },
+        {
+          "trial": 4,
+          "seed": 4,
+          "bestCost": 5659.822048,
+          "bestIter": 387
+        },
+        {
+          "trial": 5,
+          "seed": 5,
+          "bestCost": 5676.703168,
+          "bestIter": 358
+        },
+        {
+          "trial": 6,
+          "seed": 6,
+          "bestCost": 5659.822048,
+          "bestIter": 1283
+        },
+        {
+          "trial": 7,
+          "seed": 7,
+          "bestCost": 5705.134528,
+          "bestIter": 332
+        },
+        {
+          "trial": 8,
+          "seed": 8,
+          "bestCost": 5688.253408,
+          "bestIter": 345
+        },
+        {
+          "trial": 9,
+          "seed": 9,
+          "bestCost": 5688.253408,
+          "bestIter": 413
+        },
+        {
+          "trial": 10,
+          "seed": 10,
+          "bestCost": 5676.703168,
+          "bestIter": 850
+        },
+        {
+          "trial": 11,
+          "seed": 11,
+          "bestCost": 5659.822048,
+          "bestIter": 382
+        },
+        {
+          "trial": 12,
+          "seed": 12,
+          "bestCost": 5659.822048,
+          "bestIter": 876
+        },
+        {
+          "trial": 13,
+          "seed": 13,
+          "bestCost": 5659.822048,
+          "bestIter": 275
+        },
+        {
+          "trial": 14,
+          "seed": 14,
+          "bestCost": 5659.822048,
+          "bestIter": 696
+        },
+        {
+          "trial": 15,
+          "seed": 15,
+          "bestCost": 5688.253408,
+          "bestIter": 1132
+        },
+        {
+          "trial": 16,
+          "seed": 16,
+          "bestCost": 5747.883744000001,
+          "bestIter": 2587
+        },
+        {
+          "trial": 17,
+          "seed": 17,
+          "bestCost": 5676.703168,
+          "bestIter": 169
+        },
+        {
+          "trial": 18,
+          "seed": 18,
+          "bestCost": 5659.822048,
+          "bestIter": 1249
+        },
+        {
+          "trial": 19,
+          "seed": 19,
+          "bestCost": 5688.253408,
+          "bestIter": 1041
+        },
+        {
+          "trial": 20,
+          "seed": 20,
+          "bestCost": 5688.253408,
+          "bestIter": 266
+        },
+        {
+          "trial": 21,
+          "seed": 21,
+          "bestCost": 5705.134528,
+          "bestIter": 219
+        },
+        {
+          "trial": 22,
+          "seed": 22,
+          "bestCost": 5705.134528,
+          "bestIter": 840
+        },
+        {
+          "trial": 23,
+          "seed": 23,
+          "bestCost": 5747.883744000001,
+          "bestIter": 390
+        },
+        {
+          "trial": 24,
+          "seed": 24,
+          "bestCost": 5659.822048,
+          "bestIter": 612
+        },
+        {
+          "trial": 25,
+          "seed": 25,
+          "bestCost": 5659.822048,
+          "bestIter": 1212
+        },
+        {
+          "trial": 26,
+          "seed": 26,
+          "bestCost": 5901.097184,
+          "bestIter": 2254
+        },
+        {
+          "trial": 27,
+          "seed": 27,
+          "bestCost": 5676.703168,
+          "bestIter": 234
+        },
+        {
+          "trial": 28,
+          "seed": 28,
+          "bestCost": 5676.703168,
+          "bestIter": 1249
+        },
+        {
+          "trial": 29,
+          "seed": 29,
+          "bestCost": 5659.822048,
+          "bestIter": 67
+        },
+        {
+          "trial": 30,
+          "seed": 30,
+          "bestCost": 5659.822048,
+          "bestIter": 182
+        }
+      ]
+    },
+    "H5_fc320": {
+      "hca": [
+        {
+          "trial": 1,
+          "seed": 1,
+          "bestCost": 5892.3154079999995,
+          "bestIter": 3710
+        },
+        {
+          "trial": 2,
+          "seed": 2,
+          "bestCost": 5845.423408,
+          "bestIter": 1189
+        },
+        {
+          "trial": 3,
+          "seed": 3,
+          "bestCost": 5892.3154079999995,
+          "bestIter": 2101
+        },
+        {
+          "trial": 4,
+          "seed": 4,
+          "bestCost": 5833.873168,
+          "bestIter": 2015
+        },
+        {
+          "trial": 5,
+          "seed": 5,
+          "bestCost": 5816.992048,
+          "bestIter": 1662
+        },
+        {
+          "trial": 6,
+          "seed": 6,
+          "bestCost": 5816.992048,
+          "bestIter": 2174
+        },
+        {
+          "trial": 7,
+          "seed": 7,
+          "bestCost": 5916.797968,
+          "bestIter": 1264
+        },
+        {
+          "trial": 8,
+          "seed": 8,
+          "bestCost": 5833.873168,
+          "bestIter": 2948
+        },
+        {
+          "trial": 9,
+          "seed": 9,
+          "bestCost": 5863.884048,
+          "bestIter": 3883
+        },
+        {
+          "trial": 10,
+          "seed": 10,
+          "bestCost": 5925.742,
+          "bestIter": 4649
+        },
+        {
+          "trial": 11,
+          "seed": 11,
+          "bestCost": 5833.873168,
+          "bestIter": 4631
+        },
+        {
+          "trial": 12,
+          "seed": 12,
+          "bestCost": 5816.992048,
+          "bestIter": 4243
+        },
+        {
+          "trial": 13,
+          "seed": 13,
+          "bestCost": 5868.622608,
+          "bestIter": 772
+        },
+        {
+          "trial": 14,
+          "seed": 14,
+          "bestCost": 5833.873168,
+          "bestIter": 2441
+        },
+        {
+          "trial": 15,
+          "seed": 15,
+          "bestCost": 5881.258768,
+          "bestIter": 3476
+        },
+        {
+          "trial": 16,
+          "seed": 16,
+          "bestCost": 5864.377648,
+          "bestIter": 3078
+        },
+        {
+          "trial": 17,
+          "seed": 17,
+          "bestCost": 5833.873168,
+          "bestIter": 2325
+        },
+        {
+          "trial": 18,
+          "seed": 18,
+          "bestCost": 5816.992048,
+          "bestIter": 2626
+        },
+        {
+          "trial": 19,
+          "seed": 19,
+          "bestCost": 5862.304528,
+          "bestIter": 3137
+        },
+        {
+          "trial": 20,
+          "seed": 20,
+          "bestCost": 5911.2696479999995,
+          "bestIter": 4061
+        },
+        {
+          "trial": 21,
+          "seed": 21,
+          "bestCost": 5863.884048,
+          "bestIter": 2844
+        },
+        {
+          "trial": 22,
+          "seed": 22,
+          "bestCost": 5845.423408,
+          "bestIter": 712
+        },
+        {
+          "trial": 23,
+          "seed": 23,
+          "bestCost": 5915.748744,
+          "bestIter": 2776
+        },
+        {
+          "trial": 24,
+          "seed": 24,
+          "bestCost": 5833.873168,
+          "bestIter": 4057
+        },
+        {
+          "trial": 25,
+          "seed": 25,
+          "bestCost": 5862.304528,
+          "bestIter": 2164
+        },
+        {
+          "trial": 26,
+          "seed": 26,
+          "bestCost": 5833.873168,
+          "bestIter": 3979
+        },
+        {
+          "trial": 27,
+          "seed": 27,
+          "bestCost": 5916.501807999999,
+          "bestIter": 3284
+        },
+        {
+          "trial": 28,
+          "seed": 28,
+          "bestCost": 5864.377648,
+          "bestIter": 429
+        },
+        {
+          "trial": 29,
+          "seed": 29,
+          "bestCost": 5833.873168,
+          "bestIter": 3446
+        },
+        {
+          "trial": 30,
+          "seed": 30,
+          "bestCost": 5863.884048,
+          "bestIter": 4774
+        }
+      ],
+      "ba": [
+        {
+          "trial": 1,
+          "seed": 1,
+          "bestCost": 5833.873168,
+          "bestIter": 938
+        },
+        {
+          "trial": 2,
+          "seed": 2,
+          "bestCost": 5862.304528,
+          "bestIter": 1391
+        },
+        {
+          "trial": 3,
+          "seed": 3,
+          "bestCost": 5816.992048,
+          "bestIter": 341
+        },
+        {
+          "trial": 4,
+          "seed": 4,
+          "bestCost": 5816.992048,
+          "bestIter": 387
+        },
+        {
+          "trial": 5,
+          "seed": 5,
+          "bestCost": 5833.873168,
+          "bestIter": 358
+        },
+        {
+          "trial": 6,
+          "seed": 6,
+          "bestCost": 5833.873168,
+          "bestIter": 229
+        },
+        {
+          "trial": 7,
+          "seed": 7,
+          "bestCost": 5862.304528,
+          "bestIter": 332
+        },
+        {
+          "trial": 8,
+          "seed": 8,
+          "bestCost": 5845.423408,
+          "bestIter": 345
+        },
+        {
+          "trial": 9,
+          "seed": 9,
+          "bestCost": 5862.304528,
+          "bestIter": 913
+        },
+        {
+          "trial": 10,
+          "seed": 10,
+          "bestCost": 5833.873168,
+          "bestIter": 850
+        },
+        {
+          "trial": 11,
+          "seed": 11,
+          "bestCost": 5816.992048,
+          "bestIter": 382
+        },
+        {
+          "trial": 12,
+          "seed": 12,
+          "bestCost": 5816.992048,
+          "bestIter": 876
+        },
+        {
+          "trial": 13,
+          "seed": 13,
+          "bestCost": 5816.992048,
+          "bestIter": 275
+        },
+        {
+          "trial": 14,
+          "seed": 14,
+          "bestCost": 5816.992048,
+          "bestIter": 696
+        },
+        {
+          "trial": 15,
+          "seed": 15,
+          "bestCost": 5845.423408,
+          "bestIter": 1132
+        },
+        {
+          "trial": 16,
+          "seed": 16,
+          "bestCost": 5915.748744,
+          "bestIter": 2587
+        },
+        {
+          "trial": 17,
+          "seed": 17,
+          "bestCost": 5833.873168,
+          "bestIter": 169
+        },
+        {
+          "trial": 18,
+          "seed": 18,
+          "bestCost": 5833.873168,
+          "bestIter": 415
+        },
+        {
+          "trial": 19,
+          "seed": 19,
+          "bestCost": 5845.423408,
+          "bestIter": 1041
+        },
+        {
+          "trial": 20,
+          "seed": 20,
+          "bestCost": 5845.423408,
+          "bestIter": 266
+        },
+        {
+          "trial": 21,
+          "seed": 21,
+          "bestCost": 5816.992048,
+          "bestIter": 849
+        },
+        {
+          "trial": 22,
+          "seed": 22,
+          "bestCost": 5862.304528,
+          "bestIter": 840
+        },
+        {
+          "trial": 23,
+          "seed": 23,
+          "bestCost": 5915.748744,
+          "bestIter": 390
+        },
+        {
+          "trial": 24,
+          "seed": 24,
+          "bestCost": 5816.992048,
+          "bestIter": 612
+        },
+        {
+          "trial": 25,
+          "seed": 25,
+          "bestCost": 5816.992048,
+          "bestIter": 1212
+        },
+        {
+          "trial": 26,
+          "seed": 26,
+          "bestCost": 5816.992048,
+          "bestIter": 1338
+        },
+        {
+          "trial": 27,
+          "seed": 27,
+          "bestCost": 5833.873168,
+          "bestIter": 1312
+        },
+        {
+          "trial": 28,
+          "seed": 28,
+          "bestCost": 5833.873168,
+          "bestIter": 1249
+        },
+        {
+          "trial": 29,
+          "seed": 29,
+          "bestCost": 5816.992048,
+          "bestIter": 67
+        },
+        {
+          "trial": 30,
+          "seed": 30,
+          "bestCost": 5816.992048,
+          "bestIter": 182
+        }
+      ]
+    }
+  },
+  "totalRuntimeMs": 2396
+}
