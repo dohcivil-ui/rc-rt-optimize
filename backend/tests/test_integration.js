@@ -2,6 +2,7 @@
 // Plain Node, custom assert, console output. Smoke-tests HCA via runScenario
 // at small scale (2 trials x 500 iter) to keep the test under a few seconds.
 
+var path = require('path');
 var integration = require('../src/integration');
 
 var passCount = 0;
@@ -329,6 +330,261 @@ section('Group 8: getSmokeProfile + deferred bestCostMatch');
 })();
 
 console.log('smoke scenario profile: 2 case-blocks checked');
+
+// ==========================================================================
+// Step 10.2 Wave 1 -- loadVB6Reference algo param
+// ==========================================================================
+section('Step 10.2 Wave 1: loadVB6Reference algo param');
+
+// T-W1-01: no algo arg -> defaults to HCA (backward compat)
+(function () {
+  var result = integration.loadVB6Reference(3, 280, path.join(__dirname, '..', '..', 'vb6_samples'));
+  assert(Array.isArray(result.loopPrice), 'W1-01: loopPrice is array');
+  assert(result.loopPrice.length === 30, 'W1-01: 30 HCA trials');
+  assert(result.loopPrice[0].trial === 1, 'W1-01: first row trial=1');
+  console.log('PASS: W1-01 no algo arg defaults to HCA');
+})();
+
+// T-W1-02: algo="HCA" -> same as no arg
+(function () {
+  var a = integration.loadVB6Reference(3, 280, path.join(__dirname, '..', '..', 'vb6_samples'));
+  var b = integration.loadVB6Reference(3, 280, path.join(__dirname, '..', '..', 'vb6_samples'), 'HCA');
+  assert(a.loopPrice.length === b.loopPrice.length, 'W1-02: same row count');
+  assert(a.loopPrice[0].bestPrice === b.loopPrice[0].bestPrice, 'W1-02: same first price');
+  assert(a.loopPrice[29].bestPrice === b.loopPrice[29].bestPrice, 'W1-02: same last price');
+  console.log('PASS: W1-02 algo=HCA matches default');
+})();
+
+// T-W1-03: algo="BA" + H=3 fc=280 -> loads BA file, correct optimum
+(function () {
+  var result = integration.loadVB6Reference(3, 280, path.join(__dirname, '..', '..', 'vb6_samples'), 'BA');
+  assert(Array.isArray(result.loopPrice), 'W1-03: loopPrice array');
+  assert(result.loopPrice.length === 30, 'W1-03: 30 BA trials');
+  var prices = result.loopPrice.map(function (r) { return r.bestPrice; });
+  var minPrice = Math.min.apply(null, prices);
+  assert(Math.abs(minPrice - 2942.29) < 0.01, 'W1-03: BA optimum = 2942.29 (got ' + minPrice + ')');
+  console.log('PASS: W1-03 algo=BA loads H3 fc280 with optimum 2942.29');
+})();
+
+// T-W1-04: algo="BA" + all 9 scenarios exist (prerequisite check)
+(function () {
+  var H_values = [3, 4, 5];
+  var fc_values = [240, 280, 320];
+  var count = 0;
+  var i, j;
+  for (i = 0; i < H_values.length; i++) {
+    for (j = 0; j < fc_values.length; j++) {
+      var r = integration.loadVB6Reference(H_values[i], fc_values[j],
+        path.join(__dirname, '..', '..', 'vb6_samples'), 'BA');
+      assert(r.loopPrice.length === 30,
+        'W1-04: BA H=' + H_values[i] + ' fc=' + fc_values[j] + ' has 30 trials');
+      count = count + 1;
+    }
+  }
+  assert(count === 9, 'W1-04: all 9 BA scenarios loaded');
+  console.log('PASS: W1-04 all 9 BA scenarios load successfully');
+})();
+
+// T-W1-05: unknown algo throws clear error
+(function () {
+  var threw = false;
+  var errMsg = '';
+  try {
+    integration.loadVB6Reference(3, 280, path.join(__dirname, '..', '..', 'vb6_samples'), 'XYZ');
+  } catch (err) {
+    threw = true;
+    errMsg = err.message;
+  }
+  assert(threw, 'W1-05: unknown algo should throw');
+  assert(errMsg.indexOf('unknown algo') !== -1, 'W1-05: error mentions unknown algo');
+  assert(errMsg.indexOf('XYZ') !== -1, 'W1-05: error includes the bad value');
+  console.log('PASS: W1-05 unknown algo throws clear error');
+})();
+
+// T-W1-06: missing BA file throws "missing loopPrice" error
+(function () {
+  var threw = false;
+  var errMsg = '';
+  try {
+    // H=99 does not exist in vb6_samples -> BA file missing
+    integration.loadVB6Reference(99, 280, path.join(__dirname, '..', '..', 'vb6_samples'), 'BA');
+  } catch (err) {
+    threw = true;
+    errMsg = err.message;
+  }
+  assert(threw, 'W1-06: missing BA file should throw');
+  assert(errMsg.indexOf('missing loopPrice') !== -1, 'W1-06: error mentions missing loopPrice');
+  assert(errMsg.indexOf('BA') !== -1, 'W1-06: error filename includes algo prefix BA');
+  console.log('PASS: W1-06 missing BA file throws clear error');
+})();
+
+// ==========================================================================
+// Step 10.2 Wave 2 -- runScenarioBA
+// ==========================================================================
+section('Step 10.2 Wave 2: runScenarioBA');
+
+// T-W2-01: runScenarioBA basic return shape
+(function () {
+  var r = integration.runScenarioBA(3, 280, {
+    numTrials: 1,
+    maxIterations: 200,
+    seedStrategy: 'deterministic'
+  });
+  assert(typeof r === 'object' && r !== null, 'W2-01: returns object');
+  assert(r.algo === 'BA', 'W2-01: algo="BA" (got ' + r.algo + ')');
+  assert(r.H === 3 && r.fc === 280, 'W2-01: H and fc preserved');
+  assert(Array.isArray(r.trials) && r.trials.length === 1, 'W2-01: trials length 1');
+  assert(typeof r.bestOverall === 'object' && typeof r.bestOverall.cost === 'number',
+    'W2-01: bestOverall.cost is number');
+  assert(typeof r.summary === 'object' && typeof r.summary.costMean === 'number',
+    'W2-01: summary.costMean is number');
+  console.log('PASS: W2-01 basic shape');
+})();
+
+// T-W2-02: trial entry shape
+(function () {
+  var r = integration.runScenarioBA(3, 280, {
+    numTrials: 1,
+    maxIterations: 200,
+    seedStrategy: 'deterministic'
+  });
+  var t = r.trials[0];
+  assert(t.trial === 1, 'W2-02: trial === 1');
+  assert(t.seed === 1, 'W2-02: deterministic seed === 1');
+  assert(typeof t.bestCost === 'number', 'W2-02: bestCost is number');
+  assert(typeof t.bestIter === 'number' && t.bestIter >= 0, 'W2-02: bestIter >= 0');
+  assert(t.totalIter === 200, 'W2-02: totalIter === 200');
+  assert(typeof t.validCount === 'number', 'W2-02: validCount is number');
+  assert(typeof t.betterCount === 'number', 'W2-02: betterCount is number');
+  assert(typeof t.acceptedCount === 'number', 'W2-02: acceptedCount is number');
+  assert(typeof t.timeMs === 'number' && t.timeMs >= 0, 'W2-02: timeMs >= 0');
+  assert(t.log === null, 'W2-02: log null when keepIterationLogs default');
+  console.log('PASS: W2-02 trial entry shape');
+})();
+
+// T-W2-03: deterministic reproducibility -- same seed gives same result
+(function () {
+  var opts = {
+    numTrials: 2,
+    maxIterations: 300,
+    seedStrategy: 'deterministic'
+  };
+  var r1 = integration.runScenarioBA(3, 280, opts);
+  var r2 = integration.runScenarioBA(3, 280, opts);
+  assert(r1.bestOverall.cost === r2.bestOverall.cost,
+    'W2-03: bestOverall.cost reproducible (' + r1.bestOverall.cost + ' vs ' + r2.bestOverall.cost + ')');
+  assert(r1.trials[0].bestCost === r2.trials[0].bestCost, 'W2-03: trial 1 bestCost reproducible');
+  assert(r1.trials[0].bestIter === r2.trials[0].bestIter, 'W2-03: trial 1 bestIter reproducible');
+  assert(r1.trials[1].bestCost === r2.trials[1].bestCost, 'W2-03: trial 2 bestCost reproducible');
+  console.log('PASS: W2-03 deterministic reproducibility');
+})();
+
+// T-W2-04: BA reaches VB6 global optimum for H=3 fc=280 at modest iter budget
+// Reference: ba.js Test 45 verified baOptimize@500 iter finds 2942.29.
+// We run 3 trials at 1000 iter -- at least one should hit the optimum.
+(function () {
+  var r = integration.runScenarioBA(3, 280, {
+    numTrials: 3,
+    maxIterations: 1000,
+    seedStrategy: 'deterministic'
+  });
+  var optimum = 2942.29;
+  var hits = 0;
+  var i;
+  for (i = 0; i < r.trials.length; i++) {
+    if (Math.abs(r.trials[i].bestCost - optimum) < 0.01) hits = hits + 1;
+  }
+  assert(hits >= 1, 'W2-04: at least 1/3 trials hit optimum (got ' + hits + ', costs=' +
+    r.trials.map(function (t) { return t.bestCost.toFixed(2); }).join(',') + ')');
+  assert(r.bestOverall.cost <= optimum + 0.01,
+    'W2-04: bestOverall.cost <= optimum+0.01 (got ' + r.bestOverall.cost + ')');
+  assert(isFinite(r.bestOverall.cost), 'W2-04: bestOverall.cost finite');
+  console.log('PASS: W2-04 BA reaches optimum (hits=' + hits + '/3)');
+})();
+
+// T-W2-05: runScenarioBA differs from runScenario (proves separate code path)
+(function () {
+  var opts = {
+    numTrials: 2,
+    maxIterations: 500,
+    seedStrategy: 'deterministic'
+  };
+  var baRes = integration.runScenarioBA(3, 280, opts);
+  var hcaRes = integration.runScenario(3, 280, opts);
+  assert(baRes.algo === 'BA', 'W2-05: BA result has algo="BA"');
+  assert(typeof hcaRes.algo === 'undefined',
+    'W2-05: HCA result has no algo field (backward compat)');
+  assert(baRes.trials.length === hcaRes.trials.length, 'W2-05: same trial count');
+  // At least one trial has a different bestIter -- BA outer-loop reset pattern
+  // produces very different iteration dynamics than HCA under the same seed.
+  var anyDifferent = false;
+  var i;
+  for (i = 0; i < baRes.trials.length; i++) {
+    if (baRes.trials[i].bestIter !== hcaRes.trials[i].bestIter) {
+      anyDifferent = true; break;
+    }
+  }
+  assert(anyDifferent, 'W2-05: at least one trial has different bestIter (BA vs HCA)');
+  console.log('PASS: W2-05 BA differs from HCA (separate code path verified)');
+})();
+
+// T-W2-06: keepIterationLogs flag -- false => log null, true => log populated
+(function () {
+  var base = {
+    numTrials: 1,
+    maxIterations: 100,
+    seedStrategy: 'deterministic'
+  };
+  var rOff = integration.runScenarioBA(3, 280, base);
+  assert(rOff.trials[0].log === null, 'W2-06: log null when keepIterationLogs not set');
+
+  var withLogs = {
+    numTrials: 1,
+    maxIterations: 100,
+    seedStrategy: 'deterministic',
+    keepIterationLogs: true
+  };
+  var rOn = integration.runScenarioBA(3, 280, withLogs);
+  assert(Array.isArray(rOn.trials[0].log), 'W2-06: log is array when keepIterationLogs=true');
+  assert(rOn.trials[0].log.length > 0, 'W2-06: log non-empty');
+  assert(typeof rOn.trials[0].log[0].iter === 'number', 'W2-06: log entry has iter field');
+  console.log('PASS: W2-06 keepIterationLogs flag');
+})();
+
+// T-W2-07: onProgress callback -- called once per trial with (trialNum, bestSoFar, trialMs)
+(function () {
+  var callCount = 0;
+  var lastTrialNum = -1;
+  var lastBestSoFar = -1;
+  var lastTrialMs = -1;
+  integration.runScenarioBA(3, 280, {
+    numTrials: 3,
+    maxIterations: 100,
+    seedStrategy: 'deterministic',
+    onProgress: function (trialNum, bestSoFar, trialMs) {
+      callCount = callCount + 1;
+      lastTrialNum = trialNum;
+      lastBestSoFar = bestSoFar;
+      lastTrialMs = trialMs;
+    }
+  });
+  assert(callCount === 3, 'W2-07: onProgress called 3 times (got ' + callCount + ')');
+  assert(lastTrialNum === 3, 'W2-07: last trialNum === 3');
+  assert(typeof lastBestSoFar === 'number' && lastBestSoFar > 0,
+    'W2-07: bestSoFar passed as positive number');
+  assert(typeof lastTrialMs === 'number' && lastTrialMs >= 0, 'W2-07: trialMs passed as number');
+  console.log('PASS: W2-07 onProgress callback');
+})();
+
+// T-W2-08: runScenarioBA is exported
+(function () {
+  assert(typeof integration.runScenarioBA === 'function',
+    'W2-08: runScenarioBA is exported as function');
+  // Sanity check -- exports object still includes runScenario too (backward compat)
+  assert(typeof integration.runScenario === 'function',
+    'W2-08: runScenario still exported');
+  console.log('PASS: W2-08 runScenarioBA exported');
+})();
 
 // ==========================================================================
 // Summary

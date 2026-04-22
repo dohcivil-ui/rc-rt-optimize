@@ -7,6 +7,7 @@ var path = require('path');
 
 var shared = require('./shared');
 var hca = require('./hca');
+var ba = require('./ba');
 var csv = require('./csv');
 var statistics = require('./statistics');
 
@@ -211,14 +212,113 @@ function runScenario(H, fc, options) {
   };
 }
 
+// runScenarioBA -- parallel to runScenario but uses ba.baOptimize.
+// Return shape matches runScenario exactly, plus adds {algo: 'BA'} at top level.
+// Deliberately duplicates runScenario code per the "extend not modify" rule --
+// any future refactor into a shared core is tracked separately.
+function runScenarioBA(H, fc, options) {
+  options = options || {};
+  var cfg = options.config || DEFAULT_CONFIG;
+  var numTrials = (typeof options.numTrials === 'number') ? options.numTrials : cfg.numTrials;
+  var maxIterations = (typeof options.maxIterations === 'number') ? options.maxIterations : cfg.maxIterations;
+  var seedStrategy = options.seedStrategy || 'deterministic';
+  var keepIterationLogs = options.keepIterationLogs === true;
+  var onProgress = (typeof options.onProgress === 'function') ? options.onProgress : null;
+
+  var params = buildIntegrationParams(H, fc, cfg);
+
+  var trials = new Array(numTrials);
+  var bestOverallCost = Infinity;
+  var bestOverallTrial = 0;
+  var bestOverallIter = 0;
+
+  var totalStart = Date.now();
+  var k;
+  for (k = 1; k <= numTrials; k++) {
+    var seed;
+    var baOpts = { maxIterations: maxIterations };
+    if (seedStrategy === 'deterministic') {
+      seed = k;
+      baOpts.seed = k;
+    } else {
+      seed = null;
+    }
+
+    var trialStart = Date.now();
+    var res = ba.baOptimize(params, baOpts);
+    var trialMs = Date.now() - trialStart;
+
+    var counts = summarizeLog(res.log);
+
+    var trialEntry = {
+      trial: k,
+      seed: seed,
+      bestCost: res.bestCost,
+      bestIter: res.bestIteration,
+      totalIter: maxIterations,
+      validCount: counts.validCount,
+      betterCount: counts.betterCount,
+      acceptedCount: counts.acceptedCount,
+      timeMs: trialMs,
+      log: keepIterationLogs ? res.log : null
+    };
+    trials[k - 1] = trialEntry;
+
+    if (res.bestCost < bestOverallCost) {
+      bestOverallCost = res.bestCost;
+      bestOverallTrial = k;
+      bestOverallIter = res.bestIteration;
+    }
+
+    if (onProgress) onProgress(k, bestOverallCost, trialMs);
+  }
+  var totalTimeMs = Date.now() - totalStart;
+
+  var costs = trials.map(function (t) { return t.bestCost; });
+  var loops = trials.map(function (t) { return t.bestIter; });
+
+  var summary = {
+    costMean: statistics.mean(costs),
+    costStd:  statistics.stdDev(costs),
+    costMin:  costs.length ? Math.min.apply(null, costs) : 0,
+    costMax:  costs.length ? Math.max.apply(null, costs) : 0,
+    loopMean: statistics.mean(loops),
+    loopStd:  statistics.stdDev(loops),
+    loopMin:  loops.length ? Math.min.apply(null, loops) : 0,
+    loopMax:  loops.length ? Math.max.apply(null, loops) : 0,
+    totalTimeMs: totalTimeMs
+  };
+
+  return {
+    algo: 'BA',
+    H: H, fc: fc,
+    numTrials: numTrials,
+    maxIterations: maxIterations,
+    seedStrategy: seedStrategy,
+    trials: trials,
+    bestOverall: {
+      cost: bestOverallCost,
+      trial: bestOverallTrial,
+      iter: bestOverallIter
+    },
+    summary: summary
+  };
+}
+
 // ==========================================================================
 // D) VB6 reference loader
 // ==========================================================================
 
-function loadVB6Reference(H, fc, dirPath) {
+function loadVB6Reference(H, fc, dirPath, algo) {
   var dir = dirPath || path.join('..', 'vb6_samples');
-  var loopFile = path.join(dir, 'loopPrice-HCA-H' + H + '-' + fc + '.csv');
-  var acceptFile = path.join(dir, 'accept-HCA-H' + H + '-' + fc + '.csv');
+  algo = algo || 'HCA';
+  if (algo !== 'HCA' && algo !== 'BA') {
+    throw new Error('loadVB6Reference: unknown algo "' + algo +
+      '" (expected "HCA" or "BA")');
+  }
+
+  var loopFile = path.join(dir, 'loopPrice-' + algo + '-H' + H + '-' + fc + '.csv');
+  var acceptFile = path.join(dir, 'accept-' + algo + '-H' + H + '-' + fc + '.csv');
 
   if (!fs.existsSync(loopFile)) {
     throw new Error('loadVB6Reference: missing loopPrice file: ' + loopFile);
@@ -392,6 +492,7 @@ module.exports = {
   getSmokeProfile: getSmokeProfile,
   buildIntegrationParams: buildIntegrationParams,
   runScenario: runScenario,
+  runScenarioBA: runScenarioBA,
   loadVB6Reference: loadVB6Reference,
   compareDeep: compareDeep,
   compareSmoke: compareSmoke
