@@ -235,6 +235,187 @@ section('Group 8: fisherExact');
 console.log('fisherExact: 12 tests checked');
 
 // ==========================================================================
+// Group 9 -- Wilcoxon signed-rank test
+// ==========================================================================
+section('Group 9: wilcoxonSignedRank');
+
+// W1: all-positive diffs -> extreme Z
+(function () {
+  var pairs = [
+    { x: 10, y: 1 }, { x: 20, y: 1 }, { x: 30, y: 1 }, { x: 40, y: 1 },
+    { x: 50, y: 1 }, { x: 60, y: 1 }, { x: 70, y: 1 }, { x: 80, y: 1 },
+    { x: 90, y: 1 }, { x: 100, y: 1 }
+  ];
+  var r = stats.wilcoxonSignedRank(pairs);
+  assert(r.nNonZero === 10, 'W1: nNonZero === 10');
+  assert(r.Wminus === 0, 'W1: Wminus === 0 (got ' + r.Wminus + ')');
+  assert(r.Wplus === 55, 'W1: Wplus === 55 (got ' + r.Wplus + ')');
+  assert(r.W === 0, 'W1: W === 0');
+  assert(r.p < 0.01, 'W1: p < 0.01 (got ' + r.p + ')');
+})();
+
+// W2: all-negative mirrors W1
+(function () {
+  var pairs = [
+    { x: 1, y: 10 }, { x: 1, y: 20 }, { x: 1, y: 30 }, { x: 1, y: 40 },
+    { x: 1, y: 50 }, { x: 1, y: 60 }, { x: 1, y: 70 }, { x: 1, y: 80 },
+    { x: 1, y: 90 }, { x: 1, y: 100 }
+  ];
+  var r = stats.wilcoxonSignedRank(pairs);
+  assert(r.Wplus === 0, 'W2: Wplus === 0');
+  assert(r.Wminus === 55, 'W2: Wminus === 55 (got ' + r.Wminus + ')');
+  assert(r.W === 0, 'W2: W === 0');
+  assert(r.p < 0.01, 'W2: p < 0.01 (got ' + r.p + ')');
+})();
+
+// W3: hand-computed n=6, no ties
+// diffs = +1,+2,-3,+4,-5,+6; abs ranks 1..6
+// Wplus = 1+2+4+6 = 13; Wminus = 3+5 = 8; W = 8
+// meanW=10.5, varW=22.75, sdW=4.7697
+// raw=2.5 -> signedAdj=2.0 -> Z = 2/4.7697 = 0.4193
+(function () {
+  var pairs = [
+    { x: 1, y: 0 }, { x: 2, y: 0 }, { x: 0, y: 3 },
+    { x: 4, y: 0 }, { x: 0, y: 5 }, { x: 6, y: 0 }
+  ];
+  var r = stats.wilcoxonSignedRank(pairs);
+  assert(r.Wplus === 13, 'W3: Wplus === 13');
+  assert(r.Wminus === 8, 'W3: Wminus === 8');
+  assert(r.W === 8, 'W3: W === 8');
+  assert(Math.abs(r.Z - 0.4193) < 1e-3, 'W3: Z ~ 0.4193 (got ' + r.Z + ')');
+  assert(r.tieCorrected === false, 'W3: tieCorrected === false (no ties)');
+})();
+
+// W4: tie correction triggered
+// diffs = [1,1,1,-1,-1,2,2,-3]; abs=[1,1,1,1,1,2,2,3]
+// ranks: five 1s -> (1+2+3+4+5)/5 = 3; two 2s -> (6+7)/2 = 6.5; one 3 -> 8
+// Wplus (diffs>0 at indices 0,1,2,5,6) = 3+3+3+6.5+6.5 = 22
+// Wminus (indices 3,4,7) = 3+3+8 = 14
+// Sum = 36 (= n(n+1)/2 = 8*9/2)
+(function () {
+  var pairs = [
+    { x: 1, y: 0 }, { x: 1, y: 0 }, { x: 1, y: 0 },
+    { x: 0, y: 1 }, { x: 0, y: 1 },
+    { x: 2, y: 0 }, { x: 2, y: 0 },
+    { x: 0, y: 3 }
+  ];
+  var r = stats.wilcoxonSignedRank(pairs);
+  assert(r.tieCorrected === true, 'W4: tieCorrected === true');
+  assert((r.Wplus + r.Wminus) === 36, 'W4: Wplus+Wminus === 36 (got ' + (r.Wplus + r.Wminus) + ')');
+  assert(r.Wplus === 22, 'W4: Wplus === 22 (got ' + r.Wplus + ')');
+  assert(r.Wminus === 14, 'W4: Wminus === 14 (got ' + r.Wminus + ')');
+})();
+
+// W5: zero differences excluded from nNonZero
+(function () {
+  var pairs = [
+    { x: 5, y: 5 }, { x: 10, y: 5 }, { x: 15, y: 5 }, { x: 3, y: 3 }
+  ];
+  var r = stats.wilcoxonSignedRank(pairs);
+  assert(r.n === 4, 'W5: n === 4 (full pair count)');
+  assert(r.nNonZero === 2, 'W5: nNonZero === 2 (zeros excluded)');
+})();
+
+// W6: all zero diffs
+(function () {
+  var pairs = [{ x: 1, y: 1 }, { x: 2, y: 2 }, { x: 3, y: 3 }];
+  var r = stats.wilcoxonSignedRank(pairs);
+  assert(r.nNonZero === 0, 'W6: nNonZero === 0');
+  assert(r.p === 1, 'W6: p === 1');
+  assert(r.Wplus === 0 && r.Wminus === 0, 'W6: Wplus = Wminus = 0');
+})();
+
+// W7: tuple form accepted
+(function () {
+  var r = stats.wilcoxonSignedRank([[10, 1], [20, 1], [30, 1]]);
+  assert(r.n === 3, 'W7: n === 3');
+  assert(r.nNonZero === 3, 'W7: nNonZero === 3');
+  assert(r.Wplus === 6, 'W7: Wplus === 6 (= 1+2+3)');
+  assert(r.Wminus === 0, 'W7: Wminus === 0');
+})();
+
+// W8: malformed pair throws
+(function () {
+  var threw = false;
+  try { stats.wilcoxonSignedRank([{ x: 1 }]); } catch (e) { threw = true; }
+  assert(threw, 'W8: wilcoxonSignedRank([{x:1}]) throws');
+})();
+
+console.log('wilcoxonSignedRank: 8 case-blocks checked');
+
+// ==========================================================================
+// Group 10 -- McNemar's test
+// ==========================================================================
+section('Group 10: mcnemarTest');
+
+// M1: chi-square regime, strong effect
+// b=10, c=30, total=40. chi2 = (|10-30|-1)^2 / 40 = 361/40 = 9.025
+// Z = sqrt(9.025) = 3.00416
+(function () {
+  var r = stats.mcnemarTest(10, 30);
+  assert(r.exact === false, 'M1: exact === false (total=40)');
+  assert(Math.abs(r.chi2 - 9.025) < 1e-9, 'M1: chi2 === 9.025 (got ' + r.chi2 + ')');
+  assert(Math.abs(r.Z - 3.00416) < 1e-3, 'M1: Z ~ 3.00416 (got ' + r.Z + ')');
+  assert(r.p < 0.01, 'M1: p < 0.01 (got ' + r.p + ')');
+})();
+
+// M2: exact binomial regime, moderate effect
+// b=3, c=8, total=11. k=3. sumC(11,0..3)=1+11+55+165=232. p=2*232/2048=0.2265625
+(function () {
+  var r = stats.mcnemarTest(3, 8);
+  assert(r.exact === true, 'M2: exact === true (total=11<25)');
+  assert(r.chi2 === null, 'M2: chi2 === null in exact regime');
+  assert(r.Z === null, 'M2: Z === null in exact regime');
+  assert(Math.abs(r.p - 0.2265625) < 1e-6, 'M2: p ~ 0.2265625 (got ' + r.p + ')');
+})();
+
+// M3: no discordance
+(function () {
+  var r = stats.mcnemarTest(0, 0);
+  assert(r.p === 1, 'M3: p === 1');
+  assert(r.chi2 === 0, 'M3: chi2 === 0');
+  assert(r.Z === 0, 'M3: Z === 0');
+  assert(r.n === 0, 'M3: n === 0');
+  assert(r.exact === false, 'M3: exact === false (short-circuit branch)');
+})();
+
+// M4: equal discordance, chi-square regime
+(function () {
+  var r = stats.mcnemarTest(15, 15);
+  assert(r.exact === false, 'M4: exact === false (total=30>=25)');
+  assert(r.chi2 === 0, 'M4: chi2 === 0 (|0|-1 clamped to 0)');
+  assert(r.Z === 0, 'M4: Z === 0');
+  assert(r.p === 1, 'M4: p === 1');
+})();
+
+// M5: equal discordance, exact regime (p clamps to 1)
+(function () {
+  var r = stats.mcnemarTest(5, 5);
+  assert(r.exact === true, 'M5: exact === true (total=10<25)');
+  assert(r.p === 1, 'M5: p === 1 (clamped from raw 2*sum)');
+})();
+
+// M6: negative input throws
+(function () {
+  var threw1 = false;
+  try { stats.mcnemarTest(-1, 5); } catch (e) { threw1 = true; }
+  assert(threw1, 'M6: mcnemarTest(-1, 5) throws');
+  var threw2 = false;
+  try { stats.mcnemarTest(5, -1); } catch (e) { threw2 = true; }
+  assert(threw2, 'M6: mcnemarTest(5, -1) throws');
+})();
+
+// M7: boundary n=24 (exact) vs n=25 (chi2)
+(function () {
+  var r1 = stats.mcnemarTest(12, 12); // total=24 -> exact
+  var r2 = stats.mcnemarTest(13, 12); // total=25 -> chi2
+  assert(r1.exact === true, 'M7: n=24 -> exact === true');
+  assert(r2.exact === false, 'M7: n=25 -> exact === false');
+})();
+
+console.log('mcnemarTest: 7 case-blocks checked');
+
+// ==========================================================================
 // Summary
 // ==========================================================================
 console.log('');

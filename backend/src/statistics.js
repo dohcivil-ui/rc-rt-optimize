@@ -280,6 +280,126 @@ function fisherExact(a, b, c, d) {
 }
 
 // ==========================================================================
+// D.3) Wilcoxon signed-rank test (paired, normal approximation, tie corrected)
+// ==========================================================================
+//
+// Input: array of {x, y} objects OR [x, y] tuples.
+// Tests whether median(x - y) differs from 0.
+// Zero differences are discarded (standard Wilcoxon convention).
+// Continuity correction applied to Wplus vs meanW.
+// Returns { W, Wplus, Wminus, Z, p, r, n, nNonZero, tieCorrected }
+
+function wilcoxonSignedRank(pairs) {
+  var diffs = [];
+  var i;
+  for (i = 0; i < pairs.length; i++) {
+    var pr = pairs[i];
+    var x, y;
+    if (pr && typeof pr === 'object' && !Array.isArray(pr) && 'x' in pr && 'y' in pr) {
+      x = pr.x; y = pr.y;
+    } else if (Array.isArray(pr) && pr.length >= 2) {
+      x = pr[0]; y = pr[1];
+    } else {
+      throw new Error('wilcoxonSignedRank: each pair must be {x,y} or [x,y]');
+    }
+    var d = x - y;
+    if (d !== 0) diffs.push(d);
+  }
+  var nNonZero = diffs.length;
+  var n = pairs.length;
+
+  if (nNonZero === 0) {
+    return { W: 0, Wplus: 0, Wminus: 0, Z: 0, p: 1, r: 0,
+             n: n, nNonZero: 0, tieCorrected: false };
+  }
+
+  var absDiffs = new Array(nNonZero);
+  for (i = 0; i < nNonZero; i++) absDiffs[i] = Math.abs(diffs[i]);
+  var ranks = rankData(absDiffs);
+
+  var Wplus = 0;
+  var Wminus = 0;
+  for (i = 0; i < nNonZero; i++) {
+    if (diffs[i] > 0) Wplus = Wplus + ranks[i];
+    else Wminus = Wminus + ranks[i];
+  }
+  var W = Math.min(Wplus, Wminus);
+
+  var meanW = nNonZero * (nNonZero + 1) / 4;
+  var varW = nNonZero * (nNonZero + 1) * (2 * nNonZero + 1) / 24;
+
+  var tieSum = tieCorrectionSum(absDiffs);
+  var tieCorrected = tieSum > 0;
+  if (tieCorrected) varW = varW - tieSum / 48;
+
+  var sdW = Math.sqrt(varW);
+  var Z, r;
+  if (sdW === 0 || !isFinite(sdW)) {
+    Z = 0; r = 0;
+  } else {
+    // Continuity correction: shift Wplus 0.5 toward meanW
+    var raw = Wplus - meanW;
+    var signedAdj;
+    if (raw > 0) signedAdj = raw - 0.5;
+    else if (raw < 0) signedAdj = raw + 0.5;
+    else signedAdj = 0;
+    Z = signedAdj / sdW;
+    r = Math.abs(Z) / Math.sqrt(nNonZero);
+  }
+  var p = twoTailedP(Z);
+
+  return { W: W, Wplus: Wplus, Wminus: Wminus,
+           Z: Z, p: p, r: r,
+           n: n, nNonZero: nNonZero, tieCorrected: tieCorrected };
+}
+
+// ==========================================================================
+// D.4) McNemar's test (paired 2x2 discordant)
+// ==========================================================================
+//
+// b = discordant count (group1 positive, group2 negative)
+// c = discordant count (group1 negative, group2 positive)
+// Exact two-sided binomial if b+c < 25, else continuity-corrected chi-square.
+// Returns { p, chi2, Z, b, c, n, exact }. chi2/Z are null in exact regime.
+
+function mcnemarTest(b, c) {
+  if (b < 0 || c < 0) {
+    throw new Error('mcnemarTest: b and c must be non-negative');
+  }
+  var total = b + c;
+  if (total === 0) {
+    return { p: 1.0, chi2: 0, Z: 0, b: b, c: c, n: 0, exact: false };
+  }
+
+  var p, chi2, Z, exact;
+
+  if (total < 25) {
+    var k = Math.min(b, c);
+    var cumP = 0;
+    var logHalfN = total * Math.log(0.5);
+    var i;
+    for (i = 0; i <= k; i++) {
+      cumP = cumP + Math.exp(logCombinations(total, i) + logHalfN);
+    }
+    p = 2 * cumP;
+    if (p > 1) p = 1;
+    if (p < 0) p = 0;
+    chi2 = null;
+    Z = null;
+    exact = true;
+  } else {
+    var absDiff = Math.abs(b - c) - 1;
+    if (absDiff < 0) absDiff = 0;
+    chi2 = (absDiff * absDiff) / total;
+    Z = Math.sqrt(chi2);
+    p = twoTailedP(Z);
+    exact = false;
+  }
+
+  return { p: p, chi2: chi2, Z: Z, b: b, c: c, n: total, exact: exact };
+}
+
+// ==========================================================================
 // E) Basic descriptive stats
 // ==========================================================================
 
@@ -315,6 +435,8 @@ module.exports = {
   allMatch: allMatch,
   meanWithinTolerance: meanWithinTolerance,
   fisherExact: fisherExact,
+  wilcoxonSignedRank: wilcoxonSignedRank,
+  mcnemarTest: mcnemarTest,
   mean: mean,
   stdDev: stdDev
 };
