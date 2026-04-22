@@ -39,6 +39,42 @@ var BA_BAND   = '#2874a6';
 var AXIS_COLOR = '#333333';
 var GRID_COLOR = '#dddddd';
 
+// --- niceTicks: generate publication-quality round y-tick values --------
+// Returns ticks that are multiples of {1, 2, 5} x 10^k, with nice min/max
+// bounds that contain the input data range.
+var niceTicks = function (dmin, dmax, targetCount) {
+  if (!targetCount) { targetCount = 5; }
+  var range = dmax - dmin;
+  if (range <= 0) {
+    return { ticks: [dmin], min: dmin, max: dmax, step: 1 };
+  }
+  var rawStep = range / (targetCount - 1);
+  var power = Math.pow(10, Math.floor(Math.log10(rawStep)));
+  var candidates = [1 * power, 2 * power, 5 * power, 10 * power];
+  var best = null;
+  var i;
+  for (i = 0; i < candidates.length; i++) {
+    var s = candidates[i];
+    var nmin = Math.floor(dmin / s) * s;
+    var nmax = Math.ceil(dmax / s) * s;
+    var nTicks = Math.round((nmax - nmin) / s) + 1;
+    var diff = Math.abs(nTicks - targetCount);
+    var isBetter = best === null
+      || diff < best.diff
+      || (diff === best.diff && s < best.step);
+    if (isBetter) {
+      best = { step: s, min: nmin, max: nmax, nTicks: nTicks, diff: diff };
+    }
+  }
+  var ticks = [];
+  var t = best.min;
+  while (t <= best.max + best.step * 0.01) {
+    ticks.push(Math.round(t * 1e6) / 1e6);
+    t += best.step;
+  }
+  return { ticks: ticks, min: best.min, max: best.max, step: best.step };
+};
+
 // --- Grid position -------------------------------------------------------
 var HEIGHTS = [3, 4, 5];
 var FCS = [240, 280, 320];
@@ -118,23 +154,21 @@ function buildXAxis(panelX, panelY) {
   return out;
 }
 
-function buildYAxis(panelX, panelY, yMin, yMax) {
+function buildYAxis(panelX, panelY, yMin, yMax, tickValues) {
   var out = '';
   out = out + '<line x1="' + panelX.toFixed(2) + '" y1="' + panelY.toFixed(2) +
     '" x2="' + panelX.toFixed(2) + '" y2="' + (panelY + PANEL_H).toFixed(2) +
     '" stroke="' + AXIS_COLOR + '" stroke-width="1"/>';
-  var numTicks = 4;
   var i;
-  for (i = 0; i <= numTicks; i++) {
-    var frac = i / numTicks;
-    var val = yMin + frac * (yMax - yMin);
+  for (i = 0; i < tickValues.length; i++) {
+    var val = tickValues[i];
     var py = yScaleV2(val, panelY, yMin, yMax);
     out = out + '<line x1="' + (panelX - 4).toFixed(2) + '" y1="' + py.toFixed(2) +
       '" x2="' + panelX.toFixed(2) + '" y2="' + py.toFixed(2) +
       '" stroke="' + AXIS_COLOR + '" stroke-width="1"/>';
     out = out + '<text x="' + (panelX - 6).toFixed(2) + '" y="' + (py + 3).toFixed(2) +
       '" font-family="Arial,sans-serif" font-size="9" text-anchor="end" fill="' +
-      AXIS_COLOR + '">' + Math.round(val) + '</text>';
+      AXIS_COLOR + '">' + val + '</text>';
     out = out + '<line x1="' + panelX.toFixed(2) + '" y1="' + py.toFixed(2) +
       '" x2="' + (panelX + PANEL_W).toFixed(2) + '" y2="' + py.toFixed(2) +
       '" stroke="' + GRID_COLOR + '" stroke-width="0.5"/>';
@@ -169,10 +203,12 @@ function renderPanel(scenario) {
       if (arrs[a][v] > yMax) yMax = arrs[a][v];
     }
   }
-  var pad = (yMax - yMin) * 0.05;
-  if (pad === 0) pad = 1;
-  yMin = yMin - pad;
-  yMax = yMax + pad;
+
+  // niceTicks supersedes the previous 5% pad: its round-outward min/max
+  // already contain the data and extend to publication-round bounds.
+  var yTickInfo = niceTicks(yMin, yMax, 5);
+  var panelYmin = yTickInfo.min;
+  var panelYmax = yTickInfo.max;
 
   var out = '';
   out = out + '<g>';
@@ -181,25 +217,44 @@ function renderPanel(scenario) {
     '" width="' + PANEL_W.toFixed(2) + '" height="' + PANEL_H.toFixed(2) +
     '" fill="white" stroke="none"/>';
 
-  out = out + buildYAxis(panelX, panelY, yMin, yMax);
+  out = out + buildYAxis(panelX, panelY, panelYmin, panelYmax, yTickInfo.ticks);
 
   var hcaBand = buildBand(scenario.hca.iterations, scenario.hca.p90, scenario.hca.p10,
-    panelX, panelY, yMin, yMax);
+    panelX, panelY, panelYmin, panelYmax);
   out = out + '<polygon points="' + hcaBand + '" fill="' + HCA_BAND +
     '" fill-opacity="0.18" stroke="none"/>';
   var baBand = buildBand(scenario.ba.iterations, scenario.ba.p90, scenario.ba.p10,
-    panelX, panelY, yMin, yMax);
+    panelX, panelY, panelYmin, panelYmax);
   out = out + '<polygon points="' + baBand + '" fill="' + BA_BAND +
     '" fill-opacity="0.18" stroke="none"/>';
 
   var hcaLine = buildPolyline(scenario.hca.iterations, scenario.hca.p50,
-    panelX, panelY, yMin, yMax);
+    panelX, panelY, panelYmin, panelYmax);
   out = out + '<polyline points="' + hcaLine + '" fill="none" stroke="' +
     HCA_COLOR + '" stroke-width="1.8"/>';
   var baLine = buildPolyline(scenario.ba.iterations, scenario.ba.p50,
-    panelX, panelY, yMin, yMax);
+    panelX, panelY, panelYmin, panelYmax);
   out = out + '<polyline points="' + baLine + '" fill="none" stroke="' +
     BA_COLOR + '" stroke-width="1.8"/>';
+
+  // -- H=5 final-value gap annotation (Option A) --
+  if (scenario.H === 5) {
+    var hcaFinal = scenario.hca.p50[scenario.hca.p50.length - 1];
+    var baFinal  = scenario.ba.p50[scenario.ba.p50.length - 1];
+    var gap = hcaFinal - baFinal;
+    var gapRounded = Math.round(gap * 10) / 10;
+    var hcaY = yScaleV2(hcaFinal, panelY, panelYmin, panelYmax);
+    var baY  = yScaleV2(baFinal,  panelY, panelYmin, panelYmax);
+    // -- position label above both endpoints by 10 px --
+    // -- (gap between HCA and BA at final iter is <1 px, so
+    // --  centering degenerates; offset-above gives clearance)
+    var labelY = Math.min(hcaY, baY) - 10;
+    var labelX = panelX + PANEL_W - 6;
+    out = out + '<text x="' + labelX.toFixed(2) + '" y="' + labelY.toFixed(2) +
+      '" font-family="Arial" font-size="9" fill="#666666"' +
+      ' text-anchor="end" dominant-baseline="middle">' +
+      '&#916; ' + gapRounded.toFixed(1) + '</text>';
+  }
 
   out = out + buildXAxis(panelX, panelY);
 
