@@ -1,0 +1,16 @@
+{
+  "name": "rcopt-api",
+  "version": "0.1.0",
+  "description": "REST API wrapper for the rc-rt-optimize backend engine",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "node test/health.test.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "express": "^4.19.0"
+  }
+}
