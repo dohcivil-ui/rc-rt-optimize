@@ -23,5 +23,4 @@ Runs `test/health.test.js`, which boots the Express app on an ephemeral port, ex
 |--------|----------------|----------------------------------------------------------------|
 | GET    | `/`            | Plain-text landing message                                     |
 | GET    | `/api/health`  | JSON health probe: status, version, timestamp, uptime_seconds  |
-
-More endpoints (`/api/optimize`) will be added in the Day 4-7 milestone.
+| POST   | `/api/optimize` | Runs BA optimization. Body: params + options. Returns bestCost, bestIteration, bestDesign, bestSteel, runtime_ms, algorithm. |

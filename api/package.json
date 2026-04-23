@@ -5,7 +5,7 @@
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
-    "test": "node test/health.test.js"
+    "test": "node test/health.test.js && node test/optimize.test.js"
   },
   "engines": {
     "node": ">=18.0.0"
