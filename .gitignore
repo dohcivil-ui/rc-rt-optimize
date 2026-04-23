@@ -5,3 +5,13 @@ dist/
 .DS_Store
 _step_10_2_attach/
 backend/out/step_11/trajectories.json
+
+# Working documents (drafts, handoff notes, screenshots)
+concept_proposal_for_advisor*.docx
+innovation_concept_proposal_*
+rcopt_handoff_*.md
+S__*.jpg
+
+# Editor
+.vscode/
+Thumbs.db
