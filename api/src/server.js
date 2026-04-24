@@ -5,6 +5,7 @@
 var express = require('express');
 var healthRouter = require('./routes/health');
 var optimizeRouter = require('./routes/optimize');
+var parseInputRouter = require('./routes/parseInput');
 
 var app = express();
 
@@ -24,6 +25,10 @@ app.use('/api/health', healthRouter);
 
 // BA optimization endpoint.
 app.use('/api/optimize', optimizeRouter);
+
+// Claude AI-assisted parse endpoint. Day 1 returns a fixed mock;
+// Day 2 will swap in a real Claude SDK call via tool use.
+app.use('/api/parse-input', parseInputRouter);
 
 // Global error handler -- MUST be registered last, after all routes.
 // Catches anything thrown from route handlers or passed via next(err)
