@@ -1,17 +1,49 @@
 // src/App.tsx
-// Day 2 verification harness: render TraditionalForm and log the
-// composed OptimizeRequest payload to the console on submit.
-// Day 3 will replace this with a state machine + ResultPanel.
+// Day 3: wire TraditionalForm to POST /api/optimize, render ResultPanel
+// on success and a banner on any error. Uses a discriminated-union
+// state machine so the render branches stay exhaustive.
 
+import { useState } from 'react';
 import TraditionalForm from './components/TraditionalForm';
-import type { OptimizeRequest } from './types/api';
+import ResultPanel from './components/ResultPanel';
+import { optimize } from './lib/api';
+import { isOptimizeError } from './types/api';
+import type { OptimizeRequest, OptimizeSuccess } from './types/api';
+
+type AppState =
+  | { kind: 'idle' }
+  | { kind: 'loading' }
+  | { kind: 'success'; result: OptimizeSuccess }
+  | { kind: 'error'; errorKind: 'validation' | 'internal' | 'network'; messages: string[] };
+
+// Thai banner titles keyed by errorKind.
+const ERROR_TITLES: Record<'validation' | 'internal' | 'network', string> = {
+  validation: 'ข้อมูลไม่ผ่านการตรวจสอบ',
+  internal:   'เกิดข้อผิดพลาดภายในระบบ',
+  network:    'เชื่อมต่อ API ไม่สำเร็จ',
+};
 
 const App = () => {
-  const handleSubmit = (request: OptimizeRequest) => {
-    // Day 2 only: inspect the composed payload via DevTools console.
-    // Expected for default values: H=3, fc=240, options.seed=42.
-    console.log('OptimizeRequest payload:');
-    console.log(JSON.stringify(request, null, 2));
+  const [state, setState] = useState<AppState>({ kind: 'idle' });
+
+  const handleSubmit = async (request: OptimizeRequest) => {
+    setState({ kind: 'loading' });
+    try {
+      const res = await optimize(request);
+      if (isOptimizeError(res)) {
+        if (res.error === 'validation_failed') {
+          setState({ kind: 'error', errorKind: 'validation', messages: res.details });
+        } else {
+          // internal_error
+          setState({ kind: 'error', errorKind: 'internal', messages: [res.message] });
+        }
+      } else {
+        setState({ kind: 'success', result: res });
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setState({ kind: 'error', errorKind: 'network', messages: [msg] });
+    }
   };
 
   return (
@@ -25,10 +57,36 @@ const App = () => {
             RC Retaining Wall Design -- Traditional Mode
           </p>
         </header>
-        <TraditionalForm onSubmit={handleSubmit} />
-        <p className="text-xs text-slate-400 mt-6 text-center">
-          Week 2 Day 2 -- form only. API wiring comes Day 3.
-        </p>
+
+        <TraditionalForm
+          onSubmit={handleSubmit}
+          disabled={state.kind === 'loading'}
+        />
+
+        {state.kind === 'loading' && (
+          <div className="text-sm text-slate-600 text-center mt-4">
+            กำลังคำนวณ...
+          </div>
+        )}
+
+        {state.kind === 'error' && (
+          <div className="mt-4 rounded-lg border p-4 bg-red-50 border-red-200 text-red-800">
+            <div className="font-semibold text-sm mb-2">
+              {ERROR_TITLES[state.errorKind]}
+            </div>
+            <ul className="list-disc pl-5 text-sm space-y-1">
+              {state.messages.map((m, i) => (
+                <li key={i}>{m}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {state.kind === 'success' && (
+          <div className="mt-6">
+            <ResultPanel result={state.result} />
+          </div>
+        )}
       </div>
     </div>
   );
