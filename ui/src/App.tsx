@@ -3,10 +3,12 @@
 // on success and a banner on any error. Uses a discriminated-union
 // state machine so the render branches stay exhaustive.
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { Loader2 } from 'lucide-react';
 import TraditionalForm from './components/TraditionalForm';
 import ResultPanel from './components/ResultPanel';
 import { optimize } from './lib/api';
+import { translateValidationError } from './lib/validation-i18n';
 import { isOptimizeError } from './types/api';
 import type { OptimizeRequest, OptimizeSuccess } from './types/api';
 
@@ -25,6 +27,13 @@ const ERROR_TITLES: Record<'validation' | 'internal' | 'network', string> = {
 
 const App = () => {
   const [state, setState] = useState<AppState>({ kind: 'idle' });
+  const resultRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (state.kind === 'success' && resultRef.current) {
+      resultRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [state.kind]);
 
   const handleSubmit = async (request: OptimizeRequest) => {
     setState({ kind: 'loading' });
@@ -64,8 +73,9 @@ const App = () => {
         />
 
         {state.kind === 'loading' && (
-          <div className="text-sm text-slate-600 text-center mt-4">
-            กำลังคำนวณ...
+          <div className="mt-4 flex items-center justify-center gap-2 text-sm text-slate-600">
+            <Loader2 size={16} className="animate-spin" />
+            <span>กำลังคำนวณ...</span>
           </div>
         )}
 
@@ -75,16 +85,22 @@ const App = () => {
               {ERROR_TITLES[state.errorKind]}
             </div>
             <ul className="list-disc pl-5 text-sm space-y-1">
-              {state.messages.map((m, i) => (
-                <li key={i}>{m}</li>
+              {(state.errorKind === 'validation'
+                ? state.messages.map(translateValidationError)
+                : state.messages
+              ).map((msg, i) => (
+                <li key={i}>{msg}</li>
               ))}
             </ul>
           </div>
         )}
 
         {state.kind === 'success' && (
-          <div className="mt-6">
-            <ResultPanel result={state.result} />
+          <div ref={resultRef} className="mt-6 scroll-mt-4">
+            <ResultPanel
+              result={state.result}
+              onReset={() => setState({ kind: 'idle' })}
+            />
           </div>
         )}
       </div>

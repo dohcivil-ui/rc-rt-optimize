@@ -6,6 +6,7 @@ import type { OptimizeSuccess } from '../types/api';
 
 type Props = {
   result: OptimizeSuccess;
+  onReset?: () => void;
 };
 
 // Design row order matches the engine's bestDesign shape in handoff v5.1.
@@ -30,7 +31,7 @@ const formatBaht = (n: number): string =>
 // precision used in backend engine result objects.
 const formatMeters = (n: number): string => n.toFixed(3);
 
-const ResultPanel = ({ result }: Props) => {
+const ResultPanel = ({ result, onReset }: Props) => {
   const algo = result.algorithm.toUpperCase();
   const badgeClass =
     result.algorithm === 'ba'
@@ -83,6 +84,16 @@ const ResultPanel = ({ result }: Props) => {
           </div>
         ))}
       </dl>
+
+      {onReset && (
+        <button
+          type="button"
+          onClick={onReset}
+          className="mt-4 w-full px-4 py-2 border border-slate-300 rounded-md text-sm text-slate-700 hover:bg-slate-50 transition"
+        >
+          คำนวณใหม่
+        </button>
+      )}
     </div>
   );
 };

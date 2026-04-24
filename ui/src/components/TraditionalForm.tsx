@@ -24,7 +24,6 @@ type FormState = {
   fc: string;
   concretePrice: string;
   steelPrice: string;
-  seed: string;
 };
 
 // Ground-truth scenario from handoff v5.1.
@@ -41,7 +40,6 @@ const DEFAULTS: FormState = {
   fc: '240',
   concretePrice: '2500',
   steelPrice: '28',
-  seed: '42',
 };
 
 // Field metadata. Ranges mirror handoff v5.1 validation table.
@@ -106,12 +104,6 @@ const TraditionalForm = ({ onSubmit, disabled = false }: Props) => {
       },
     };
 
-    // Only include options.seed when the user provided a value.
-    const seedTrimmed = state.seed.trim();
-    if (seedTrimmed !== '') {
-      request.options = { seed: Number(seedTrimmed) };
-    }
-
     onSubmit(request);
   };
 
@@ -148,23 +140,6 @@ const TraditionalForm = ({ onSubmit, disabled = false }: Props) => {
         onChange={handleChange}
         disabled={disabled}
       />
-
-      {/* Options section -- seed is the only optional field */}
-      <div className="border border-slate-200 rounded-lg p-4">
-        <h2 className="text-sm font-semibold text-slate-700 mb-3">
-          ตัวเลือก <span className="font-normal text-slate-400">/ Options</span>
-        </h2>
-        <NumberField
-          label="Seed"
-          hint="ใส่เพื่อให้ผลลัพธ์ทำซ้ำได้ -- เว้นว่างเพื่อใช้ random"
-          value={state.seed}
-          onChange={handleChange('seed')}
-          unit="-"
-          step={1}
-          disabled={disabled}
-          required={false}
-        />
-      </div>
 
       <button
         type="submit"
