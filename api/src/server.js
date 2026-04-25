@@ -1,4 +1,4 @@
-// server.js -- Express entrypoint for the rcopt API.
+﻿// server.js -- Express entrypoint for the rcopt API.
 // Mounts routes, exports the app for tests, and only calls listen()
 // when executed directly (`node src/server.js`), never when required.
 
@@ -14,6 +14,7 @@ var express = require('express');
 var healthRouter = require('./routes/health');
 var optimizeRouter = require('./routes/optimize');
 var parseInputRouter = require('./routes/parseInput');
+var explainResultRouter = require('./routes/explainResult');
 var app = express();
 // JSON body parser applied before any route so that req.body is
 // available to handlers. 64kb limit keeps accidental or malicious
@@ -31,6 +32,7 @@ app.use('/api/optimize', optimizeRouter);
 // Claude AI-assisted parse endpoint. Day 1 returns a fixed mock;
 // Day 2 will swap in a real Claude SDK call via tool use.
 app.use('/api/parse-input', parseInputRouter);
+app.use('/api/explain-result', explainResultRouter);
 // Global error handler -- MUST be registered last, after all routes.
 // Catches anything thrown from route handlers or passed via next(err)
 // and returns a uniform 500 JSON response. Errors are logged server-side
