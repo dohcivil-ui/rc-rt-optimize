@@ -170,6 +170,22 @@ var FAKE_RESULT_INPUT_NO_INPUT = {
   result: FAKE_RESULT_INPUT.result
 };
 
+// Day 4 P0 -- v5.6 carryover #2 fixtures.
+// Smokes 2+3 in Day 3 showed Claude omits empty-array fields. Route now
+// fills [] defaults so frontend can assume 4-field schema. These two
+// fixtures exercise both the omission case and the non-array-value case.
+var FAKE_TOOL_INPUT_NO_OPTIONALS = {
+  summary: 'fake -- no optional fields',
+  key_points: ['fake key point only']
+};
+
+var FAKE_TOOL_INPUT_BAD_TYPES = {
+  summary: 'fake -- bad types in optionals',
+  key_points: ['fake key point'],
+  warnings: null,
+  recommendations: 'should be array'
+};
+
 var app = buildApp();
 var server = app.listen(0, function () {
   var port = server.address().port;
@@ -216,6 +232,45 @@ var server = app.listen(0, function () {
           });
           check('no input -- summary verbatim from fake', function () {
             assert.strictEqual(body.summary, FAKE_TOOL_INPUT.summary);
+          });
+          done();
+        });
+      }
+    },
+    {
+      label: 'Defaults -- tool_use omits warnings + recommendations -> route fills []',
+      run: function (done) {
+        explainRouter._setClientForTest(makeFakeClient(FAKE_TOOL_INPUT_NO_OPTIONALS, null));
+        postJson(port, '/api/explain-result', FAKE_RESULT_INPUT, function (err, res, body) {
+          check('defaults missing -- status 200', function () {
+            assert.strictEqual(res.statusCode, 200);
+          });
+          check('defaults missing -- warnings defaulted to []', function () {
+            assert.deepStrictEqual(body.warnings, []);
+          });
+          check('defaults missing -- recommendations defaulted to []', function () {
+            assert.deepStrictEqual(body.recommendations, []);
+          });
+          check('defaults missing -- summary preserved (proves Claude branch ran)', function () {
+            assert.strictEqual(body.summary, FAKE_TOOL_INPUT_NO_OPTIONALS.summary);
+          });
+          done();
+        });
+      }
+    },
+    {
+      label: 'Defaults -- non-array values coerced to []',
+      run: function (done) {
+        explainRouter._setClientForTest(makeFakeClient(FAKE_TOOL_INPUT_BAD_TYPES, null));
+        postJson(port, '/api/explain-result', FAKE_RESULT_INPUT, function (err, res, body) {
+          check('bad types -- status 200', function () {
+            assert.strictEqual(res.statusCode, 200);
+          });
+          check('bad types -- null warnings coerced to []', function () {
+            assert.deepStrictEqual(body.warnings, []);
+          });
+          check('bad types -- string recommendations coerced to []', function () {
+            assert.deepStrictEqual(body.recommendations, []);
           });
           done();
         });

@@ -117,7 +117,14 @@ function extractToolInput(response) {
   if (!block.input || typeof block.input !== 'object') {
     throw new Error('Claude tool_use block missing input object');
   }
-  return block.input;
+  // Defaults for fields Claude sometimes omits despite required schema.
+  // Smoke 2+3 in Day 3 (v5.6 carryover #2) showed warnings and
+  // recommendations missing. Frontend assumes 4-field schema, so fill
+  // defaults here rather than nullcheck downstream.
+  var input = block.input;
+  if (!Array.isArray(input.warnings)) input.warnings = [];
+  if (!Array.isArray(input.recommendations)) input.recommendations = [];
+  return input;
 }
 
 router.post('/', function (req, res, next) {
