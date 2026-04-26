@@ -15,3 +15,12 @@ S__*.jpg
 # Editor
 .vscode/
 Thumbs.db
+
+# VB6 IDE state files (auto-generated, no value to track)
+*.csi
+*.lvw
+*.vbw
+
+# Backup files
+*.bak.bas
+vb6-source/backup/
