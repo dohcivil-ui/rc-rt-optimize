@@ -2,8 +2,8 @@ VERSION 5.00
 Begin VB.Form Form1 
    Caption         =   "RC_RT_HCA v2.0 - Reinforced Concrete Retaining Wall Design"
    ClientHeight    =   9705
-   ClientLeft      =   930
-   ClientTop       =   2730
+   ClientLeft      =   1095
+   ClientTop       =   2685
    ClientWidth     =   22320
    BeginProperty Font 
       Name            =   "CordiaUPC"
@@ -18,6 +18,14 @@ Begin VB.Form Form1
    ScaleHeight     =   9705
    ScaleWidth      =   22320
    ShowInTaskbar   =   0   'False
+   Begin VB.CommandButton cmdCommand1 
+      Caption         =   "Command1"
+      Height          =   675
+      Left            =   17520
+      TabIndex        =   44
+      Top             =   8760
+      Width           =   1695
+   End
    Begin VB.CommandButton cmdCompare 
       Caption         =   "Compare"
       BeginProperty Font 
@@ -557,7 +565,7 @@ Private fcArray(1 To 8) As Integer  ' รองรับ 8 ค่า: 180,210,240,280,300,320,350,
 ' Bisection Base + HCA Random (tt, tb, TBase, LToe, Steel)
 ' ================================================================================
 Private Sub cmdBA_Click()
-    Dim H As Double, H1 As Double, mu As Double
+    Dim h As Double, H1 As Double, mu As Double
     Dim gamma_soil As Double, phi As Double, qa As Double
     Dim gamma_con As Double, cover As Double
     Dim maxIter As Long, numTrials As Integer
@@ -576,7 +584,7 @@ Private Sub cmdBA_Click()
         Exit Sub
     End If
     
-    H = CDbl(txtH.Text)
+    h = CDbl(txtH.Text)
     H1 = CDbl(txtH1.Text)
     mu = CDbl(txtMu.Text)
     gamma_soil = CDbl(txtGammaSoil.Text)
@@ -624,7 +632,7 @@ Private Sub cmdBA_Click()
         modDataStructures.BestCostIteration = 0
         
         trialDesign = modBA.BisectionOptimization( _
-            maxIter, H, H1, gamma_soil, gamma_con, phi, mu, qa, cover, selectedMaterial)
+            maxIter, h, H1, gamma_soil, gamma_con, phi, mu, qa, cover, selectedMaterial)
         
         trialCost = modShared.CalculateCost(trialDesign)
         Call modBA.LogLoopResult_BA(trialCost)
@@ -673,15 +681,15 @@ Private Sub cmdBA_Click()
     cmdBA.Enabled = True
     Me.MousePointer = vbDefault
     
-    Call modBA.SaveAcceptCSV_BA(H)
-    Call modBA.SaveLoopPriceCSV_BA(H)
+    Call modBA.SaveAcceptCSV_BA(h)
+    Call modBA.SaveLoopPriceCSV_BA(h)
     
     MsgBox "การคำนวณเสร็จสมบูรณ์!" & vbCrLf & vbCrLf & _
            "จำนวน Trials: " & numTrials & vbCrLf & _
            "Iterations/Trial: " & maxIter & vbCrLf & vbCrLf & _
            "ไฟล์ CSV ที่บันทึก:" & vbCrLf & _
-           "- D:\accept-BA-H" & Format(H, "0") & ".csv" & vbCrLf & _
-           "- D:\loopPrice-BA-H" & Format(H, "0") & ".csv", _
+           "- D:\accept-BA-H" & Format(h, "0") & ".csv" & vbCrLf & _
+           "- D:\loopPrice-BA-H" & Format(h, "0") & ".csv", _
            vbInformation, "สำเร็จ"
            ' === เก็บข้อมูลสำหรับ Compare Graph ===
     BA_CostHistory = globalBestCostHistory
@@ -703,6 +711,11 @@ baHasRun = True
     
     
 End Sub
+
+Private Sub cmdCommand1_Click()
+Call modBatch.RunBatchStep3_A3
+End Sub
+
 ' ========================================
 ' Form Load Event
 ' ========================================
@@ -756,7 +769,7 @@ End Sub
 ' Run Button Click HCA Event
 ' ========================================
 Private Sub cmdRun_Click()
-    Dim H As Double
+    Dim h As Double
     Dim H1 As Double
     Dim mu As Double
     Dim gamma_soil As Double
@@ -787,7 +800,7 @@ Private Sub cmdRun_Click()
     End If
     
     ' === Read Inputs ===
-    H = CDbl(txtH.Text)
+    h = CDbl(txtH.Text)
     H1 = CDbl(txtH1.Text)
     mu = CDbl(txtMu.Text)
     gamma_soil = CDbl(txtGammaSoil.Text)
@@ -871,7 +884,7 @@ Private Sub cmdRun_Click()
         
         ' Run Optimization
         bestDesign = HillClimbingOptimization( _
-            maxIter, H, H1, gamma_soil, gamma_con, phi, mu, qa, cover, selectedMaterial)
+            maxIter, h, H1, gamma_soil, gamma_con, phi, mu, qa, cover, selectedMaterial)
         
         ' คำนวณราคาของ Trial นี้
         currentCost = CalculateCost(bestDesign)
@@ -893,7 +906,7 @@ Private Sub cmdRun_Click()
     Next trial
     
     ' บันทึก loopPrice-HCA (หลังจบทุก Trial)
-    Call SaveLoopPriceCSV(H)
+    Call SaveLoopPriceCSV(h)
     
  ' === ใช้ Global Best สำหรับแสดงผล ===
     bestDesign = globalBestDesign
@@ -926,16 +939,16 @@ Private Sub cmdRun_Click()
     Me.MousePointer = vbDefault
     
     ' บันทึก CSV เฉพาะครั้งสุดท้าย (Trial สุดท้าย)
-    Call SaveAcceptCSV(H)
-    Call SaveLoopPriceCSV(H)
+    Call SaveAcceptCSV(h)
+    Call SaveLoopPriceCSV(h)
     
     ' แสดงข้อความสรุปครั้งเดียวตอนจบ
     MsgBox "การคำนวณเสร็จสมบูรณ์!" & vbCrLf & vbCrLf & _
            "จำนวน Trials: " & numTrials & vbCrLf & _
            "Iterations/Trial: " & maxIter & vbCrLf & vbCrLf & _
            "ไฟล์ CSV ที่บันทึก:" & vbCrLf & _
-           "- D:\accept-HCA-H" & Format(H, "0") & ".csv" & vbCrLf & _
-           "- D:\loopPrice-HCA-H" & Format(H, "0") & ".csv", _
+           "- D:\accept-HCA-H" & Format(h, "0") & ".csv" & vbCrLf & _
+           "- D:\loopPrice-HCA-H" & Format(h, "0") & ".csv", _
            vbInformation, "สำเร็จ"
            ' === เก็บข้อมูลสำหรับ Compare Graph ===
     HCA_CostHistory = globalBestCostHistory
