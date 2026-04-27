@@ -1,11 +1,11 @@
-﻿import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
 import HeroPage from './pages/HeroPage';
 import InputPage from './pages/InputPage';
 import ReviewPage from './pages/ReviewPage';
 import ResultPage from './pages/ResultPage';
 import ExplainPage from './pages/ExplainPage';
-
+import DemoPage from './pages/DemoPage';
 function App() {
   return (
     <BrowserRouter>
@@ -16,10 +16,10 @@ function App() {
           <Route path='review' element={<ReviewPage />} />
           <Route path='result' element={<ResultPage />} />
           <Route path='explain' element={<ExplainPage />} />
+          <Route path='demo' element={<DemoPage />} />
         </Route>
       </Routes>
     </BrowserRouter>
   );
 }
-
 export default App;
