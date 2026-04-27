@@ -1,13 +1,30 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+// web/src/pages/InputPage.jsx
+// Day 5: textarea + parse-input wire
+// Day 6.1: result success path -- JSON preview + 2 buttons (reset / go review)
+// Day 6.6: ?case=H3-240..H5-320 URL param -- bypass /input, navigate to /review with case data
+
+import { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { parseInput } from '../lib/api';
+import { CASE_STUDIES } from '../data/cases';
 
 function InputPage() {
   var navigate = useNavigate();
+  var location = useLocation();
   var [text, setText] = useState('');
   var [loading, setLoading] = useState(false);
   var [error, setError] = useState(null);
   var [result, setResult] = useState(null);
+
+  // Day 6.6: on mount, check ?case=H3-240..H5-320 and bypass to /review
+  useEffect(function () {
+    var params = new URLSearchParams(location.search);
+    var caseKey = params.get('case');
+    if (caseKey && CASE_STUDIES[caseKey]) {
+      navigate('/review', { state: CASE_STUDIES[caseKey], replace: true });
+    }
+    // unknown caseKey -> ignore, render /input as usual
+  }, []); // run once on mount
 
   function handleAnalyze() {
     setLoading(true);
