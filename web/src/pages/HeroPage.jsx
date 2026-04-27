@@ -1,9 +1,10 @@
-﻿import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 function HeroPage() {
   var navigate = useNavigate();
 
-  // CTA: เริ่มออกแบบ -> /input
+
+  // CTA: start design -> /input
   var handleStart = function () {
     navigate('/input');
   };
