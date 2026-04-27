@@ -6,6 +6,7 @@
 
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { optimize } from '../lib/api';
 
 function NoDataView() {
   var navigate = useNavigate();
@@ -71,6 +72,8 @@ export default function ReviewPage() {
   }
 
   var [form, setForm] = useState(parsed);
+  var [optimizing, setOptimizing] = useState(false);
+  var [optError, setOptError] = useState(null);
 
   function setTop(key) {
     return function (e) {
@@ -96,10 +99,28 @@ export default function ReviewPage() {
     navigate(-1);
   }
 
-  function handleOptimize() {
-    // Day 7 will replace this with POST /api/optimize
-    console.log('optimize payload:', form);
-    alert('Day 7 จะเชื่อม /api/optimize -- ตอนนี้ดู console (F12) เพื่อตรวจค่า form');
+  async function handleOptimize() {
+    setOptError(null);
+    setOptimizing(true);
+    try {
+      var result = await optimize(form);
+      console.log('optimize result:', result);
+      navigate('/result', { state: { params: form, result: result } });
+    } catch (e) {
+      var msg;
+      if (e.message === 'network') {
+        msg = 'เชื่อมต่อ backend ไม่ได้ (port 3000) -- ตรวจว่า npm start ทำงานอยู่';
+      } else if (e.status >= 400 && e.status < 500) {
+        msg = 'ค่าพารามิเตอร์ไม่ถูกต้อง: ' + e.message;
+        if (e.details) { msg += ' (' + JSON.stringify(e.details) + ')'; }
+      } else {
+        msg = 'เกิดข้อผิดพลาดใน backend: ' + e.message;
+      }
+      setOptError(msg);
+      console.error('optimize failed:', e);
+    } finally {
+      setOptimizing(false);
+    }
   }
 
   return (
@@ -135,19 +156,26 @@ export default function ReviewPage() {
         <Field label='ราคาเหล็ก' value={form.material.steelPrice} unit='บาท/kg' step='0.5' onChange={setMat('steelPrice')} />
       </Section>
 
+      {optError && (
+        <div className='mt-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm'>
+          ⚠️ {optError}
+        </div>
+      )}
+
       <div className='flex items-center justify-between mt-8 pt-4 border-t border-gray-200'>
         <button
           onClick={handleBack}
-          className='px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg font-medium text-sm'
+          disabled={optimizing}
+          className='px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed'
         >
           ← กลับไปแก้ข้อความ
         </button>
         <button
           onClick={handleOptimize}
-          title='Day 7 จะเชื่อม POST /api/optimize'
-          className='px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium'
+          disabled={optimizing}
+          className='px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium disabled:bg-blue-400 disabled:cursor-wait'
         >
-          ยืนยัน optimize →
+          {optimizing ? 'กำลัง optimize...' : 'ยืนยัน optimize →'}
         </button>
       </div>
     </div>
