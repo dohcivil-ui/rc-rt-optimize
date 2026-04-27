@@ -1,7 +1,7 @@
 // web/src/pages/ReviewPage.jsx
 // Day 6.2: useLocation + no-data fallback + back button to /input
 // Day 6.3: form 8 top-level fields in 3 sections (size/soil/concrete)
-// Day 6.4 will add material section (4 nested fields)
+// Day 6.4: material section + nested setMat helper (4 fields, fy/fc/prices)
 // Day 6.5 will add confirm + back buttons (replace debug <pre>)
 
 import { useState } from 'react';
@@ -81,6 +81,20 @@ export default function ReviewPage() {
     };
   }
 
+  // Helper to build nested material field onChange
+  function setMat(key) {
+    return function (e) {
+      var v = e.target.value;
+      setForm({
+        ...form,
+        material: {
+          ...form.material,
+          [key]: v === '' ? '' : Number(v)
+        }
+      });
+    };
+  }
+
   return (
     <div className='max-w-2xl mx-auto py-8 px-4'>
       <h1 className='text-2xl font-semibold text-gray-800 mb-2'>
@@ -107,10 +121,16 @@ export default function ReviewPage() {
         <Field label='ระยะหุ้มเหล็ก cover' value={form.cover} unit='m' step='0.005' onChange={setTop('cover')} />
       </Section>
 
-      {/* Day 6.4 will add material section here */}
+      <Section title='วัสดุและราคา'>
+        <Field label='fy (เหล็ก)' value={form.material.fy} unit='ksc' step='1' onChange={setMat('fy')} />
+        <Field label="fc' (คอนกรีต)" value={form.material.fc} unit='ksc' step='1' onChange={setMat('fc')} />
+        <Field label='ราคาคอนกรีต' value={form.material.concretePrice} unit='บาท/m³' step='1' onChange={setMat('concretePrice')} />
+        <Field label='ราคาเหล็ก' value={form.material.steelPrice} unit='บาท/kg' step='0.5' onChange={setMat('steelPrice')} />
+      </Section>
+
       {/* Day 6.5 will replace this debug block with confirm/back buttons */}
       <div className='mt-8 bg-yellow-50 border border-yellow-200 rounded-lg p-4'>
-        <p className='text-xs text-yellow-700 mb-2'>DEBUG (Day 6.3) -- form state จะอัปเดตเมื่อแก้ฟิลด์:</p>
+        <p className='text-xs text-yellow-700 mb-2'>DEBUG (Day 6.4) -- form state จะอัปเดตเมื่อแก้ฟิลด์:</p>
         <pre className='text-xs text-gray-800 overflow-auto'>{JSON.stringify(form, null, 2)}</pre>
       </div>
     </div>
