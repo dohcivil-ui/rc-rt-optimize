@@ -1,7 +1,10 @@
 // web/src/pages/ReviewPage.jsx
 // Day 6.2: useLocation + no-data fallback + back button to /input
-// Day 6.3-6.5 will replace JSON placeholder with full edit form
+// Day 6.3: form 8 top-level fields in 3 sections (size/soil/concrete)
+// Day 6.4 will add material section (4 nested fields)
+// Day 6.5 will add confirm + back buttons (replace debug <pre>)
 
+import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 function NoDataView() {
@@ -24,6 +27,42 @@ function NoDataView() {
   );
 }
 
+// Reusable input row: label on left, number input + unit on right
+function Field(props) {
+  var label = props.label;
+  var value = props.value;
+  var unit = props.unit;
+  var step = props.step || '0.01';
+  var onChange = props.onChange;
+  return (
+    <div className='flex items-center justify-between py-2'>
+      <label className='text-gray-700 text-sm flex-1'>{label}</label>
+      <div className='flex items-center gap-2'>
+        <input
+          type='number'
+          step={step}
+          value={value}
+          onChange={onChange}
+          className='w-28 px-3 py-1.5 border border-gray-300 rounded text-right text-sm focus:outline-none focus:ring-2 focus:ring-blue-400'
+        />
+        <span className='text-xs text-gray-500 w-16'>{unit}</span>
+      </div>
+    </div>
+  );
+}
+
+// Section wrapper with title
+function Section(props) {
+  return (
+    <div className='mb-6'>
+      <h2 className='text-sm font-semibold text-gray-600 uppercase tracking-wide mb-2 border-b border-gray-200 pb-1'>
+        {props.title}
+      </h2>
+      {props.children}
+    </div>
+  );
+}
+
 export default function ReviewPage() {
   var location = useLocation();
   var parsed = location.state;
@@ -32,8 +71,16 @@ export default function ReviewPage() {
     return <NoDataView />;
   }
 
-  // Day 6.3-6.5 will build the full edit form here.
-  // For now: confirm state arrived by dumping JSON.
+  var [form, setForm] = useState(parsed);
+
+  // Helper to build top-level field onChange (NOT material)
+  function setTop(key) {
+    return function (e) {
+      var v = e.target.value;
+      setForm({ ...form, [key]: v === '' ? '' : Number(v) });
+    };
+  }
+
   return (
     <div className='max-w-2xl mx-auto py-8 px-4'>
       <h1 className='text-2xl font-semibold text-gray-800 mb-2'>
@@ -42,11 +89,29 @@ export default function ReviewPage() {
       <p className='text-gray-600 mb-6'>
         ระบบดึงค่าจากข้อความที่คุณป้อน กรุณาตรวจสอบและแก้ไขให้ถูกต้องก่อนเริ่มคำนวณ
       </p>
-      <div className='bg-gray-50 border border-gray-200 rounded-lg p-4'>
-        <p className='text-sm text-gray-500 mb-2'>
-          state ที่ได้รับ (placeholder, Day 6.3 จะแทนด้วย form):
-        </p>
-        <pre className='text-xs text-gray-800 overflow-auto'>{JSON.stringify(parsed, null, 2)}</pre>
+
+      <Section title='ขนาดกำแพง'>
+        <Field label='ความสูงรวม H' value={form.H} unit='m' onChange={setTop('H')} />
+        <Field label='ความสูงดินบน H1' value={form.H1} unit='m' onChange={setTop('H1')} />
+      </Section>
+
+      <Section title='คุณสมบัติดิน'>
+        <Field label='น้ำหนักหน่วย γ_soil' value={form.gamma_soil} unit='t/m³' onChange={setTop('gamma_soil')} />
+        <Field label='มุมเสียดทาน φ' value={form.phi} unit='องศา' onChange={setTop('phi')} />
+        <Field label='สัมประสิทธิ์เสียดทาน μ' value={form.mu} unit='—' onChange={setTop('mu')} />
+        <Field label='กำลังรับน้ำหนัก qa' value={form.qa} unit='t/m²' onChange={setTop('qa')} />
+      </Section>
+
+      <Section title='คอนกรีต'>
+        <Field label='น้ำหนักหน่วย γ_concrete' value={form.gamma_concrete} unit='t/m³' onChange={setTop('gamma_concrete')} />
+        <Field label='ระยะหุ้มเหล็ก cover' value={form.cover} unit='m' step='0.005' onChange={setTop('cover')} />
+      </Section>
+
+      {/* Day 6.4 will add material section here */}
+      {/* Day 6.5 will replace this debug block with confirm/back buttons */}
+      <div className='mt-8 bg-yellow-50 border border-yellow-200 rounded-lg p-4'>
+        <p className='text-xs text-yellow-700 mb-2'>DEBUG (Day 6.3) -- form state จะอัปเดตเมื่อแก้ฟิลด์:</p>
+        <pre className='text-xs text-gray-800 overflow-auto'>{JSON.stringify(form, null, 2)}</pre>
       </div>
     </div>
   );
