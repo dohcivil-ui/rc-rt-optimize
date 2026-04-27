@@ -10,6 +10,32 @@
 
 var ba = require('../../../backend/src/ba');
 
+// Day 8.3a: import shared for steel idx -> human-readable decoder.
+// initArrays is called ONCE at module load (cached, like ba require).
+var shared = require('../../../backend/src/shared');
+var arrays = shared.initArrays();
+
+
+// decodeSteel -- map raw bestSteel _idx values to human-readable.
+// DB_idx: 100-104 (arrays.DB[0..4]) = 12, 16, 20, 25, 28 mm
+// SP_idx: 110-113 (arrays.SP[0..3]) = 0.10, 0.15, 0.20, 0.25 m
+function decodeSteel(s) {
+  function one(dbIdx, spIdx) {
+    var db = arrays.DB[dbIdx - 100];
+    var sp = arrays.SP[spIdx - 110];
+    return {
+      size: 'DB' + db,
+      spacing_cm: Math.round(sp * 100),
+      spacing_m: sp
+    };
+  }
+  return {
+    stem: one(s.stemDB_idx, s.stemSP_idx),
+    toe:  one(s.toeDB_idx,  s.toeSP_idx),
+    heel: one(s.heelDB_idx, s.heelSP_idx)
+  };
+}
+
 // runOptimize -- call BA with validated params, strip large internal
 // state (log, costHistory, finalState) before returning to the HTTP
 // layer. Wall-clock runtime is measured here, not inside the engine.
@@ -62,6 +88,7 @@ function runOptimize(validatedParams) {
     bestIteration: result.bestIteration,
     bestDesign:    result.bestDesign,
     bestSteel:     result.bestSteel,
+    bestSteelDecoded: decodeSteel(result.bestSteel),
     runtime_ms:    endTime - startTime,
     algorithm:     'ba'
   };
