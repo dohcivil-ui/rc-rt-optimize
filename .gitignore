@@ -24,3 +24,7 @@ Thumbs.db
 # Backup files
 *.bak.bas
 vb6-source/backup/
+
+# Backup files (from PowerShell Copy-Item before patches)
+*.bak*
+
