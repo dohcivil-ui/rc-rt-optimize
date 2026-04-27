@@ -2,7 +2,7 @@
 // Day 6.2: useLocation + no-data fallback + back button to /input
 // Day 6.3: form 8 top-level fields in 3 sections (size/soil/concrete)
 // Day 6.4: material section + nested setMat helper (4 fields, fy/fc/prices)
-// Day 6.5 will add confirm + back buttons (replace debug <pre>)
+// Day 6.5: confirm/back buttons (replace debug pre); console.log only -- Day 7 wires /api/optimize
 
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -27,7 +27,6 @@ function NoDataView() {
   );
 }
 
-// Reusable input row: label on left, number input + unit on right
 function Field(props) {
   var label = props.label;
   var value = props.value;
@@ -51,7 +50,6 @@ function Field(props) {
   );
 }
 
-// Section wrapper with title
 function Section(props) {
   return (
     <div className='mb-6'>
@@ -65,6 +63,7 @@ function Section(props) {
 
 export default function ReviewPage() {
   var location = useLocation();
+  var navigate = useNavigate();
   var parsed = location.state;
 
   if (!parsed) {
@@ -73,7 +72,6 @@ export default function ReviewPage() {
 
   var [form, setForm] = useState(parsed);
 
-  // Helper to build top-level field onChange (NOT material)
   function setTop(key) {
     return function (e) {
       var v = e.target.value;
@@ -81,7 +79,6 @@ export default function ReviewPage() {
     };
   }
 
-  // Helper to build nested material field onChange
   function setMat(key) {
     return function (e) {
       var v = e.target.value;
@@ -93,6 +90,16 @@ export default function ReviewPage() {
         }
       });
     };
+  }
+
+  function handleBack() {
+    navigate(-1);
+  }
+
+  function handleOptimize() {
+    // Day 7 will replace this with POST /api/optimize
+    console.log('optimize payload:', form);
+    alert('Day 7 จะเชื่อม /api/optimize -- ตอนนี้ดู console (F12) เพื่อตรวจค่า form');
   }
 
   return (
@@ -128,10 +135,20 @@ export default function ReviewPage() {
         <Field label='ราคาเหล็ก' value={form.material.steelPrice} unit='บาท/kg' step='0.5' onChange={setMat('steelPrice')} />
       </Section>
 
-      {/* Day 6.5 will replace this debug block with confirm/back buttons */}
-      <div className='mt-8 bg-yellow-50 border border-yellow-200 rounded-lg p-4'>
-        <p className='text-xs text-yellow-700 mb-2'>DEBUG (Day 6.4) -- form state จะอัปเดตเมื่อแก้ฟิลด์:</p>
-        <pre className='text-xs text-gray-800 overflow-auto'>{JSON.stringify(form, null, 2)}</pre>
+      <div className='flex items-center justify-between mt-8 pt-4 border-t border-gray-200'>
+        <button
+          onClick={handleBack}
+          className='px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg font-medium text-sm'
+        >
+          ← กลับไปแก้ข้อความ
+        </button>
+        <button
+          onClick={handleOptimize}
+          title='Day 7 จะเชื่อม POST /api/optimize'
+          className='px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium'
+        >
+          ยืนยัน optimize →
+        </button>
       </div>
     </div>
   );
