@@ -33,6 +33,10 @@ function Row(props) {
   );
 }
 
+function fmtM(v) {
+  return Number(v).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' m';
+}
+
 function ResultPage() {
   var location = useLocation();
   var navigate = useNavigate();
@@ -43,6 +47,8 @@ function ResultPage() {
   }
 
   var result = state.result;
+  console.log('bestDesign:', result.bestDesign);
+  console.log('bestSteel:', result.bestSteel);
   var costThb = Number(result.bestCost).toLocaleString('th-TH', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
@@ -65,6 +71,23 @@ function ResultPage() {
         <Row label='รอบที่พบ' value={iter} />
         <Row label='ใช้เวลา' value={runtime + ' ms'} />
         <Row label='อัลกอริทึม' value={algo} />
+      </div>
+
+      {/* Day 8.2: dimensions section */}
+      <h2 className='text-lg font-semibold text-gray-800 mb-3'>
+        มิติของกำแพง
+      </h2>
+      <h3 className='text-sm font-medium text-gray-700 mb-2'>ฐานราก</h3>
+      <div className='bg-white border border-gray-200 rounded-lg p-6 mb-4'>
+        <Row label='ความกว้างฐาน B' value={fmtM(result.bestDesign.Base)} />
+        <Row label='ความหนาฐาน TBase' value={fmtM(result.bestDesign.TBase)} />
+        <Row label='ส่วนยื่น Toe LToe' value={fmtM(result.bestDesign.LToe)} />
+        <Row label='ส่วนยื่น Heel LHeel' value={fmtM(result.bestDesign.LHeel)} />
+      </div>
+      <h3 className='text-sm font-medium text-gray-700 mb-2'>ผนัง (Stem)</h3>
+      <div className='bg-white border border-gray-200 rounded-lg p-6 mb-6'>
+        <Row label='ความหนาด้านบน tt' value={fmtM(result.bestDesign.tt)} />
+        <Row label='ความหนาด้านล่าง tb' value={fmtM(result.bestDesign.tb)} />
       </div>
 
       <p className='text-xs text-gray-400 mb-6'>
