@@ -47,8 +47,6 @@ function ResultPage() {
   }
 
   var result = state.result;
-  console.log('bestDesign:', result.bestDesign);
-  console.log('bestSteel:', result.bestSteel);
   var costThb = Number(result.bestCost).toLocaleString('th-TH', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
@@ -90,9 +88,14 @@ function ResultPage() {
         <Row label='ความหนาด้านล่าง tb' value={fmtM(result.bestDesign.tb)} />
       </div>
 
-      <p className='text-xs text-gray-400 mb-6'>
-        รายละเอียดมิติ + เหล็กเสริมจะเพิ่มใน Day 8
-      </p>
+      <h2 className='text-lg font-semibold text-gray-800 mb-3'>
+        เหล็กเสริม
+      </h2>
+      <div className='bg-white border border-gray-200 rounded-lg p-6 mb-6'>
+        <Row label='เหล็กผนัง stem' value={(result.bestSteelDecoded?.stem?.size || '-') + ' @ ' + (result.bestSteelDecoded?.stem?.spacing_cm || '-') + ' ซม.'} />
+        <Row label='เหล็ก toe' value={(result.bestSteelDecoded?.toe?.size || '-') + ' @ ' + (result.bestSteelDecoded?.toe?.spacing_cm || '-') + ' ซม.'} />
+        <Row label='เหล็ก heel' value={(result.bestSteelDecoded?.heel?.size || '-') + ' @ ' + (result.bestSteelDecoded?.heel?.spacing_cm || '-') + ' ซม.'} />
+      </div>
 
       <div className='flex items-center justify-between mt-8 pt-4 border-t border-gray-200'>
         <button
