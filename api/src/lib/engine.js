@@ -36,6 +36,34 @@ function decodeSteel(s) {
   };
 }
 
+// sampleCostHistory -- downsample costHistory to ~maxPoints for chart.
+// Skips null/Infinity entries. Always includes last valid point.
+function sampleCostHistory(history, maxPoints) {
+  if (!maxPoints) { maxPoints = 200; }
+  var out = [];
+  var i;
+  var denseEnd = Math.min(100, history.length);
+  for (i = 1; i < denseEnd; i++) {
+    if (history[i] !== null && history[i] !== undefined && isFinite(history[i])) {
+      out.push({ iter: i, cost: history[i] });
+    }
+  }
+  var remaining = maxPoints - out.length;
+  var step = Math.max(1, Math.floor((history.length - denseEnd) / remaining));
+  for (i = denseEnd; i < history.length; i += step) {
+    if (history[i] !== null && history[i] !== undefined && isFinite(history[i])) {
+      out.push({ iter: i, cost: history[i] });
+    }
+  }
+  var last = history.length - 1;
+  if (out.length === 0 || out[out.length - 1].iter !== last) {
+    if (history[last] !== null && history[last] !== undefined && isFinite(history[last])) {
+      out.push({ iter: last, cost: history[last] });
+    }
+  }
+  return out;
+}
+
 // runOptimize -- call BA with validated params, strip large internal
 // state (log, costHistory, finalState) before returning to the HTTP
 // layer. Wall-clock runtime is measured here, not inside the engine.
@@ -70,7 +98,7 @@ function runOptimize(validatedParams) {
   var engineOptions = {
     maxIterations: typeof options.maxIterations === 'number'
       ? options.maxIterations
-      : 10000
+      : 5000
   };
   if (typeof options.seed !== 'undefined') {
     engineOptions.seed = options.seed;
@@ -90,7 +118,8 @@ function runOptimize(validatedParams) {
     bestSteel:     result.bestSteel,
     bestSteelDecoded: decodeSteel(result.bestSteel),
     runtime_ms:    endTime - startTime,
-    algorithm:     'ba'
+    algorithm:     'ba',
+    costHistorySampled: sampleCostHistory(result.costHistory)
   };
 }
 

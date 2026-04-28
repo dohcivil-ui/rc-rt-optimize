@@ -30,7 +30,7 @@ var MATERIAL_FIELDS = [
 // maxIterations bounds (spec Day 4-7).
 var MAX_ITER_MIN = 100;
 var MAX_ITER_MAX = 100000;
-var MAX_ITER_DEFAULT = 10000;
+var MAX_ITER_DEFAULT = 5000;
 
 function isPlainObject(x) {
   return x !== null && typeof x === 'object' && !Array.isArray(x);

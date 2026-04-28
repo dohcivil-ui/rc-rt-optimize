@@ -3,6 +3,7 @@
 // Defer to Day 8: dimensions table, steel layout, charts
 
 import { useLocation, useNavigate } from 'react-router-dom';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceDot, Label } from 'recharts';
 
 function NoResultView() {
   var navigate = useNavigate();
@@ -96,6 +97,32 @@ function ResultPage() {
         <Row label='เหล็ก toe' value={(result.bestSteelDecoded?.toe?.size || '-') + ' @ ' + (result.bestSteelDecoded?.toe?.spacing_cm || '-') + ' ซม.'} />
         <Row label='เหล็ก heel' value={(result.bestSteelDecoded?.heel?.size || '-') + ' @ ' + (result.bestSteelDecoded?.heel?.spacing_cm || '-') + ' ซม.'} />
       </div>
+
+      {result.costHistorySampled && result.costHistorySampled.length > 0 && (
+        <>
+          <h2 className='text-lg font-semibold text-gray-800 mb-3'>
+            กราฟค่าใช้จ่าย (Cost Reduction Graph)
+          </h2>
+          <div className='bg-white border border-gray-200 rounded-lg p-4 mb-6'>
+            <ResponsiveContainer width='100%' height={300}>
+              <LineChart data={result.costHistorySampled} margin={{ top: 10, right: 30, left: 10, bottom: 25 }}>
+                <CartesianGrid strokeDasharray='3 3' />
+                <XAxis dataKey='iter' type='number' tick={{ fontSize: 12 }} tickCount={6} domain={[0, 'dataMax']}>
+                  <Label value='Iteration' position='bottom' offset={10} style={{ fontSize: 13, fill: '#4b5563' }} />
+                </XAxis>
+                <YAxis tick={{ fontSize: 12 }} domain={['auto', 'auto']}>
+                  <Label value='Cost (Baht/m)' angle={-90} position='insideLeft' offset={0} style={{ fontSize: 13, fill: '#4b5563', textAnchor: 'middle' }} />
+                </YAxis>
+                <Tooltip formatter={function(v) { return [Number(v).toFixed(2) + ' Baht/m', 'Cost']; }} />
+                <Line type='stepAfter' dataKey='cost' stroke='#2563eb' strokeWidth={2} dot={false} />
+                <ReferenceDot x={result.bestIteration} y={result.bestCost} r={6} fill='#dc2626' stroke='#dc2626'>
+                  <Label value={'Best: ' + Number(result.bestCost).toLocaleString('th-TH', { maximumFractionDigits: 0 }) + ' \u0E3F'} position='right' offset={8} style={{ fontSize: 14, fill: '#dc2626', fontWeight: 700 }} />
+                </ReferenceDot>
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </>
+      )}
 
       <div className='flex items-center justify-between mt-8 pt-4 border-t border-gray-200'>
         <button

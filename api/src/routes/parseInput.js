@@ -19,10 +19,10 @@ var router = express.Router();
 // Allows the test suite to run without a key and without network.
 var MOCK_HIGH_CONFIDENCE = {
   parsed: {
-    H: 3, H1: 0.5,
+    H: 3, H1: 1.2,
     gamma_soil: 1.8, gamma_concrete: 2.4,
-    phi: 30, mu: 0.5, qa: 20, cover: 0.075,
-    material: { fy: 4000, fc: 240, concretePrice: 2500, steelPrice: 28 }
+    phi: 30, mu: 0.6, qa: 30, cover: 0.075,
+    material: { fy: 4000, fc: 280, concretePrice: 2524, steelPrice: 24 }
   },
   confidence: 'high',
   reasoning: 'stub response -- ANTHROPIC_API_KEY not configured, returning mock',
