@@ -10,10 +10,12 @@ backend/out/step_11/trajectories.json
 concept_proposal_for_advisor*.docx
 innovation_concept_proposal_*
 rcopt_handoff_*.md
+rcopt-handoff-*.md
 S__*.jpg
 
 # Editor
 .vscode/
+.claude/
 Thumbs.db
 
 # VB6 IDE state files (auto-generated, no value to track)
