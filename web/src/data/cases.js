@@ -43,3 +43,18 @@ export var CASE_STUDIES = {
   'H5-280': makeCase(5, 280),
   'H5-320': makeCase(5, 320)
 };
+
+// Day 9.5: VB6 reference optimum cost (baht/m) for each preset
+// Source: backend/out/comparison/comparison_results.json (n=30 trials/algorithm)
+// Both BA and HCA converged to the same cost across all trials.
+export var REFERENCE_COSTS = {
+  'H3-240': 2849,
+  'H3-280': 2942,
+  'H3-320': 3034,
+  'H4-240': 3976,
+  'H4-280': 4101,
+  'H4-320': 4226,
+  'H5-240': 5460,
+  'H5-280': 5660,
+  'H5-320': 5817
+};
