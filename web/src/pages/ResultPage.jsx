@@ -2,6 +2,7 @@
 // Day 7.4: minimal display of /api/optimize response (4 fields)
 // Defer to Day 8: dimensions table, steel layout, charts
 
+import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceDot, Label } from 'recharts';
 
@@ -48,6 +49,36 @@ function ResultPage() {
   }
 
   var result = state.result;
+  var input = state.params || {};
+  var [explainState, setExplainState] = useState('idle');
+  var [explainData, setExplainData] = useState(null);
+
+  function handleExplain() {
+    setExplainState('loading');
+    var controller = new AbortController();
+    var timeoutId = setTimeout(function () { controller.abort(); }, 30000);
+
+    fetch('/api/explain-result', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ result: result, input: input }),
+      signal: controller.signal
+    })
+      .then(function (res) {
+        clearTimeout(timeoutId);
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return res.json();
+      })
+      .then(function (data) {
+        setExplainData(data);
+        setExplainState('success');
+      })
+      .catch(function () {
+        clearTimeout(timeoutId);
+        setExplainState('error');
+      });
+  }
+
   var costThb = Number(result.bestCost).toLocaleString('th-TH', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
@@ -124,19 +155,82 @@ function ResultPage() {
         </>
       )}
 
+      <div className='mt-8 pt-4 border-t border-gray-200'>
+        <h3 className='text-lg font-semibold text-gray-800 mb-3'>🤖 อธิบายผลด้วย AI</h3>
+
+        {explainState === 'idle' && (
+          <button
+            onClick={handleExplain}
+            className='px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium'
+          >
+            ✨ อธิบายผลด้วย AI
+          </button>
+        )}
+
+        {explainState === 'loading' && (
+          <div className='text-gray-600'>⏳ กำลังวิเคราะห์ผล... (2-5 วินาที)</div>
+        )}
+
+        {explainState === 'error' && (
+          <div className='space-y-2'>
+            <div className='text-red-600'>❌ ไม่สามารถอธิบายผลได้ในขณะนี้</div>
+            <button
+              onClick={handleExplain}
+              className='px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium text-sm'
+            >
+              ลองใหม่
+            </button>
+          </div>
+        )}
+
+        {explainState === 'success' && explainData && (
+          <div className='space-y-3'>
+            {explainData.summary && (
+              <div className='p-3 bg-gray-50 border border-gray-200 rounded-lg'>
+                <div className='font-semibold text-gray-800 mb-1'>📝 สรุป</div>
+                <div className='text-gray-700'>{explainData.summary}</div>
+              </div>
+            )}
+            {Array.isArray(explainData.key_points) && explainData.key_points.length > 0 && (
+              <div className='p-3 bg-blue-50 border border-blue-200 rounded-lg'>
+                <div className='font-semibold text-blue-900 mb-1'>⭐ ประเด็นหลัก</div>
+                <ul className='list-disc list-inside text-blue-900 space-y-1'>
+                  {explainData.key_points.map(function (point, i) {
+                    return <li key={i}>{point}</li>;
+                  })}
+                </ul>
+              </div>
+            )}
+            {Array.isArray(explainData.warnings) && explainData.warnings.length > 0 && (
+              <div className='p-3 bg-amber-50 border border-amber-200 rounded-lg'>
+                <div className='font-semibold text-amber-900 mb-1'>⚠️ ข้อควรระวัง</div>
+                <ul className='list-disc list-inside text-amber-900 space-y-1'>
+                  {explainData.warnings.map(function (w, i) {
+                    return <li key={i}>{w}</li>;
+                  })}
+                </ul>
+              </div>
+            )}
+            {Array.isArray(explainData.recommendations) && explainData.recommendations.length > 0 && (
+              <div className='p-3 bg-green-50 border border-green-200 rounded-lg'>
+                <div className='font-semibold text-green-900 mb-1'>💡 คำแนะนำ</div>
+                <ul className='list-disc list-inside text-green-900 space-y-1'>
+                  {explainData.recommendations.map(function (r, i) {
+                    return <li key={i}>{r}</li>;
+                  })}
+                </ul>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
       <div className='flex items-center justify-between mt-8 pt-4 border-t border-gray-200'>
         <button
           onClick={function () { navigate(-1); }}
           className='px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg font-medium text-sm'
         >
           ← กลับไปแก้ค่า
-        </button>
-        <button
-          disabled
-          title='Day 9 จะเชื่อม /api/explain-result'
-          className='px-6 py-3 bg-gray-300 text-gray-500 rounded-lg font-medium cursor-not-allowed'
-        >
-          อธิบายผลลัพธ์ → (Day 9)
         </button>
       </div>
     </div>
