@@ -11,6 +11,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceDot, Label } from 'recharts';
 import VerificationPanel from '../components/VerificationPanel';
 import ComparePanel from '../components/ComparePanel';
+import ChatPanel from '../components/ChatPanel';
 
 function NoResultView() {
   var navigate = useNavigate();
@@ -345,6 +346,8 @@ function ResultPage() {
           </div>
         )}
       </div>
+
+      <ChatPanel currentParams={input} currentResult={activeResult || baResult} />
 
       <div className='flex items-center justify-between mt-8 pt-4 border-t border-gray-200'>
         <button
