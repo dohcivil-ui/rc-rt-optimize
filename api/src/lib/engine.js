@@ -9,6 +9,11 @@
 // so subsequent requests reuse the same module instance.
 
 var ba = require('../../../backend/src/ba');
+// Day 9.6: HCA support added side-by-side with BA. Both optimizers
+// have identical (params, options) -> { bestDesign, bestSteel, bestCost,
+// bestIteration, costHistory, log, finalState } contract, so we can
+// pick the function reference at request time.
+var hca = require('../../../backend/src/hca');
 
 // Day 8.3a: import shared for steel idx -> human-readable decoder.
 // initArrays is called ONCE at module load (cached, like ba require).
@@ -66,7 +71,10 @@ function sampleCostHistory(history, maxPoints) {
 
 // buildVerification -- deterministic geotech + WSD snapshot from shared.js
 // (VB6-parity formulas only; no duplicate math here).
-function buildVerification(params, bestDesign, bestSteel, bestIteration) {
+// algorithm arg is optional; defaults to 'BA' for back-compat with
+// existing callers / tests that omit it.
+function buildVerification(params, bestDesign, bestSteel, bestIteration, algorithm) {
+  var algoLabel = algorithm === 'HCA' ? 'HCA' : 'BA';
   var fy = params.material.fy;
   var fcPrime = params.material.fc;
   var gradeStr;
@@ -81,7 +89,7 @@ function buildVerification(params, bestDesign, bestSteel, bestIteration) {
   var wsd = shared.calculateWSDParams(fy, fcPrime);
 
   var optimization = {
-    algorithm: 'BA',
+    algorithm: algoLabel,
     trialsRun: 1,
     bestIteration: bestIteration
   };
@@ -227,8 +235,14 @@ function buildVerification(params, bestDesign, bestSteel, bestIteration) {
 //
 // Errors from the engine propagate; the caller (route handler) is
 // responsible for try/catch.
-function runOptimize(validatedParams) {
+//
+// runOptions (optional): { algorithm: 'BA' | 'HCA' }. Defaults to 'BA'
+// to preserve the pre-9.6 behavior. Anything other than 'HCA' falls
+// back to 'BA' so callers cannot accidentally inject unknown engines.
+function runOptimize(validatedParams, runOptions) {
   var options = validatedParams.options || {};
+  runOptions = runOptions || {};
+  var algorithm = runOptions.algorithm === 'HCA' ? 'HCA' : 'BA';
 
   // Build engine params with EXACTLY the keys the BA engine expects.
   // Do not forward api-layer concerns like options into params.
@@ -257,10 +271,15 @@ function runOptimize(validatedParams) {
   }
 
   var startTime = Date.now();
-  var result = ba.baOptimize(engineParams, engineOptions);
+  var result;
+  if (algorithm === 'HCA') {
+    result = hca.hcaOptimize(engineParams, engineOptions);
+  } else {
+    result = ba.baOptimize(engineParams, engineOptions);
+  }
   var endTime = Date.now();
 
-  var verification = buildVerification(validatedParams, result.bestDesign, result.bestSteel, result.bestIteration);
+  var verification = buildVerification(validatedParams, result.bestDesign, result.bestSteel, result.bestIteration, algorithm);
 
   // Return the slim response shape. bestDesign and bestSteel are
   // passed through as-is (small objects with numeric fields).
@@ -272,7 +291,7 @@ function runOptimize(validatedParams) {
     bestSteel:     result.bestSteel,
     bestSteelDecoded: decodeSteel(result.bestSteel),
     runtime_ms:    endTime - startTime,
-    algorithm:     'ba',
+    algorithm:     algorithm.toLowerCase(),
     costHistorySampled: sampleCostHistory(result.costHistory),
     verification:  verification
   };

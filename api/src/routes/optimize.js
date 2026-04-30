@@ -18,11 +18,19 @@ router.post('/', function (req, res, next) {
     return;
   }
 
+  // Day 9.6: optional algorithm switch ('BA' | 'HCA'). Validator does
+  // not yet know about this field, so we read it directly from the raw
+  // body. Anything other than the literal 'HCA' falls back to BA.
+  var rawAlgo = (req.body && typeof req.body.algorithm === 'string')
+    ? req.body.algorithm.toUpperCase()
+    : 'BA';
+  var algorithm = rawAlgo === 'HCA' ? 'HCA' : 'BA';
+
   // Engine call is wrapped in try/catch so that thrown errors are
   // handed off to the Express error pipeline rather than crashing
   // the worker. Successful runs return 200 + the slim result object.
   try {
-    var out = engine.runOptimize(result.params);
+    var out = engine.runOptimize(result.params, { algorithm: algorithm });
     res.status(200).json(out);
   } catch (err) {
     next(err);
