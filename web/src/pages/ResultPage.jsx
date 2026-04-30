@@ -5,6 +5,7 @@
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceDot, Label } from 'recharts';
+import VerificationPanel from '../components/VerificationPanel';
 
 function NoResultView() {
   var navigate = useNavigate();
@@ -128,6 +129,10 @@ function ResultPage() {
         <Row label='เหล็ก toe' value={(result.bestSteelDecoded?.toe?.size || '-') + ' @ ' + (result.bestSteelDecoded?.toe?.spacing_cm || '-') + ' ซม.'} />
         <Row label='เหล็ก heel' value={(result.bestSteelDecoded?.heel?.size || '-') + ' @ ' + (result.bestSteelDecoded?.heel?.spacing_cm || '-') + ' ซม.'} />
       </div>
+
+      {result.verification && (
+        <VerificationPanel verification={result.verification} />
+      )}
 
       {result.costHistorySampled && result.costHistorySampled.length > 0 && (
         <>
