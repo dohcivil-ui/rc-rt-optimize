@@ -1,11 +1,16 @@
 // web/src/pages/ResultPage.jsx
 // Day 7.4: minimal display of /api/optimize response (4 fields)
-// Defer to Day 8: dimensions table, steel layout, charts
+// Day 8.2: dimensions table + steel layout
+// Day 8.5: cost convergence chart (Recharts)
+// Day 9: ExplainPage (AI explanation)
+// Day 9.5b-b: VerificationPanel
+// Day 9.6: BA/HCA toggle + compare tabs
 
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceDot, Label } from 'recharts';
 import VerificationPanel from '../components/VerificationPanel';
+import ComparePanel from '../components/ComparePanel';
 
 function NoResultView() {
   var navigate = useNavigate();
@@ -40,45 +45,11 @@ function fmtM(v) {
   return Number(v).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' m';
 }
 
-function ResultPage() {
-  var location = useLocation();
-  var navigate = useNavigate();
-  var state = location.state;
-
-  if (!state || !state.result) {
-    return <NoResultView />;
-  }
-
-  var result = state.result;
-  var input = state.params || {};
-  var [explainState, setExplainState] = useState('idle');
-  var [explainData, setExplainData] = useState(null);
-
-  function handleExplain() {
-    setExplainState('loading');
-    var controller = new AbortController();
-    var timeoutId = setTimeout(function () { controller.abort(); }, 30000);
-
-    fetch('/api/explain-result', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ result: result, input: input }),
-      signal: controller.signal
-    })
-      .then(function (res) {
-        clearTimeout(timeoutId);
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        return res.json();
-      })
-      .then(function (data) {
-        setExplainData(data);
-        setExplainState('success');
-      })
-      .catch(function () {
-        clearTimeout(timeoutId);
-        setExplainState('error');
-      });
-  }
+// ResultBlock -- per-algorithm content (summary + dimensions + steel +
+// verification + chart). Used inside both BA and HCA tabs.
+function ResultBlock(props) {
+  var result = props.result;
+  if (!result) return null;
 
   var costThb = Number(result.bestCost).toLocaleString('th-TH', {
     minimumFractionDigits: 2,
@@ -89,14 +60,7 @@ function ResultPage() {
   var algo = (result.algorithm || '-').toUpperCase();
 
   return (
-    <div className='max-w-2xl mx-auto py-8 px-4'>
-      <h1 className='text-2xl font-semibold text-gray-800 mb-2'>
-        ผลการ optimize
-      </h1>
-      <p className='text-gray-600 mb-8'>
-        ผลลัพธ์จากการคำนวณค่าออกแบบที่ต้นทุนต่ำสุด
-      </p>
-
+    <div>
       <div className='bg-white border border-gray-200 rounded-lg p-6 mb-6'>
         <Row label='ต้นทุนต่ำสุด' value={costThb + ' บาท/m'} />
         <Row label='รอบที่พบ' value={iter} />
@@ -104,7 +68,6 @@ function ResultPage() {
         <Row label='อัลกอริทึม' value={algo} />
       </div>
 
-      {/* Day 8.2: dimensions section */}
       <h2 className='text-lg font-semibold text-gray-800 mb-3'>
         มิติของกำแพง
       </h2>
@@ -136,7 +99,7 @@ function ResultPage() {
 
       {result.costHistorySampled && result.costHistorySampled.length > 0 && (
         <>
-          <h2 className='text-lg font-semibold text-gray-800 mb-3'>
+          <h2 className='text-lg font-semibold text-gray-800 mb-3 mt-6'>
             กราฟค่าใช้จ่าย (Cost Reduction Graph)
           </h2>
           <div className='bg-white border border-gray-200 rounded-lg p-4 mb-6'>
@@ -149,7 +112,7 @@ function ResultPage() {
                 <YAxis tick={{ fontSize: 12 }} domain={['auto', 'auto']}>
                   <Label value='Cost (Baht/m)' angle={-90} position='insideLeft' offset={0} style={{ fontSize: 13, fill: '#4b5563', textAnchor: 'middle' }} />
                 </YAxis>
-                <Tooltip formatter={function(v) { return [Number(v).toFixed(2) + ' Baht/m', 'Cost']; }} />
+                <Tooltip formatter={function (v) { return [Number(v).toFixed(2) + ' Baht/m', 'Cost']; }} />
                 <Line type='stepAfter' dataKey='cost' stroke='#2563eb' strokeWidth={2} dot={false} />
                 <ReferenceDot x={result.bestIteration} y={result.bestCost} r={6} fill='#dc2626' stroke='#dc2626'>
                   <Label value={'Best: ' + Number(result.bestCost).toLocaleString('th-TH', { maximumFractionDigits: 0 }) + ' \u0E3F'} position='right' offset={8} style={{ fontSize: 14, fill: '#dc2626', fontWeight: 700 }} />
@@ -158,6 +121,146 @@ function ResultPage() {
             </ResponsiveContainer>
           </div>
         </>
+      )}
+    </div>
+  );
+}
+
+function TabButton(props) {
+  var activeCls = 'border-b-2 border-blue-500 text-blue-600 font-bold';
+  var inactiveCls = 'text-gray-500 hover:text-gray-700 cursor-pointer';
+  var cls = 'px-4 py-2 text-sm transition-colors ' + (props.active ? activeCls : inactiveCls);
+  return (
+    <button onClick={props.onClick} className={cls} type='button'>
+      {props.label}
+    </button>
+  );
+}
+
+function ResultPage() {
+  var location = useLocation();
+  var navigate = useNavigate();
+  var state = location.state;
+  var initialResult = (state && state.result) ? state.result : null;
+  var initialParams = (state && state.params) ? state.params : {};
+
+  var [explainState, setExplainState] = useState('idle');
+  var [explainData, setExplainData] = useState(null);
+  var [baResult, setBaResult] = useState(initialResult);
+  var [hcaResult, setHcaResult] = useState(null);
+  var [hcaState, setHcaState] = useState('idle');
+  var [activeTab, setActiveTab] = useState('BA');
+
+  if (!initialResult) {
+    return <NoResultView />;
+  }
+
+  var input = initialParams;
+  var activeResult = activeTab === 'HCA' ? hcaResult : baResult;
+
+  function handleExplain() {
+    setExplainState('loading');
+    var controller = new AbortController();
+    var timeoutId = setTimeout(function () { controller.abort(); }, 30000);
+    var explainBody = activeResult || baResult;
+
+    fetch('/api/explain-result', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ result: explainBody, input: input }),
+      signal: controller.signal
+    })
+      .then(function (res) {
+        clearTimeout(timeoutId);
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return res.json();
+      })
+      .then(function (data) {
+        setExplainData(data);
+        setExplainState('success');
+      })
+      .catch(function () {
+        clearTimeout(timeoutId);
+        setExplainState('error');
+      });
+  }
+
+  function handleRunHca() {
+    setHcaState('loading');
+    var body = Object.assign({}, input, { algorithm: 'HCA' });
+
+    fetch('/api/optimize', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    })
+      .then(function (res) {
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return res.json();
+      })
+      .then(function (data) {
+        setHcaResult(data);
+        setHcaState('success');
+        setActiveTab('HCA');
+      })
+      .catch(function () {
+        setHcaState('error');
+      });
+  }
+
+  return (
+    <div className='max-w-2xl mx-auto py-8 px-4'>
+      <h1 className='text-2xl font-semibold text-gray-800 mb-2'>
+        ผลการ optimize
+      </h1>
+      <p className='text-gray-600 mb-6'>
+        ผลลัพธ์จากการคำนวณค่าออกแบบที่ต้นทุนต่ำสุด
+      </p>
+
+      {!hcaResult && (
+        <div className='mb-6 flex items-center gap-3'>
+          {hcaState === 'idle' && (
+            <button
+              type='button'
+              onClick={handleRunHca}
+              className='px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded font-medium'
+            >
+              เปรียบเทียบกับ HCA
+            </button>
+          )}
+          {hcaState === 'loading' && (
+            <div className='flex items-center gap-2 text-gray-600'>
+              <span className='inline-block w-4 h-4 border-2 border-orange-500 border-t-transparent rounded-full animate-spin'></span>
+              <span>กำลังคำนวณ HCA...</span>
+            </div>
+          )}
+          {hcaState === 'error' && (
+            <div className='flex items-center gap-3'>
+              <div className='text-red-600 text-sm'>❌ คำนวณ HCA ไม่สำเร็จ</div>
+              <button
+                type='button'
+                onClick={handleRunHca}
+                className='px-3 py-1 bg-orange-500 hover:bg-orange-600 text-white rounded text-sm'
+              >
+                ลองใหม่
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {hcaResult && (
+        <div className='mb-6 border-b border-gray-200 flex'>
+          <TabButton label='BA' active={activeTab === 'BA'} onClick={function () { setActiveTab('BA'); }} />
+          <TabButton label='HCA' active={activeTab === 'HCA'} onClick={function () { setActiveTab('HCA'); }} />
+          <TabButton label='เปรียบเทียบ' active={activeTab === 'compare'} onClick={function () { setActiveTab('compare'); }} />
+        </div>
+      )}
+
+      {activeTab === 'compare' && hcaResult ? (
+        <ComparePanel baResult={baResult} hcaResult={hcaResult} />
+      ) : (
+        <ResultBlock result={activeResult || baResult} />
       )}
 
       <div className='mt-8 pt-4 border-t border-gray-200'>
