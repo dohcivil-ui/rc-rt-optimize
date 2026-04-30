@@ -1,8 +1,10 @@
 // web/src/components/ComparePanel.jsx
 // Day 9.6: side-by-side BA vs HCA convergence chart + cost summary.
-// Day 9.7: 30-trial paired Wilcoxon test, boxplot, statistical caption.
-// Both algorithms ship the same costHistorySampled shape ({iter, cost}[]),
-// so we merge them on `iter` and render two Lines on a single LineChart.
+// Day 9.7: 30-trial paired Wilcoxon test, statistical caption.
+// Day 9.7-chart: per-trial line chart replaces boxplot (matches paper
+// Fig 8 from EIT/JOINDTECH 2025). Both algorithms ship the same
+// costHistorySampled shape ({iter, cost}[]), so we merge them on `iter`
+// and render two Lines on a single LineChart for the convergence view.
 
 import { useState } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, Label } from 'recharts';
@@ -90,97 +92,49 @@ function mergeHistories(baHist, hcaHist) {
   return rows;
 }
 
-// Inline SVG boxplot. Draws two side-by-side box-whisker plots (BA, HCA)
-// scaled to a common y-axis. Outliers are not detected separately;
-// whiskers run from min to max so the full range is visible.
-// `axisLabel` controls the rotated y-axis caption.
-function BoxPlotSvg(props) {
-  var baStats = props.baStats;
-  var hcaStats = props.hcaStats;
-  var axisLabel = props.axisLabel || 'Value';
-  if (!baStats || !hcaStats) return null;
+// Per-trial line chart (matches Fig 8 of the EIT/JOINDTECH 2025 paper).
+// Plots BA and HCA bestIteration values for each of the N paired trials.
+// Recharts handles axis auto-scaling and tooltip; we just zip the two
+// iteration arrays into [{ trial, BA, HCA }, ...].
+function PerTrialLineChart(props) {
+  var baIters = props.baIterations;
+  var hcaIters = props.hcaIterations;
+  if (!Array.isArray(baIters) || !Array.isArray(hcaIters)) return null;
+  var n = Math.min(baIters.length, hcaIters.length);
+  if (n === 0) return null;
 
-  var width = 480;
-  var height = 280;
-  var marginTop = 20;
-  var marginBottom = 40;
-  var marginLeft = 70;
-  var marginRight = 30;
-  var plotH = height - marginTop - marginBottom;
-
-  var allMin = Math.min(baStats.min, hcaStats.min);
-  var allMax = Math.max(baStats.max, hcaStats.max);
-  // Pad 5% on each end so caps are not flush with the frame.
-  var range = allMax - allMin || 1;
-  var yMin = allMin - 0.05 * range;
-  var yMax = allMax + 0.05 * range;
-
-  function yScale(v) {
-    return marginTop + plotH * (1 - (v - yMin) / (yMax - yMin));
-  }
-
-  // 4 evenly spaced y-axis ticks (including endpoints).
-  var ticks = [];
+  var data = [];
   var i;
-  for (i = 0; i <= 4; i++) {
-    ticks.push(yMin + (yMax - yMin) * (i / 4));
+  for (i = 0; i < n; i++) {
+    data.push({
+      trial: i + 1,
+      BA: baIters[i],
+      HCA: hcaIters[i]
+    });
   }
-
-  function renderBox(stats, centerX, color, label) {
-    var boxW = 80;
-    var x0 = centerX - boxW / 2;
-    var x1 = centerX + boxW / 2;
-    var capW = 30;
-    return (
-      <g key={label}>
-        {/* Whiskers */}
-        <line x1={centerX} y1={yScale(stats.min)} x2={centerX} y2={yScale(stats.q1)} stroke={color} strokeWidth='2' />
-        <line x1={centerX} y1={yScale(stats.q3)} x2={centerX} y2={yScale(stats.max)} stroke={color} strokeWidth='2' />
-        <line x1={centerX - capW / 2} y1={yScale(stats.min)} x2={centerX + capW / 2} y2={yScale(stats.min)} stroke={color} strokeWidth='2' />
-        <line x1={centerX - capW / 2} y1={yScale(stats.max)} x2={centerX + capW / 2} y2={yScale(stats.max)} stroke={color} strokeWidth='2' />
-        {/* Box (Q1 .. Q3) */}
-        <rect x={x0} y={yScale(stats.q3)} width={x1 - x0} height={yScale(stats.q1) - yScale(stats.q3)} fill={color} fillOpacity='0.18' stroke={color} strokeWidth='2' />
-        {/* Median */}
-        <line x1={x0} y1={yScale(stats.median)} x2={x1} y2={yScale(stats.median)} stroke={color} strokeWidth='3' />
-        {/* Mean marker (small filled circle) */}
-        <circle cx={centerX} cy={yScale(stats.mean)} r='4' fill={color} />
-        {/* Label */}
-        <text x={centerX} y={height - marginBottom + 24} textAnchor='middle' fontSize='14' fontWeight='600' fill={color}>
-          {label}
-        </text>
-      </g>
-    );
-  }
-
-  var plotW = width - marginLeft - marginRight;
-  var baX = marginLeft + plotW * 0.30;
-  var hcaX = marginLeft + plotW * 0.70;
 
   return (
-    <svg width='100%' viewBox={'0 0 ' + width + ' ' + height} role='img' aria-label='BA vs HCA boxplot'>
-      {/* Y-axis line */}
-      <line x1={marginLeft} y1={marginTop} x2={marginLeft} y2={marginTop + plotH} stroke='#9ca3af' strokeWidth='1' />
-      {/* Y-axis ticks + labels + grid lines */}
-      {ticks.map(function (t, idx) {
-        var y = yScale(t);
-        return (
-          <g key={idx}>
-            <line x1={marginLeft - 5} y1={y} x2={marginLeft} y2={y} stroke='#9ca3af' strokeWidth='1' />
-            <line x1={marginLeft} y1={y} x2={width - marginRight} y2={y} stroke='#e5e7eb' strokeWidth='1' strokeDasharray='3 3' />
-            <text x={marginLeft - 8} y={y + 4} textAnchor='end' fontSize='11' fill='#6b7280'>
-              {Math.round(t).toLocaleString('en-US')}
-            </text>
-          </g>
-        );
-      })}
-      {/* Y-axis label */}
-      <text x={20} y={marginTop + plotH / 2} textAnchor='middle' fontSize='12' fill='#4b5563' transform={'rotate(-90 20 ' + (marginTop + plotH / 2) + ')'}>
-        {axisLabel}
-      </text>
-      {/* Boxes */}
-      {renderBox(baStats, baX, BA_COLOR, 'BA')}
-      {renderBox(hcaStats, hcaX, HCA_COLOR, 'HCA')}
-    </svg>
+    <ResponsiveContainer width='100%' height={350}>
+      <LineChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 40 }}>
+        <CartesianGrid strokeDasharray='3 3' stroke='#e5e7eb' />
+        <XAxis
+          dataKey='trial'
+          type='number'
+          domain={[1, n]}
+          allowDecimals={false}
+          tick={{ fontSize: 12 }}
+        >
+          <Label value='การทดสอบครั้งที่' position='bottom' offset={10} style={{ fontSize: 13, fill: '#4b5563' }} />
+        </XAxis>
+        <YAxis tick={{ fontSize: 12 }} domain={['auto', 'auto']}>
+          <Label value='รอบการลู่เข้าสู่คำตอบ (รอบ)' angle={-90} position='insideLeft' offset={0} style={{ fontSize: 13, fill: '#4b5563', textAnchor: 'middle' }} />
+        </YAxis>
+        <Tooltip formatter={function (v) { return [Number(v).toLocaleString('th-TH'), 'รอบ']; }} labelFormatter={function (v) { return 'การทดสอบครั้งที่ ' + v; }} />
+        <Legend verticalAlign='top' height={28} />
+        <Line type='monotone' dataKey='BA' stroke={BA_COLOR} strokeWidth={2} dot={{ r: 3 }} />
+        <Line type='monotone' dataKey='HCA' stroke={HCA_COLOR} strokeWidth={2} dot={{ r: 3 }} />
+      </LineChart>
+    </ResponsiveContainer>
   );
 }
 
@@ -300,10 +254,13 @@ function StatsSection(props) {
         </div>
 
         <div className='bg-white rounded border border-gray-200 p-3'>
-          <div className='text-sm font-semibold text-gray-700 mb-2'>
-            การกระจายของรอบที่พบคำตอบ (Iteration Distribution)
+          <div className='text-sm font-semibold text-gray-700 mb-1'>
+            ความสัมพันธ์ระหว่างจำนวนรอบที่ใช้ในการทำงานกับการทดสอบแต่ละครั้ง
           </div>
-          <BoxPlotSvg baStats={baIter} hcaStats={hcaIter} axisLabel='Iteration (รอบ)' />
+          <div className='text-xs text-gray-500 mb-2'>
+            เปรียบเทียบจำนวนรอบที่ BA และ HCA ใช้ในการลู่เข้าหาคำตอบ จากการทดสอบ {data.trials} ครั้ง
+          </div>
+          <PerTrialLineChart baIterations={data.ba.iterations} hcaIterations={data.hca.iterations} />
         </div>
 
         <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm'>
