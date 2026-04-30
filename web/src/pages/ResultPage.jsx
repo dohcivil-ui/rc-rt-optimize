@@ -258,7 +258,7 @@ function ResultPage() {
       )}
 
       {activeTab === 'compare' && hcaResult ? (
-        <ComparePanel baResult={baResult} hcaResult={hcaResult} />
+        <ComparePanel baResult={baResult} hcaResult={hcaResult} input={input} />
       ) : (
         <ResultBlock result={activeResult || baResult} />
       )}
