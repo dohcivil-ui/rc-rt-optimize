@@ -64,6 +64,158 @@ function sampleCostHistory(history, maxPoints) {
   return out;
 }
 
+// buildVerification -- deterministic geotech + WSD snapshot from shared.js
+// (VB6-parity formulas only; no duplicate math here).
+function buildVerification(params, bestDesign, bestSteel, bestIteration) {
+  var fy = params.material.fy;
+  var fcPrime = params.material.fc;
+  var gradeStr;
+  if (fy === 4000) {
+    gradeStr = 'SD40';
+  } else if (fy === 3000) {
+    gradeStr = 'SD30';
+  } else {
+    gradeStr = 'OTHER';
+  }
+
+  var wsd = shared.calculateWSDParams(fy, fcPrime);
+
+  var optimization = {
+    algorithm: 'BA',
+    trialsRun: 1,
+    bestIteration: bestIteration
+  };
+
+  var material = {
+    steel: {
+      grade: gradeStr,
+      fy: fy
+    },
+    fs: wsd.fs,
+    fc_prime: fcPrime,
+    fc_allow: wsd.fc,
+    wsd: {
+      n: wsd.n,
+      k: wsd.k,
+      j: wsd.j,
+      R: wsd.R
+    },
+    prices: {
+      concretePrice: params.material.concretePrice,
+      steelPrice: params.material.steelPrice
+    }
+  };
+
+  var Ka = shared.calculateKa(params.phi);
+  var Kp = shared.calculateKp(params.phi);
+  var Pa = shared.calculatePa(params.gamma_soil, Ka, params.H);
+  var Pp = shared.calculatePp(params.gamma_soil, Kp, params.H1);
+
+  var earthPressures = {
+    Ka: Ka,
+    Kp: Kp,
+    Pa: Pa,
+    Pp: Pp
+  };
+
+  var wtot = shared.calculateWTotal(bestDesign, params.H, params.H1, params.gamma_soil, params.gamma_concrete);
+  var w1r = shared.calculateW1(bestDesign, params.H, params.H1, params.gamma_soil);
+  var w2r = shared.calculateW2(bestDesign, params.H, params.gamma_soil);
+  var w3r = shared.calculateW3(bestDesign, params.H, params.gamma_concrete);
+  var w4r = shared.calculateW4(bestDesign, params.gamma_concrete);
+
+  var weights = {
+    W1: w1r.W,
+    W2: w2r.W,
+    W3: w3r.W,
+    W4: w4r.W,
+    W_total: wtot.WTotal
+  };
+
+  var cover = params.cover;
+  var dStem = bestDesign.tb - cover;
+  var dToe = bestDesign.TBase - cover;
+  var dHeel = bestDesign.TBase - cover;
+  if (dStem <= 0.05) {
+    dStem = 0.05;
+  }
+  if (dToe <= 0.05) {
+    dToe = 0.05;
+  }
+  if (dHeel <= 0.05) {
+    dHeel = 0.05;
+  }
+
+  var MStem = shared.calculateMomentStem(params.H1, params.gamma_soil, params.phi);
+  var MToe = shared.calculateMomentToe(bestDesign, params.H, params.H1, params.gamma_soil, params.gamma_concrete, params.phi);
+  var MHeel = shared.calculateMomentHeel(bestDesign, params.H, params.H1, params.gamma_soil, params.gamma_concrete, params.phi);
+
+  function oneSteel(dbIdxVb, spIdxVb, momentVal, dEff) {
+    var db0 = dbIdxVb - 100;
+    var sp0 = spIdxVb - 110;
+    var dbMm = arrays.DB[db0];
+    var barLabel = 'DB' + dbMm;
+    var spv = arrays.SP[sp0];
+    var AsReq = shared.calculateAsRequired(momentVal, wsd.fs, wsd.j, dEff);
+    var AsProv = shared.calculateAsProvided(db0, sp0, arrays);
+    return {
+      moment: momentVal,
+      d_effective: dEff,
+      bar: barLabel,
+      spacing_m: spv,
+      As_required: AsReq,
+      As_provided: AsProv,
+      adequate: AsProv >= AsReq
+    };
+  }
+
+  var steel = {
+    stem: oneSteel(bestSteel.stemDB_idx, bestSteel.stemSP_idx, MStem, dStem),
+    toe: oneSteel(bestSteel.toeDB_idx, bestSteel.toeSP_idx, MToe, dToe),
+    heel: oneSteel(bestSteel.heelDB_idx, bestSteel.heelSP_idx, MHeel, dHeel)
+  };
+
+  var fsOtResult = shared.checkFS_OT(bestDesign, params.H, params.H1, params.gamma_soil, params.gamma_concrete, params.phi);
+  var fsSlResult = shared.checkFS_SL(bestDesign, params.H, params.H1, params.gamma_soil, params.gamma_concrete, params.phi, params.mu);
+  var fsBcResult = shared.checkFS_BC(bestDesign, params.H, params.H1, params.gamma_soil, params.gamma_concrete, params.phi, params.qa);
+
+  var safetyFactors = {
+    FS_OT: {
+      value: fsOtResult.FS_OT,
+      required: shared.FS_OT_MIN,
+      pass: fsOtResult.pass
+    },
+    FS_SL: {
+      value: fsSlResult.FS_SL,
+      required: shared.FS_SL_MIN,
+      pass: fsSlResult.pass
+    },
+    FS_BC: {
+      value: fsBcResult.FS_BC,
+      required: shared.FS_BC_MIN,
+      pass: fsBcResult.pass
+    },
+    allPass: fsOtResult.pass && fsSlResult.pass && fsBcResult.pass
+  };
+
+  var bearingCapacity = {
+    eccentricity: fsBcResult.e,
+    q_max: fsBcResult.q_max,
+    q_min: fsBcResult.q_min,
+    q_allow: params.qa
+  };
+
+  return {
+    optimization: optimization,
+    material: material,
+    earthPressures: earthPressures,
+    weights: weights,
+    steel: steel,
+    safetyFactors: safetyFactors,
+    bearingCapacity: bearingCapacity
+  };
+}
+
 // runOptimize -- call BA with validated params, strip large internal
 // state (log, costHistory, finalState) before returning to the HTTP
 // layer. Wall-clock runtime is measured here, not inside the engine.
@@ -108,6 +260,8 @@ function runOptimize(validatedParams) {
   var result = ba.baOptimize(engineParams, engineOptions);
   var endTime = Date.now();
 
+  var verification = buildVerification(validatedParams, result.bestDesign, result.bestSteel, result.bestIteration);
+
   // Return the slim response shape. bestDesign and bestSteel are
   // passed through as-is (small objects with numeric fields).
   // costHistory, log, and finalState are deliberately omitted.
@@ -119,10 +273,12 @@ function runOptimize(validatedParams) {
     bestSteelDecoded: decodeSteel(result.bestSteel),
     runtime_ms:    endTime - startTime,
     algorithm:     'ba',
-    costHistorySampled: sampleCostHistory(result.costHistory)
+    costHistorySampled: sampleCostHistory(result.costHistory),
+    verification:  verification
   };
 }
 
 module.exports = {
-  runOptimize: runOptimize
+  runOptimize: runOptimize,
+  buildVerification: buildVerification
 };
