@@ -14,6 +14,7 @@ var express = require('express');
 var healthRouter = require('./routes/health');
 var optimizeRouter = require('./routes/optimize');
 var compareRouter = require('./routes/compare');
+var chatRouter = require('./routes/chat');
 var parseInputRouter = require('./routes/parseInput');
 var explainResultRouter = require('./routes/explainResult');
 var app = express();
@@ -32,6 +33,9 @@ app.use('/api/health', healthRouter);
 app.use('/api/optimize', optimizeRouter);
 // Day 9.7: 30-trial BA-vs-HCA paired comparison endpoint.
 app.use('/api/compare', compareRouter);
+// Day 9.9: chat with tool use (real Claude when ANTHROPIC_API_KEY is
+// set; deterministic mock fallback otherwise).
+app.use('/api/chat', chatRouter);
 // Claude AI-assisted parse endpoint. Day 1 returns a fixed mock;
 // Day 2 will swap in a real Claude SDK call via tool use.
 app.use('/api/parse-input', parseInputRouter);
