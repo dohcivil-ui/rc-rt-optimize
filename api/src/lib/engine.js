@@ -333,6 +333,12 @@ function runMultiTrial(validatedParams, runOptions) {
   var hcaIters = [];
   var baRuntimes = [];
   var hcaRuntimes = [];
+  // Day 9.7-final: capture the lowest-cost run per algorithm so the
+  // frontend can render a 'best of N' overlaid convergence chart and
+  // populate the per-algorithm tab (verification + dimensions + steel).
+  // Tie-breaker: the first trial that achieved that bestCost wins.
+  var baBestRun = null;
+  var hcaBestRun = null;
 
   var totalStart = Date.now();
   var i;
@@ -360,6 +366,17 @@ function runMultiTrial(validatedParams, runOptions) {
     hcaIters.push(rHca.bestIteration);
     baRuntimes.push(rBa.runtime_ms);
     hcaRuntimes.push(rHca.runtime_ms);
+
+    if (baBestRun === null || rBa.bestCost < baBestRun.bestCost) {
+      rBa.trialIndex = i + 1;
+      rBa.seed = seed;
+      baBestRun = rBa;
+    }
+    if (hcaBestRun === null || rHca.bestCost < hcaBestRun.bestCost) {
+      rHca.trialIndex = i + 1;
+      rHca.seed = seed;
+      hcaBestRun = rHca;
+    }
   }
   var totalRuntime = Date.now() - totalStart;
 
@@ -395,6 +412,8 @@ function runMultiTrial(validatedParams, runOptions) {
       iterStats: hcaIterStats,
       costStats: hcaCostStats
     },
+    baBestRun: baBestRun,
+    hcaBestRun: hcaBestRun,
     wilcoxon: wilcoxonIter,
     wilcoxonCost: wilcoxonCost
   };

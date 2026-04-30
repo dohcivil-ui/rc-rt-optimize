@@ -267,6 +267,33 @@ var server = app.listen(0, function () {
       assert.strictEqual(w.alternative, 'two-sided');
       assert.ok(typeof w.pValue === 'number');
     });
+    check('/api/compare: baBestRun has costHistorySampled + verification', function () {
+      var b = r.body.baBestRun;
+      assert.ok(b && typeof b === 'object', 'baBestRun missing');
+      assert.ok(Array.isArray(b.costHistorySampled), 'no costHistorySampled');
+      assert.ok(b.costHistorySampled.length > 0, 'empty costHistorySampled');
+      assert.ok(b.verification && b.verification.optimization, 'no verification');
+      assert.strictEqual(b.verification.optimization.algorithm, 'BA');
+      assert.ok(b.bestDesign && b.bestSteel, 'missing design/steel');
+    });
+    check('/api/compare: hcaBestRun has verification (HCA)', function () {
+      var b = r.body.hcaBestRun;
+      assert.ok(b && b.verification);
+      assert.strictEqual(b.verification.optimization.algorithm, 'HCA');
+    });
+    check('/api/compare: best runs trialIndex within [1, trials]', function () {
+      var bIdx = r.body.baBestRun.trialIndex;
+      var hIdx = r.body.hcaBestRun.trialIndex;
+      assert.ok(Number.isInteger(bIdx) && bIdx >= 1 && bIdx <= 5,
+        'baBestRun.trialIndex=' + bIdx);
+      assert.ok(Number.isInteger(hIdx) && hIdx >= 1 && hIdx <= 5,
+        'hcaBestRun.trialIndex=' + hIdx);
+    });
+    check('/api/compare: baBestRun.bestCost === min(ba.costs)', function () {
+      var minCost = Math.min.apply(null, r.body.ba.costs);
+      assert.ok(Math.abs(r.body.baBestRun.bestCost - minCost) < 1e-9,
+        'baBestRun.bestCost=' + r.body.baBestRun.bestCost + ' min=' + minCost);
+    });
     check('/api/compare: BA iterations <= HCA iterations on average (sanity)', function () {
       // BA's bisection-driven outer loop typically converges sooner
       // than HCA's plain hill-climbing. We assert mean rather than per

@@ -6,7 +6,6 @@
 // costHistorySampled shape ({iter, cost}[]), so we merge them on `iter`
 // and render two Lines on a single LineChart for the convergence view.
 
-import { useState } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, Label } from 'recharts';
 
 var BA_COLOR = '#3B82F6';
@@ -94,11 +93,13 @@ function mergeHistories(baHist, hcaHist) {
 
 // Per-trial line chart (matches Fig 8 of the EIT/JOINDTECH 2025 paper).
 // Plots BA and HCA bestIteration values for each of the N paired trials.
-// Recharts handles axis auto-scaling and tooltip; we just zip the two
-// iteration arrays into [{ trial, BA, HCA }, ...].
+// Y-axis is fixed to [0, maxIterations] so the visual ceiling matches
+// the optimizer budget (i.e. anything close to maxIterations means the
+// algorithm spent its full budget without converging earlier).
 function PerTrialLineChart(props) {
   var baIters = props.baIterations;
   var hcaIters = props.hcaIterations;
+  var maxIterations = props.maxIterations;
   if (!Array.isArray(baIters) || !Array.isArray(hcaIters)) return null;
   var n = Math.min(baIters.length, hcaIters.length);
   if (n === 0) return null;
@@ -113,6 +114,10 @@ function PerTrialLineChart(props) {
     });
   }
 
+  var yDomain = (typeof maxIterations === 'number' && maxIterations > 0)
+    ? [0, maxIterations]
+    : ['auto', 'auto'];
+
   return (
     <ResponsiveContainer width='100%' height={350}>
       <LineChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 40 }}>
@@ -126,7 +131,7 @@ function PerTrialLineChart(props) {
         >
           <Label value='การทดสอบครั้งที่' position='bottom' offset={10} style={{ fontSize: 13, fill: '#4b5563' }} />
         </XAxis>
-        <YAxis tick={{ fontSize: 12 }} domain={['auto', 'auto']}>
+        <YAxis tick={{ fontSize: 12 }} domain={yDomain} allowDecimals={false}>
           <Label value='รอบการลู่เข้าสู่คำตอบ (รอบ)' angle={-90} position='insideLeft' offset={0} style={{ fontSize: 13, fill: '#4b5563', textAnchor: 'middle' }} />
         </YAxis>
         <Tooltip formatter={function (v) { return [Number(v).toLocaleString('th-TH'), 'รอบ']; }} labelFormatter={function (v) { return 'การทดสอบครั้งที่ ' + v; }} />
@@ -219,6 +224,7 @@ function StatsSection(props) {
   var w = data.wilcoxon;
   var significant = w.pValue < 0.05;
   var baFaster = baIter.mean < hcaIter.mean;
+  var maxIterations = data.maxIterations;
 
   var verdictNode;
   if (significant && baFaster) {
@@ -260,7 +266,7 @@ function StatsSection(props) {
           <div className='text-xs text-gray-500 mb-2'>
             เปรียบเทียบจำนวนรอบที่ BA และ HCA ใช้ในการลู่เข้าหาคำตอบ จากการทดสอบ {data.trials} ครั้ง
           </div>
-          <PerTrialLineChart baIterations={data.ba.iterations} hcaIterations={data.hca.iterations} />
+          <PerTrialLineChart baIterations={data.ba.iterations} hcaIterations={data.hca.iterations} maxIterations={maxIterations} />
         </div>
 
         <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm'>
@@ -286,51 +292,15 @@ function StatsSection(props) {
 }
 
 function ComparePanel(props) {
-  var ba = props.baResult;
-  var hca = props.hcaResult;
-  var input = props.input;
+  var compareData = props.compareData;
+  if (!compareData || !compareData.baBestRun || !compareData.hcaBestRun) return null;
 
-  var [statsState, setStatsState] = useState('idle');
-  var [statsData, setStatsData] = useState(null);
+  var baBest = compareData.baBestRun;
+  var hcaBest = compareData.hcaBestRun;
+  var data = mergeHistories(baBest.costHistorySampled, hcaBest.costHistorySampled);
 
-  if (!ba || !hca) return null;
-
-  var data = mergeHistories(ba.costHistorySampled, hca.costHistorySampled);
-
-  var baCost = ba.bestCost;
-  var hcaCost = hca.bestCost;
-  var diff = Math.abs(baCost - hcaCost);
-  var winner = baCost < hcaCost ? 'BA' : (hcaCost < baCost ? 'HCA' : 'TIE');
-  var pivot = Math.min(baCost, hcaCost);
-  var diffPct = pivot > 0 ? (diff / pivot) * 100 : 0;
-
-  var summaryText;
-  if (winner === 'TIE') {
-    summaryText = 'BA และ HCA ให้ผลเท่ากัน (1 trial)';
-  } else {
-    summaryText = winner + ' ดีกว่า ' + fmtCost(diff) + ' (' + diffPct.toFixed(2) + '%) (1 trial)';
-  }
-
-  function handleRunStats() {
-    setStatsState('loading');
-    var body = Object.assign({}, input || {}, { trials: 30 });
-    fetch('/api/compare', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
-    })
-      .then(function (res) {
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        return res.json();
-      })
-      .then(function (resp) {
-        setStatsData(resp);
-        setStatsState('success');
-      })
-      .catch(function () {
-        setStatsState('error');
-      });
-  }
+  var baCost = baBest.bestCost;
+  var hcaCost = hcaBest.bestCost;
 
   return (
     <div className='mt-8 space-y-4'>
@@ -339,6 +309,12 @@ function ComparePanel(props) {
       </h2>
 
       <div className='bg-white border border-gray-200 rounded-lg p-4'>
+        <div className='text-sm font-semibold text-gray-700 mb-1'>
+          การลู่เข้าหาคำตอบ (รอบที่ดีที่สุดจาก {compareData.trials} trials)
+        </div>
+        <div className='text-xs text-gray-500 mb-3'>
+          เส้นกราฟแสดงต้นทุนตามรอบของ trial ที่ได้ค่าต่ำสุดในแต่ละอัลกอริทึม
+        </div>
         <ResponsiveContainer width='100%' height={320}>
           <LineChart data={data} margin={{ top: 10, right: 30, left: 10, bottom: 30 }}>
             <CartesianGrid strokeDasharray='3 3' />
@@ -361,52 +337,21 @@ function ComparePanel(props) {
           <div className='p-3 rounded border border-blue-200 bg-blue-50'>
             <div className='font-bold text-blue-800 mb-1'>BA</div>
             <div className='text-gray-800'>Best: {fmtCost(baCost)}</div>
-            <div className='text-gray-600'>iter {fmtIter(ba.bestIteration)}</div>
+            <div className='text-gray-600'>
+              Trial #{baBest.trialIndex} {'\u00B7'} iter {fmtIter(baBest.bestIteration)}
+            </div>
           </div>
           <div className='p-3 rounded border border-orange-200 bg-orange-50'>
             <div className='font-bold text-orange-700 mb-1'>HCA</div>
             <div className='text-gray-800'>Best: {fmtCost(hcaCost)}</div>
-            <div className='text-gray-600'>iter {fmtIter(hca.bestIteration)}</div>
+            <div className='text-gray-600'>
+              Trial #{hcaBest.trialIndex} {'\u00B7'} iter {fmtIter(hcaBest.bestIteration)}
+            </div>
           </div>
-        </div>
-        <div className='mt-3 pt-3 border-t border-gray-200 font-medium text-gray-800'>
-          {summaryText}
         </div>
       </div>
 
-      <div>
-        {statsState === 'idle' && (
-          <button
-            type='button'
-            onClick={handleRunStats}
-            className='px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded font-medium'
-          >
-            ทดสอบทางสถิติ 30 รอบ
-          </button>
-        )}
-        {statsState === 'loading' && (
-          <div className='flex items-center gap-2 text-gray-600'>
-            <span className='inline-block w-4 h-4 border-2 border-purple-600 border-t-transparent rounded-full animate-spin'></span>
-            <span>กำลังทดสอบ 30 รอบ... (ใช้เวลาประมาณ 5-10 วินาที)</span>
-          </div>
-        )}
-        {statsState === 'error' && (
-          <div className='flex items-center gap-3'>
-            <div className='text-red-600 text-sm'>❌ ทดสอบสถิติไม่สำเร็จ</div>
-            <button
-              type='button'
-              onClick={handleRunStats}
-              className='px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white rounded text-sm'
-            >
-              ลองใหม่
-            </button>
-          </div>
-        )}
-      </div>
-
-      {statsState === 'success' && statsData && (
-        <StatsSection data={statsData} />
-      )}
+      <StatsSection data={compareData} />
     </div>
   );
 }

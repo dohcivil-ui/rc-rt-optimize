@@ -146,9 +146,13 @@ function ResultPage() {
 
   var [explainState, setExplainState] = useState('idle');
   var [explainData, setExplainData] = useState(null);
-  var [baResult, setBaResult] = useState(initialResult);
-  var [hcaResult, setHcaResult] = useState(null);
-  var [hcaState, setHcaState] = useState('idle');
+  // Day 9.7-final: compare mode is now driven by /api/compare (30 paired
+  // trials of BA+HCA at full maxIterations). The single-trial baResult
+  // remains as the very first view; once compareData arrives, BA/HCA
+  // tabs surface the *best of 30* run instead.
+  var [baResult] = useState(initialResult);
+  var [compareData, setCompareData] = useState(null);
+  var [compareState, setCompareState] = useState('idle');
   var [activeTab, setActiveTab] = useState('BA');
 
   if (!initialResult) {
@@ -156,7 +160,9 @@ function ResultPage() {
   }
 
   var input = initialParams;
-  var activeResult = activeTab === 'HCA' ? hcaResult : baResult;
+  var hcaResult = compareData ? compareData.hcaBestRun : null;
+  var baBestOfN = compareData ? compareData.baBestRun : baResult;
+  var activeResult = activeTab === 'HCA' ? hcaResult : baBestOfN;
 
   function handleExplain() {
     setExplainState('loading');
@@ -185,11 +191,18 @@ function ResultPage() {
       });
   }
 
-  function handleRunHca() {
-    setHcaState('loading');
-    var body = Object.assign({}, input, { algorithm: 'HCA' });
+  function handleRunCompare() {
+    setCompareState('loading');
+    // 30 paired trials of BA + HCA at default maxIterations (5000 each
+    // unless the upstream input overrides it). This is the single
+    // entry point for the comparison flow -- one click yields tabs +
+    // overlaid graph + per-trial chart + Wilcoxon test.
+    var body = Object.assign({}, input, { trials: 30 });
+    if (!body.maxIterations && (!input.options || !input.options.maxIterations)) {
+      body.maxIterations = 5000;
+    }
 
-    fetch('/api/optimize', {
+    fetch('/api/compare', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body)
@@ -199,12 +212,12 @@ function ResultPage() {
         return res.json();
       })
       .then(function (data) {
-        setHcaResult(data);
-        setHcaState('success');
-        setActiveTab('HCA');
+        setCompareData(data);
+        setCompareState('success');
+        setActiveTab('compare');
       })
       .catch(function () {
-        setHcaState('error');
+        setCompareState('error');
       });
   }
 
@@ -217,29 +230,29 @@ function ResultPage() {
         ผลลัพธ์จากการคำนวณค่าออกแบบที่ต้นทุนต่ำสุด
       </p>
 
-      {!hcaResult && (
+      {!compareData && (
         <div className='mb-6 flex items-center gap-3'>
-          {hcaState === 'idle' && (
+          {compareState === 'idle' && (
             <button
               type='button'
-              onClick={handleRunHca}
+              onClick={handleRunCompare}
               className='px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded font-medium'
             >
               เปรียบเทียบกับ HCA
             </button>
           )}
-          {hcaState === 'loading' && (
+          {compareState === 'loading' && (
             <div className='flex items-center gap-2 text-gray-600'>
               <span className='inline-block w-4 h-4 border-2 border-orange-500 border-t-transparent rounded-full animate-spin'></span>
-              <span>กำลังคำนวณ HCA...</span>
+              <span>กำลังทดสอบ 30 รอบ × 5000 iterations... (~30-60 วินาที)</span>
             </div>
           )}
-          {hcaState === 'error' && (
+          {compareState === 'error' && (
             <div className='flex items-center gap-3'>
-              <div className='text-red-600 text-sm'>❌ คำนวณ HCA ไม่สำเร็จ</div>
+              <div className='text-red-600 text-sm'>❌ ทดสอบเปรียบเทียบไม่สำเร็จ</div>
               <button
                 type='button'
-                onClick={handleRunHca}
+                onClick={handleRunCompare}
                 className='px-3 py-1 bg-orange-500 hover:bg-orange-600 text-white rounded text-sm'
               >
                 ลองใหม่
@@ -249,7 +262,7 @@ function ResultPage() {
         </div>
       )}
 
-      {hcaResult && (
+      {compareData && (
         <div className='mb-6 border-b border-gray-200 flex'>
           <TabButton label='BA' active={activeTab === 'BA'} onClick={function () { setActiveTab('BA'); }} />
           <TabButton label='HCA' active={activeTab === 'HCA'} onClick={function () { setActiveTab('HCA'); }} />
@@ -257,8 +270,8 @@ function ResultPage() {
         </div>
       )}
 
-      {activeTab === 'compare' && hcaResult ? (
-        <ComparePanel baResult={baResult} hcaResult={hcaResult} input={input} />
+      {activeTab === 'compare' && compareData ? (
+        <ComparePanel compareData={compareData} input={input} />
       ) : (
         <ResultBlock result={activeResult || baResult} />
       )}
