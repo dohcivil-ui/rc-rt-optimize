@@ -20,6 +20,9 @@ var hca = require('../../../backend/src/hca');
 var shared = require('../../../backend/src/shared');
 var arrays = shared.initArrays();
 
+// Day 9.7: paired multi-trial comparison + Wilcoxon signed-rank.
+var statistics = require('./statistics');
+
 
 // decodeSteel -- map raw bestSteel _idx values to human-readable.
 // DB_idx: 100-104 (arrays.DB[0..4]) = 12, 16, 20, 25, 28 mm
@@ -297,7 +300,94 @@ function runOptimize(validatedParams, runOptions) {
   };
 }
 
+// runMultiTrial -- Day 9.7. Runs BA and HCA `trials` times each with
+// paired seeds (seed = trialIndex + 1 for both algorithms), then
+// summarizes the cost distributions and runs a Wilcoxon signed-rank
+// test on the paired bestCost arrays.
+//
+// The seed is injected via params.options.seed so the BA/HCA engines
+// receive a VB6-compatible deterministic RNG. We clone the validated
+// params per trial to avoid leaking state across runs.
+//
+// runOptions (optional):
+//   { trials: number (default 30, clamped to [2, 100]),
+//     maxIterations: number (forwarded to engine; default 5000) }
+//
+// Each trial runs both algorithms back to back, so wall-clock time is
+// dominated by the engine maxIterations. With the default 5000 iters
+// per algorithm * 30 trials * 2 algos, expect ~5-15s on commodity HW.
+function runMultiTrial(validatedParams, runOptions) {
+  runOptions = runOptions || {};
+  var trials = typeof runOptions.trials === 'number' ? Math.floor(runOptions.trials) : 30;
+  if (trials < 2) trials = 2;
+  if (trials > 100) trials = 100;
+
+  var maxIterations = typeof runOptions.maxIterations === 'number'
+    ? runOptions.maxIterations
+    : 5000;
+
+  var baCosts = [];
+  var hcaCosts = [];
+  var baIters = [];
+  var hcaIters = [];
+  var baRuntimes = [];
+  var hcaRuntimes = [];
+
+  var totalStart = Date.now();
+  var i;
+  for (i = 0; i < trials; i++) {
+    var seed = i + 1;
+    var pBa = Object.assign({}, validatedParams, {
+      options: Object.assign({}, validatedParams.options || {}, {
+        seed: seed,
+        maxIterations: maxIterations
+      })
+    });
+    var pHca = Object.assign({}, validatedParams, {
+      options: Object.assign({}, validatedParams.options || {}, {
+        seed: seed,
+        maxIterations: maxIterations
+      })
+    });
+
+    var rBa = runOptimize(pBa, { algorithm: 'BA' });
+    var rHca = runOptimize(pHca, { algorithm: 'HCA' });
+
+    baCosts.push(rBa.bestCost);
+    hcaCosts.push(rHca.bestCost);
+    baIters.push(rBa.bestIteration);
+    hcaIters.push(rHca.bestIteration);
+    baRuntimes.push(rBa.runtime_ms);
+    hcaRuntimes.push(rHca.runtime_ms);
+  }
+  var totalRuntime = Date.now() - totalStart;
+
+  var baStats = statistics.descriptiveStats(baCosts);
+  var hcaStats = statistics.descriptiveStats(hcaCosts);
+  var wilcoxon = statistics.wilcoxonSignedRank(baCosts, hcaCosts);
+
+  return {
+    trials: trials,
+    maxIterations: maxIterations,
+    runtime_ms: totalRuntime,
+    ba: {
+      costs: baCosts,
+      iterations: baIters,
+      runtimes_ms: baRuntimes,
+      stats: baStats
+    },
+    hca: {
+      costs: hcaCosts,
+      iterations: hcaIters,
+      runtimes_ms: hcaRuntimes,
+      stats: hcaStats
+    },
+    wilcoxon: wilcoxon
+  };
+}
+
 module.exports = {
   runOptimize: runOptimize,
+  runMultiTrial: runMultiTrial,
   buildVerification: buildVerification
 };

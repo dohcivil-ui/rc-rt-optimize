@@ -13,6 +13,7 @@ require('dns').setDefaultResultOrder('ipv4first');
 var express = require('express');
 var healthRouter = require('./routes/health');
 var optimizeRouter = require('./routes/optimize');
+var compareRouter = require('./routes/compare');
 var parseInputRouter = require('./routes/parseInput');
 var explainResultRouter = require('./routes/explainResult');
 var app = express();
@@ -29,6 +30,8 @@ app.get('/', function (req, res) {
 app.use('/api/health', healthRouter);
 // BA optimization endpoint.
 app.use('/api/optimize', optimizeRouter);
+// Day 9.7: 30-trial BA-vs-HCA paired comparison endpoint.
+app.use('/api/compare', compareRouter);
 // Claude AI-assisted parse endpoint. Day 1 returns a fixed mock;
 // Day 2 will swap in a real Claude SDK call via tool use.
 app.use('/api/parse-input', parseInputRouter);

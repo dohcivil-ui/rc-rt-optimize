@@ -5,7 +5,7 @@
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
-    "test": "node test/health.test.js && node test/optimize.test.js && node test/optimize.hca.test.js && node test/verification.test.js && node test/parseInput.test.js && node test/parseInput.claude.test.js && node test/explainResult.claude.test.js"
+    "test": "node test/health.test.js && node test/optimize.test.js && node test/optimize.hca.test.js && node test/verification.test.js && node test/statistics.test.js && node test/parseInput.test.js && node test/parseInput.claude.test.js && node test/explainResult.claude.test.js"
   },
   "engines": {
     "node": ">=18.0.0"
