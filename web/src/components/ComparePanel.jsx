@@ -26,6 +26,19 @@ function fmtNum2(v) {
   });
 }
 
+function fmtNum1(v) {
+  if (typeof v !== 'number' || !isFinite(v)) return '-';
+  return Number(v).toLocaleString('th-TH', {
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1
+  });
+}
+
+function fmtInt(v) {
+  if (typeof v !== 'number' || !isFinite(v)) return '-';
+  return Math.round(v).toLocaleString('th-TH');
+}
+
 function fmtP(v) {
   if (typeof v !== 'number' || !isFinite(v)) return '-';
   return v.toFixed(4);
@@ -80,9 +93,11 @@ function mergeHistories(baHist, hcaHist) {
 // Inline SVG boxplot. Draws two side-by-side box-whisker plots (BA, HCA)
 // scaled to a common y-axis. Outliers are not detected separately;
 // whiskers run from min to max so the full range is visible.
+// `axisLabel` controls the rotated y-axis caption.
 function BoxPlotSvg(props) {
   var baStats = props.baStats;
   var hcaStats = props.hcaStats;
+  var axisLabel = props.axisLabel || 'Value';
   if (!baStats || !hcaStats) return null;
 
   var width = 480;
@@ -160,7 +175,7 @@ function BoxPlotSvg(props) {
       })}
       {/* Y-axis label */}
       <text x={20} y={marginTop + plotH / 2} textAnchor='middle' fontSize='12' fill='#4b5563' transform={'rotate(-90 20 ' + (marginTop + plotH / 2) + ')'}>
-        Cost (Baht/m)
+        {axisLabel}
       </text>
       {/* Boxes */}
       {renderBox(baStats, baX, BA_COLOR, 'BA')}
@@ -169,77 +184,146 @@ function BoxPlotSvg(props) {
   );
 }
 
+// Day 9.7-fix: caption focuses on iteration-speed hypothesis. Cost is
+// reported as a confirmation that both algorithms find the same answer.
 function buildCaption(statsResult) {
   if (!statsResult) return '';
-  var ba = statsResult.ba.stats;
-  var hca = statsResult.hca.stats;
+  var ba = statsResult.ba.iterStats;
+  var hca = statsResult.hca.iterStats;
   var w = statsResult.wilcoxon;
   var trials = statsResult.trials;
 
   var caption = 'จากการทดสอบ ' + trials + ' รอบ ';
-  caption += 'BA ได้ต้นทุนเฉลี่ย ' + ba.mean.toFixed(2) + ' \u00B1 ' + ba.std.toFixed(2) + ' บาท/m, ';
-  caption += 'HCA ได้ต้นทุนเฉลี่ย ' + hca.mean.toFixed(2) + ' \u00B1 ' + hca.std.toFixed(2) + ' บาท/m. ';
+  caption += 'BA พบคำตอบที่ iteration เฉลี่ย ' + fmtNum1(ba.mean) + ' \u00B1 ' + fmtNum1(ba.std) + ' รอบ ';
+  caption += 'ส่วน HCA ใช้ ' + fmtNum1(hca.mean) + ' \u00B1 ' + fmtNum1(hca.std) + ' รอบ ';
 
   if (w.pValue < 0.05) {
-    var better = ba.mean < hca.mean ? 'BA' : 'HCA';
-    caption += better + ' ให้ผลดีกว่าอย่างมีนัยสำคัญทางสถิติ ';
-    caption += '(Wilcoxon p = ' + fmtP(w.pValue) + ')';
+    if (ba.mean < hca.mean) {
+      caption += '\u2192 BA พบคำตอบเร็วกว่า HCA อย่างมีนัยสำคัญทางสถิติ ';
+    } else {
+      caption += '\u2192 HCA พบคำตอบเร็วกว่า BA อย่างมีนัยสำคัญทางสถิติ ';
+    }
+    caption += '(Wilcoxon one-sided p = ' + fmtP(w.pValue) + ')';
   } else {
-    caption += 'ทั้งสองอัลกอริทึมไม่แตกต่างอย่างมีนัยสำคัญ ';
-    caption += '(Wilcoxon p = ' + fmtP(w.pValue) + ')';
+    caption += '\u2192 ไม่สามารถสรุปได้ว่าอัลกอริทึมใดเร็วกว่ากัน ';
+    caption += '(Wilcoxon one-sided p = ' + fmtP(w.pValue) + ')';
   }
   return caption;
+}
+
+function IterStatsBlock(props) {
+  var label = props.label;
+  var stats = props.stats;
+  var color = props.color;
+  var isBA = props.isBA;
+  var border = isBA ? 'border-blue-200 bg-blue-50' : 'border-orange-200 bg-orange-50';
+  var headerCls = isBA ? 'text-blue-800' : 'text-orange-700';
+  void color;
+  return (
+    <div className={'p-3 rounded border ' + border}>
+      <div className={'font-bold mb-1 ' + headerCls}>{label}</div>
+      <div>mean = {fmtNum1(stats.mean)} {'\u00B1'} {fmtNum1(stats.std)} รอบ</div>
+      <div>median = {fmtNum1(stats.median)}</div>
+      <div>min = {fmtInt(stats.min)}, max = {fmtInt(stats.max)}</div>
+      <div>Q1 = {fmtNum1(stats.q1)}, Q3 = {fmtNum1(stats.q3)}</div>
+    </div>
+  );
+}
+
+function CostConfirmRow(props) {
+  var ba = props.baCostStats;
+  var hca = props.hcaCostStats;
+  var sameAnswer = Math.abs(ba.mean - hca.mean) < 1e-6 && ba.std < 1e-6 && hca.std < 1e-6;
+  return (
+    <div className='p-4 bg-gray-50 rounded-lg border border-gray-200 space-y-2'>
+      <h4 className='font-bold text-gray-800'>ต้นทุน (ข้อมูลเสริม — ยืนยันว่าได้คำตอบเดียวกัน)</h4>
+      <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm'>
+        <div className='p-3 rounded border border-blue-200 bg-blue-50'>
+          <div className='font-bold text-blue-800 mb-1'>BA</div>
+          <div>{fmtNum2(ba.mean)} {'\u00B1'} {fmtNum2(ba.std)} บาท/m</div>
+        </div>
+        <div className='p-3 rounded border border-orange-200 bg-orange-50'>
+          <div className='font-bold text-orange-700 mb-1'>HCA</div>
+          <div>{fmtNum2(hca.mean)} {'\u00B1'} {fmtNum2(hca.std)} บาท/m</div>
+        </div>
+      </div>
+      <div className={sameAnswer ? 'text-green-600 text-sm' : 'text-amber-700 text-sm'}>
+        {sameAnswer
+          ? '✅ ทั้งสองอัลกอริทึมหาคำตอบที่ต้นทุนเท่ากัน'
+          : 'ค่าต้นทุนต่างกันเล็กน้อยระหว่าง trials (อาจเกิดจาก local optima ต่างกัน)'}
+      </div>
+    </div>
+  );
 }
 
 function StatsSection(props) {
   var data = props.data;
   if (!data) return null;
 
-  var ba = data.ba.stats;
-  var hca = data.hca.stats;
+  var baIter = data.ba.iterStats;
+  var hcaIter = data.hca.iterStats;
   var w = data.wilcoxon;
   var significant = w.pValue < 0.05;
+  var baFaster = baIter.mean < hcaIter.mean;
+
+  var verdictNode;
+  if (significant && baFaster) {
+    verdictNode = (
+      <div className='text-orange-600 font-bold'>
+        ⚡ BA พบคำตอบเร็วกว่า HCA อย่างมีนัยสำคัญ (p &lt; 0.05)
+      </div>
+    );
+  } else if (significant && !baFaster) {
+    verdictNode = (
+      <div className='text-red-600 font-bold'>
+        ⚠️ HCA พบคำตอบเร็วกว่า BA อย่างมีนัยสำคัญ (p &lt; 0.05) — ผิดสมมุติฐาน
+      </div>
+    );
+  } else {
+    verdictNode = (
+      <div className='text-gray-600'>
+        ➖ ไม่แตกต่างอย่างมีนัยสำคัญ (p &ge; 0.05)
+      </div>
+    );
+  }
 
   return (
-    <div className='mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200 space-y-4'>
-      <h3 className='font-bold text-gray-800'>
-        ทดสอบทางสถิติ ({data.trials} trials, Wilcoxon Signed-Rank Test)
-      </h3>
-
-      <div className='bg-white rounded border border-gray-200 p-3'>
-        <BoxPlotSvg baStats={ba} hcaStats={hca} />
-      </div>
-
-      <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm'>
-        <div className='p-3 rounded border border-blue-200 bg-blue-50'>
-          <div className='font-bold text-blue-800 mb-1'>BA</div>
-          <div>mean = {fmtNum2(ba.mean)} {'\u00B1'} {fmtNum2(ba.std)} บาท/m</div>
-          <div>median = {fmtNum2(ba.median)}</div>
-          <div>min = {fmtNum2(ba.min)}, max = {fmtNum2(ba.max)}</div>
-          <div>Q1 = {fmtNum2(ba.q1)}, Q3 = {fmtNum2(ba.q3)}</div>
+    <div className='mt-6 space-y-4'>
+      <div className='p-4 bg-gray-50 rounded-lg border border-gray-200 space-y-4'>
+        <div>
+          <h3 className='font-bold text-gray-800'>
+            ทดสอบประสิทธิภาพอัลกอริทึม ({data.trials} trials)
+          </h3>
+          <div className='text-xs text-gray-600 mt-1'>
+            สมมุติฐาน: BA พบคำตอบเร็วกว่า HCA &middot; Wilcoxon Signed-Rank Test (one-sided)
+          </div>
         </div>
-        <div className='p-3 rounded border border-orange-200 bg-orange-50'>
-          <div className='font-bold text-orange-700 mb-1'>HCA</div>
-          <div>mean = {fmtNum2(hca.mean)} {'\u00B1'} {fmtNum2(hca.std)} บาท/m</div>
-          <div>median = {fmtNum2(hca.median)}</div>
-          <div>min = {fmtNum2(hca.min)}, max = {fmtNum2(hca.max)}</div>
-          <div>Q1 = {fmtNum2(hca.q1)}, Q3 = {fmtNum2(hca.q3)}</div>
+
+        <div className='bg-white rounded border border-gray-200 p-3'>
+          <div className='text-sm font-semibold text-gray-700 mb-2'>
+            การกระจายของรอบที่พบคำตอบ (Iteration Distribution)
+          </div>
+          <BoxPlotSvg baStats={baIter} hcaStats={hcaIter} axisLabel='Iteration (รอบ)' />
+        </div>
+
+        <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm'>
+          <IterStatsBlock label='BA' stats={baIter} color={BA_COLOR} isBA={true} />
+          <IterStatsBlock label='HCA' stats={hcaIter} color={HCA_COLOR} isBA={false} />
+        </div>
+
+        <div className='text-sm text-gray-700'>
+          Wilcoxon (one-sided, BA &lt; HCA) {' '}
+          W = {Math.round(w.W)}, z = {fmtNum2(w.z)}, p = {fmtP(w.pValue)}, n = {w.n}
+        </div>
+
+        {verdictNode}
+
+        <div className='text-sm text-gray-700 italic'>
+          {buildCaption(data)}
         </div>
       </div>
 
-      <div className='text-sm text-gray-700'>
-        Wilcoxon W = {Math.round(w.W)}, z = {fmtNum2(w.z)}, p = {fmtP(w.pValue)}, n = {w.n}
-      </div>
-
-      <div className={significant ? 'text-orange-600 font-bold' : 'text-green-600 font-bold'}>
-        {significant
-          ? '⚡ แตกต่างอย่างมีนัยสำคัญ (p < 0.05)'
-          : '✅ ไม่แตกต่างอย่างมีนัยสำคัญ (p ≥ 0.05)'}
-      </div>
-
-      <div className='text-sm text-gray-700 italic'>
-        {buildCaption(data)}
-      </div>
+      <CostConfirmRow baCostStats={data.ba.costStats} hcaCostStats={data.hca.costStats} />
     </div>
   );
 }

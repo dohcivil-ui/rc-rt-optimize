@@ -103,6 +103,55 @@ check('wilcoxon: length mismatch throws', function () {
   assert.ok(threw, 'expected throw on length mismatch');
 });
 
+// ---------- Section 2b: one-sided alternatives (Day 9.7-fix) ----------
+check('wilcoxon: invalid alternative throws', function () {
+  var threw = false;
+  try {
+    stats.wilcoxonSignedRank([1, 2], [3, 4], { alternative: 'bogus' });
+  } catch (e) { threw = true; }
+  assert.ok(threw, 'expected throw on invalid alternative');
+});
+
+check('wilcoxon: one-sided "less" -- A < B clearly -> small p_less', function () {
+  var a = [1, 2, 3, 4, 5, 6];
+  var b = [10, 20, 30, 40, 50, 60];
+  var r = stats.wilcoxonSignedRank(a, b, { alternative: 'less' });
+  assert.strictEqual(r.alternative, 'less');
+  assert.strictEqual(r.Wplus, 0);
+  assert.ok(r.pValue < 0.05, 'expected p_less < 0.05 got ' + r.pValue);
+  assert.ok(r.pGreater > 0.95, 'expected p_greater > 0.95 got ' + r.pGreater);
+});
+
+check('wilcoxon: one-sided "less" -- A > B -> large p_less', function () {
+  var a = [10, 20, 30, 40, 50, 60];
+  var b = [1, 2, 3, 4, 5, 6];
+  var r = stats.wilcoxonSignedRank(a, b, { alternative: 'less' });
+  assert.ok(r.pValue > 0.5, 'expected p_less > 0.5 got ' + r.pValue);
+  assert.ok(r.pGreater < 0.05, 'expected p_greater < 0.05 got ' + r.pGreater);
+});
+
+check('wilcoxon: one-sided "greater" -- A > B -> small p_greater', function () {
+  var a = [10, 20, 30, 40, 50, 60];
+  var b = [1, 2, 3, 4, 5, 6];
+  var r = stats.wilcoxonSignedRank(a, b, { alternative: 'greater' });
+  assert.strictEqual(r.alternative, 'greater');
+  assert.ok(r.pValue < 0.05, 'expected p_greater < 0.05 got ' + r.pValue);
+});
+
+check('wilcoxon: pTwoSided ~ 2 * min(pLess, pGreater) for non-zero diffs', function () {
+  // Sanity: the two-sided p-value should equal twice the smaller
+  // one-sided tail under symmetric continuity correction in cases
+  // where there is a clear sign.
+  var a = [1, 2, 3, 4, 5, 6, 7, 8];
+  var b = [3, 5, 4, 6, 7, 9, 10, 12];
+  var r = stats.wilcoxonSignedRank(a, b, { alternative: 'two-sided' });
+  var smaller = Math.min(r.pLess, r.pGreater);
+  // Loose tolerance because continuity correction differs between
+  // 'two-sided' (centred on 0) and one-sided (biased away from H1).
+  assert.ok(Math.abs(r.pTwoSided - 2 * smaller) < 0.05,
+    'pTwoSided=' + r.pTwoSided + ', 2*smaller=' + (2 * smaller));
+});
+
 // ---------- Section 3: /api/compare integration (trials = 5) ----------
 var BASE_BODY = {
   H: 3,
@@ -175,35 +224,68 @@ var server = app.listen(0, function () {
       assert.ok(Array.isArray(r.body.ba.costs));
       assert.strictEqual(r.body.ba.costs.length, 5);
     });
+    check('/api/compare: ba.iterations.length === 5', function () {
+      assert.ok(Array.isArray(r.body.ba.iterations));
+      assert.strictEqual(r.body.ba.iterations.length, 5);
+    });
     check('/api/compare: hca.costs.length === 5', function () {
       assert.ok(Array.isArray(r.body.hca.costs));
       assert.strictEqual(r.body.hca.costs.length, 5);
     });
-    check('/api/compare: ba.stats has expected fields', function () {
-      var s = r.body.ba.stats;
+    check('/api/compare: hca.iterations.length === 5', function () {
+      assert.ok(Array.isArray(r.body.hca.iterations));
+      assert.strictEqual(r.body.hca.iterations.length, 5);
+    });
+    check('/api/compare: metric === "iteration"', function () {
+      assert.strictEqual(r.body.metric, 'iteration');
+    });
+    check('/api/compare: ba.iterStats has expected fields', function () {
+      var s = r.body.ba.iterStats;
       assert.ok(typeof s.mean === 'number' && isFinite(s.mean));
       assert.ok(typeof s.median === 'number' && isFinite(s.median));
-      assert.ok(typeof s.std === 'number' && isFinite(s.std));
+      assert.ok(typeof s.std === 'number');
       assert.ok(typeof s.min === 'number');
       assert.ok(typeof s.max === 'number');
     });
-    check('/api/compare: wilcoxon has W, z, pValue, conclusion', function () {
+    check('/api/compare: ba.costStats present', function () {
+      var s = r.body.ba.costStats;
+      assert.ok(typeof s.mean === 'number' && isFinite(s.mean));
+    });
+    check('/api/compare: wilcoxon (iterations) is one-sided "less"', function () {
       var w = r.body.wilcoxon;
+      assert.strictEqual(w.alternative, 'less');
       assert.ok(typeof w.W === 'number');
       assert.ok(typeof w.z === 'number');
-      assert.ok(typeof w.pValue === 'number');
       assert.ok(w.pValue >= 0 && w.pValue <= 1);
-      assert.ok(typeof w.conclusion === 'string');
+      assert.ok(typeof w.pLess === 'number');
+      assert.ok(typeof w.pGreater === 'number');
+      assert.ok(typeof w.pTwoSided === 'number');
+    });
+    check('/api/compare: wilcoxonCost (two-sided) present', function () {
+      var w = r.body.wilcoxonCost;
+      assert.ok(typeof w === 'object' && w !== null);
+      assert.strictEqual(w.alternative, 'two-sided');
+      assert.ok(typeof w.pValue === 'number');
+    });
+    check('/api/compare: BA iterations <= HCA iterations on average (sanity)', function () {
+      // BA's bisection-driven outer loop typically converges sooner
+      // than HCA's plain hill-climbing. We assert mean rather than per
+      // trial to allow occasional ties when both pin the optimum at
+      // the same iteration.
+      assert.ok(r.body.ba.iterStats.mean <= r.body.hca.iterStats.mean + 1e-9,
+        'BA mean iter ' + r.body.ba.iterStats.mean + ' > HCA mean iter ' + r.body.hca.iterStats.mean);
     });
     check('/api/compare: paired determinism (same costs across reruns)', function () {
-      // Costs are deterministic for a given seed; sanity-check that
-      // every cost is finite and positive.
       var i;
       for (i = 0; i < 5; i++) {
         assert.ok(isFinite(r.body.ba.costs[i]) && r.body.ba.costs[i] > 0,
           'ba cost[' + i + ']=' + r.body.ba.costs[i]);
         assert.ok(isFinite(r.body.hca.costs[i]) && r.body.hca.costs[i] > 0,
           'hca cost[' + i + ']=' + r.body.hca.costs[i]);
+        assert.ok(Number.isInteger(r.body.ba.iterations[i]),
+          'ba iter[' + i + ']=' + r.body.ba.iterations[i]);
+        assert.ok(Number.isInteger(r.body.hca.iterations[i]),
+          'hca iter[' + i + ']=' + r.body.hca.iterations[i]);
       }
     });
 

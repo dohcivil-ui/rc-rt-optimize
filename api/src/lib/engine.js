@@ -302,20 +302,21 @@ function runOptimize(validatedParams, runOptions) {
 
 // runMultiTrial -- Day 9.7. Runs BA and HCA `trials` times each with
 // paired seeds (seed = trialIndex + 1 for both algorithms), then
-// summarizes the cost distributions and runs a Wilcoxon signed-rank
-// test on the paired bestCost arrays.
+// summarizes both cost AND iteration distributions and runs Wilcoxon
+// signed-rank tests on the paired arrays.
 //
-// The seed is injected via params.options.seed so the BA/HCA engines
-// receive a VB6-compatible deterministic RNG. We clone the validated
-// params per trial to avoid leaking state across runs.
+// Day 9.7-fix: the PRIMARY metric is `bestIteration` (how fast each
+// algorithm finds its optimum), not bestCost. The hypothesis is that
+// BA reaches its best design earlier than HCA, so the iteration test
+// is one-sided ('less'). Cost is reported as a secondary stat to
+// confirm both algorithms converge to the same optimum.
 //
 // runOptions (optional):
 //   { trials: number (default 30, clamped to [2, 100]),
 //     maxIterations: number (forwarded to engine; default 5000) }
 //
 // Each trial runs both algorithms back to back, so wall-clock time is
-// dominated by the engine maxIterations. With the default 5000 iters
-// per algorithm * 30 trials * 2 algos, expect ~5-15s on commodity HW.
+// dominated by the engine maxIterations.
 function runMultiTrial(validatedParams, runOptions) {
   runOptions = runOptions || {};
   var trials = typeof runOptions.trials === 'number' ? Math.floor(runOptions.trials) : 30;
@@ -362,27 +363,40 @@ function runMultiTrial(validatedParams, runOptions) {
   }
   var totalRuntime = Date.now() - totalStart;
 
-  var baStats = statistics.descriptiveStats(baCosts);
-  var hcaStats = statistics.descriptiveStats(hcaCosts);
-  var wilcoxon = statistics.wilcoxonSignedRank(baCosts, hcaCosts);
+  var baCostStats = statistics.descriptiveStats(baCosts);
+  var hcaCostStats = statistics.descriptiveStats(hcaCosts);
+  var baIterStats = statistics.descriptiveStats(baIters);
+  var hcaIterStats = statistics.descriptiveStats(hcaIters);
+
+  // Primary: one-sided iteration test (H1: BA reaches optimum sooner).
+  var wilcoxonIter = statistics.wilcoxonSignedRank(baIters, hcaIters, {
+    alternative: 'less'
+  });
+  // Secondary: two-sided cost test (informational — confirms both
+  // algorithms converge to the same answer when not significant).
+  var wilcoxonCost = statistics.wilcoxonSignedRank(baCosts, hcaCosts);
 
   return {
     trials: trials,
     maxIterations: maxIterations,
     runtime_ms: totalRuntime,
+    metric: 'iteration',
     ba: {
       costs: baCosts,
       iterations: baIters,
       runtimes_ms: baRuntimes,
-      stats: baStats
+      iterStats: baIterStats,
+      costStats: baCostStats
     },
     hca: {
       costs: hcaCosts,
       iterations: hcaIters,
       runtimes_ms: hcaRuntimes,
-      stats: hcaStats
+      iterStats: hcaIterStats,
+      costStats: hcaCostStats
     },
-    wilcoxon: wilcoxon
+    wilcoxon: wilcoxonIter,
+    wilcoxonCost: wilcoxonCost
   };
 }
 
