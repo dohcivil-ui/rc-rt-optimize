@@ -4,7 +4,7 @@
   "description": "REST API wrapper for the rc-rt-optimize backend engine",
   "main": "src/server.js",
   "scripts": {
-    "start": "node src/server.js",
+    "start": "node --env-file=.env src/server.js",
     "test": "node test/health.test.js && node test/optimize.test.js && node test/optimize.hca.test.js && node test/verification.test.js && node test/statistics.test.js && node test/chat.test.js && node test/parseInput.test.js && node test/parseInput.claude.test.js && node test/explainResult.claude.test.js"
   },
   "engines": {
