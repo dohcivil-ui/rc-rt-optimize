@@ -28,7 +28,7 @@ var TOOL_INPUT_SCHEMA = {
         },
         H1: {
           type: 'number',
-          description: 'Soil depth above heel in meters. Range 0 to H. Default 0.5 if user does not specify.'
+          description: 'Soil depth above heel in meters. Range 0 to H. Default 1.2 if user does not specify.'
         },
         gamma_soil: {
           type: 'number',

@@ -93,7 +93,7 @@ var EXAMPLE_RESULT_HIGH_QUALITY = {
     }
   },
   input: {
-    H: 3, H1: 0.5,
+    H: 3, H1: 1.2,
     gamma_soil: 1.8, gamma_concrete: 2.4,
     phi: 30, mu: 0.5, qa: 20, cover: 0.075,
     material: { fy: 4000, fc: 240, concretePrice: 2500, steelPrice: 28 }
@@ -124,7 +124,7 @@ var EXAMPLE_RESULT_TALL_WALL = {
     }
   },
   input: {
-    H: 4, H1: 0.5,
+    H: 4, H1: 1.2,
     gamma_soil: 1.9, gamma_concrete: 2.4,
     phi: 32, mu: 0.5, qa: 25, cover: 0.075,
     material: { fy: 4000, fc: 280, concretePrice: 2500, steelPrice: 28 }

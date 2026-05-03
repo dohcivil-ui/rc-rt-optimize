@@ -25,7 +25,7 @@ var SYSTEM_PROMPT = [
   '- Prices: Thai baht (THB). concretePrice per m^3, steelPrice per kg.',
   '',
   'DEFAULTS to apply when user does not specify a field:',
-  '- H1 (soil above heel): 0.5 m',
+  '- H1 (soil above heel): 1.2 m',
   '- gamma_soil: 1.8 t/m^3 (normal soil)',
   '- gamma_concrete: 2.4 t/m^3 (Thai standard RC)',
   '- phi: 30 degrees (normal soil)',
@@ -89,7 +89,7 @@ var FEW_SHOT_MESSAGES = [
         input: {
           parsed: {
             H: 4,
-            H1: 0.5,
+            H1: 1.2,
             gamma_soil: 1.9,
             gamma_concrete: 2.4,
             phi: 32,
@@ -130,7 +130,7 @@ var FEW_SHOT_MESSAGES = [
         input: {
           parsed: {
             H: 3.5,
-            H1: 0.5,
+            H1: 1.2,
             gamma_soil: 1.8,
             gamma_concrete: 2.4,
             phi: 30,
@@ -171,7 +171,7 @@ var FEW_SHOT_MESSAGES = [
         input: {
           parsed: {
             H: 5,
-            H1: 0.5,
+            H1: 1.2,
             gamma_soil: 1.8,
             gamma_concrete: 2.4,
             phi: 30,
