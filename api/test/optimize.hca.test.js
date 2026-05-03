@@ -62,7 +62,7 @@ function runSteps(steps, doneAll) {
 
 var BASE_BODY = {
   H: 3,
-  H1: 0.5,
+  H1: 1.2,
   gamma_soil: 1.8,
   gamma_concrete: 2.4,
   phi: 30,

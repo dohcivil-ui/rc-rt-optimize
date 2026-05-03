@@ -64,7 +64,7 @@ function getRaw(port, path, callback) {
 // Baseline valid body. Individual tests clone and mutate it.
 var BASE_BODY = {
   H: 3,
-  H1: 0.5,
+  H1: 1.2,
   gamma_soil: 1.8,
   gamma_concrete: 2.4,
   phi: 30,
@@ -116,8 +116,8 @@ var server = app.listen(0, function () {
         assert.ok(Math.abs(r.body.bestCost - 2992.4507519999997) < 1e-9,
           'got ' + r.body.bestCost);
       });
-      check('T1: bestIteration === 283', function () {
-        assert.strictEqual(r.body && r.body.bestIteration, 283);
+      check('T1: bestIteration === 53', function () {
+        assert.strictEqual(r.body && r.body.bestIteration, 53);
       });
       check('T1: algorithm === "ba"', function () {
         assert.strictEqual(r.body && r.body.algorithm, 'ba');
@@ -146,13 +146,13 @@ var server = app.listen(0, function () {
       check('T2: status === 200', function () {
         assert.strictEqual(r.status, 200, 'status ' + r.status + ', body: ' + r.raw);
       });
-      check('T2: bestCost === 4812.973376', function () {
+      check('T2: bestCost === 4189.198976', function () {
         assert.ok(r.body && typeof r.body.bestCost === 'number');
-        assert.ok(Math.abs(r.body.bestCost - 4812.973376) < 1e-9,
+        assert.ok(Math.abs(r.body.bestCost - 4189.198976) < 1e-9,
           'got ' + r.body.bestCost);
       });
-      check('T2: bestIteration === 523', function () {
-        assert.strictEqual(r.body && r.body.bestIteration, 523);
+      check('T2: bestIteration === 447', function () {
+        assert.strictEqual(r.body && r.body.bestIteration, 447);
       });
       done();
     });

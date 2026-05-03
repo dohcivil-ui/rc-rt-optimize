@@ -157,7 +157,7 @@ var FAKE_RESULT_INPUT = {
     }
   },
   input: {
-    H: 3, H1: 0.5,
+    H: 3, H1: 1.2,
     gamma_soil: 1.8, gamma_concrete: 2.4,
     phi: 30, mu: 0.5, qa: 20, cover: 0.075,
     material: { fy: 4000, fc: 240, concretePrice: 2500, steelPrice: 28 }
