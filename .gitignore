@@ -48,3 +48,6 @@ RCOPT_*.md
 /*.png
 /*.jpg
 /*.jpeg
+
+# Day 10 capture artifacts (HCA/BA ground truth raw output)
+tmp/
