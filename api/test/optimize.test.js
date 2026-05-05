@@ -322,8 +322,42 @@ var server = app.listen(0, function () {
     });
   }
 
+  function test11(done) {
+    var body = clone(BASE_BODY);
+    postJson(port, '/api/optimize', body, function (err, r) {
+      if (err) { fail('T11: optimize request failed', err); done(); return; }
+
+      check('T11: bestSteelDecoded has stem/toe/heel with DB size + spacing_cm', function () {
+        var d = r.body.bestSteelDecoded;
+        assert.ok(d && typeof d === 'object', 'no bestSteelDecoded');
+        var keys = ['stem', 'toe', 'heel'];
+        var i;
+        for (i = 0; i < keys.length; i++) {
+          var k = keys[i];
+          assert.ok(d[k] && typeof d[k] === 'object', 'missing ' + k);
+          assert.ok(typeof d[k].size === 'string' && d[k].size.indexOf('DB') === 0,
+            k + '.size not DB-prefixed: ' + d[k].size);
+          assert.strictEqual(typeof d[k].spacing_cm, 'number',
+            k + '.spacing_cm not number');
+        }
+      });
+
+      check('T11: costHistorySampled is non-empty array of {iter, cost}', function () {
+        var h = r.body.costHistorySampled;
+        assert.ok(Array.isArray(h) && h.length > 0,
+          'empty/missing costHistorySampled');
+        var last = h[h.length - 1];
+        assert.strictEqual(typeof last.iter, 'number');
+        assert.strictEqual(typeof last.cost, 'number');
+        assert.ok(isFinite(last.cost), 'last.cost not finite');
+      });
+
+      done();
+    });
+  }
+
   runSteps(
-    [test1, test2, test3, test4, test5, test6, test7, test8, test9, test10],
+    [test1, test2, test3, test4, test5, test6, test7, test8, test9, test10, test11],
     function () {
       server.close(function () {
         console.log('');
